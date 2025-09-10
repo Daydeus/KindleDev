@@ -2,6 +2,7 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <glib-2.0/glib.h>
 #include <cstdlib>
+#include "example.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -31,7 +32,7 @@ void SetBackgroundColor(GtkWidget *widget, enum Color colorName);
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
-
+extern const guint8 example[];
 static GtkWindow *applicationMain;
 static GtkButton *buttonQuit;
 
@@ -41,11 +42,22 @@ int main(int argc, char *argv[])
 {
     gtk_init(&argc, &argv);
 
-    // Initialize static Gtk widgets.
+    // Initialize global Gtk widgets.
     applicationMain = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
     buttonQuit = GTK_BUTTON(gtk_button_new_with_label("Quit"));
 
-    gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(buttonQuit));
+    // Initialize non-global Gtk widgets.
+    GtkVBox *vbox = GTK_VBOX(gtk_vbox_new(TRUE, 0));
+    GError * error = NULL;
+    GdkPixbuf *pixbufExample = gdk_pixbuf_new_from_inline(-1, example, FALSE, &error);
+    pixbufExample = gdk_pixbuf_scale_simple(pixbufExample, 64, 64, GDK_INTERP_NEAREST);
+    GtkImage *imageExample = GTK_IMAGE(gtk_image_new_from_pixbuf(pixbufExample));
+
+
+    // Add widgets to containers.
+    gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(vbox));
+    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(imageExample), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(buttonQuit), FALSE, FALSE, 0);
 
     // Exit the application when the main window is closed or the quit button pressed.
     g_signal_connect(applicationMain, "destroy", G_CALLBACK(gtk_main_quit), NULL);
@@ -59,6 +71,9 @@ int main(int argc, char *argv[])
     gtk_widget_show_all(GTK_WIDGET(applicationMain));
 
     gtk_main();
+
+    // Free memory used by GdkPixbuf.
+    g_object_unref(pixbufExample);
 
     return 0;
 }
