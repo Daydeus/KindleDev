@@ -9,6 +9,9 @@
 // ------------------------------------------------------------------------------------------------
 
 //#define KINDLE_HF_BUILD 1
+#define SCALE_SIZE 48
+#define VIEWPORT_WIDTH  25
+#define VIEWPORT_HEIGHT 15
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -28,6 +31,8 @@ enum Color
 // ------------------------------------------------------------------------------------------------
 extern const guint8 example[];
 static GtkWindow *applicationMain;
+static GtkTable *viewPort;
+static GtkImage *viewPieces[VIEWPORT_HEIGHT][VIEWPORT_WIDTH];
 static GtkButton *buttonQuit;
 
 // ------------------------------------------------------------------------------------------------
@@ -35,6 +40,7 @@ static GtkButton *buttonQuit;
 // ------------------------------------------------------------------------------------------------
 
 void SetBackgroundColor(GtkWidget *widget, enum Color colorName);
+void InitViewPieces(void);
 
 // ------------------------------------------------------------------------------------------------
 // The main application loop.
@@ -44,19 +50,28 @@ int main(int argc, char *argv[])
 
     // Initialize global Gtk widgets.
     applicationMain = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
+    viewPort = GTK_TABLE(gtk_table_new(VIEWPORT_HEIGHT, VIEWPORT_WIDTH, TRUE));
+    InitViewPieces();
     buttonQuit = GTK_BUTTON(gtk_button_new_with_label("Quit"));
 
     // Initialize non-global Gtk widgets.
     GtkVBox *vbox = GTK_VBOX(gtk_vbox_new(TRUE, 0));
     GError * error = NULL;
     GdkPixbuf *pixbufExample = gdk_pixbuf_new_from_inline(-1, example, FALSE, &error);
-    pixbufExample = gdk_pixbuf_scale_simple(pixbufExample, 64, 64, GDK_INTERP_NEAREST);
-    GtkImage *imageExample = GTK_IMAGE(gtk_image_new_from_pixbuf(pixbufExample));
+    pixbufExample = gdk_pixbuf_scale_simple(pixbufExample, SCALE_SIZE, SCALE_SIZE, GDK_INTERP_NEAREST);
 
+    // Set the viewPieces to show pixbufExample.
+    for (guint y = 0; y < VIEWPORT_HEIGHT; y++)
+    {
+        for (guint x = 0; x < VIEWPORT_WIDTH; x++)
+        {
+            gtk_image_set_from_pixbuf(viewPieces[y][x], pixbufExample);
+        }
+    }
 
     // Add widgets to containers.
     gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(vbox));
-    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(imageExample), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(viewPort), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(buttonQuit), FALSE, FALSE, 0);
 
     // Exit the application when the main window is closed or the quit button pressed.
@@ -104,5 +119,20 @@ void SetBackgroundColor(GtkWidget *widget, enum Color colorName)
     if (gdk_color_parse(string, &color))
     {
         gtk_widget_modify_bg(widget, GTK_STATE_NORMAL, &color);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Initializes the viewPieces and adds them to table cells in the viewPort.
+void InitViewPieces(void)
+{
+    for (guint y = 0; y < VIEWPORT_HEIGHT; y++)
+    {
+        for (guint x = 0; x < VIEWPORT_WIDTH; x++)
+        {
+            viewPieces[y][x] = GTK_IMAGE(gtk_image_new());
+            gtk_table_attach(viewPort, GTK_WIDGET(viewPieces[y][x]), x, x+1, y, y+1,
+                             GTK_SHRINK, GTK_SHRINK, 0, 0);
+        }
     }
 }
