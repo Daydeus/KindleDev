@@ -2,7 +2,8 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <glib-2.0/glib.h>
 #include <cstdlib>
-#include "example.h"
+#include "tile_zero.h"
+#include "tile_one.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -29,7 +30,9 @@ enum Color
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
-extern const guint8 example[];
+
+extern const guint8 tile_zero[];
+extern const guint8 tile_one[];
 static GtkWindow *applicationMain;
 static GtkTable *viewPort;
 static GtkImage *viewPieces[VIEWPORT_HEIGHT][VIEWPORT_WIDTH];
@@ -57,15 +60,20 @@ int main(int argc, char *argv[])
     // Initialize non-global Gtk widgets.
     GtkVBox *vbox = GTK_VBOX(gtk_vbox_new(TRUE, 0));
     GError * error = NULL;
-    GdkPixbuf *pixbufExample = gdk_pixbuf_new_from_inline(-1, example, FALSE, &error);
-    pixbufExample = gdk_pixbuf_scale_simple(pixbufExample, SCALE_SIZE, SCALE_SIZE, GDK_INTERP_NEAREST);
+    GdkPixbuf *PixbufZero = gdk_pixbuf_new_from_inline(-1, tile_zero, FALSE, &error);
+    GdkPixbuf *PixbufOne = gdk_pixbuf_new_from_inline(-1, tile_one, FALSE, &error);
+    PixbufZero = gdk_pixbuf_scale_simple(PixbufZero, SCALE_SIZE, SCALE_SIZE, GDK_INTERP_NEAREST);
+    PixbufOne = gdk_pixbuf_scale_simple(PixbufOne, SCALE_SIZE, SCALE_SIZE, GDK_INTERP_NEAREST);
 
     // Set the viewPieces to show pixbufExample.
     for (guint y = 0; y < VIEWPORT_HEIGHT; y++)
     {
         for (guint x = 0; x < VIEWPORT_WIDTH; x++)
         {
-            gtk_image_set_from_pixbuf(viewPieces[y][x], pixbufExample);
+            if (x % 2 == 0)
+                gtk_image_set_from_pixbuf(viewPieces[y][x], PixbufZero);
+            else
+                gtk_image_set_from_pixbuf(viewPieces[y][x], PixbufOne);
         }
     }
 
@@ -87,8 +95,9 @@ int main(int argc, char *argv[])
 
     gtk_main();
 
-    // Free memory used by GdkPixbuf.
-    g_object_unref(pixbufExample);
+    // Free memory used by GdkPixbufs.
+    g_object_unref(PixbufZero);
+    g_object_unref(PixbufOne);
 
     return 0;
 }
