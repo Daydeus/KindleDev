@@ -2,6 +2,8 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <glib-2.0/glib.h>
 #include <cstdlib>
+#include <time.h>
+#include "dungeonCell.h"
 #include "viewPort.h"
 
 // ------------------------------------------------------------------------------------------------
@@ -30,6 +32,7 @@ enum Color
 
 static GtkWindow *applicationMain;
 static GtkButton *buttonQuit;
+extern TERRAIN dungeonCells[DUNGEON_WIDTH * DUNGEON_HEIGHT];
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -41,6 +44,10 @@ void SetBackgroundColor(GtkWidget *widget, enum Color colorName);
 // The main application loop.
 int main(int argc, char *argv[])
 {
+    // Randomize dungeonCells.
+    srand(time(NULL));
+    RandomizeDungeon();
+
     gtk_init(&argc, &argv);
 
     // Initialize global Gtk widgets.
@@ -62,19 +69,7 @@ int main(int argc, char *argv[])
         tiles[i] = gdk_pixbuf_scale_simple(tiles[i], SCALE_SIZE, SCALE_SIZE, GDK_INTERP_NEAREST);
     }
 
-    // Set the viewPieces to show pixbufs.
-    for (guint y = 0; y < VIEWPORT_HEIGHT; y++)
-    {
-        for (guint x = 0; x < VIEWPORT_WIDTH; x++)
-        {
-            guint index = (y * VIEWPORT_WIDTH) + x;
-
-            if (x % 2 == 0)
-                gtk_image_set_from_pixbuf(viewPieces[index], tiles[TILE_ZERO]);
-            else
-                gtk_image_set_from_pixbuf(viewPieces[index], tiles[TILE_ONE]);
-        }
-    }
+   UpdateViewPieces(viewPieces, tiles);
 
     // Add widgets to containers.
     gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(vbox));

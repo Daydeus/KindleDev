@@ -1,5 +1,5 @@
-#ifndef VIEWPORT_H
-#define VIEWPORT_H
+#ifndef DUNGEON_CELL_H
+#define DUNGEON_CELL_H
 
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
@@ -8,31 +8,32 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#define VIEWPORT_WIDTH  25
-#define VIEWPORT_HEIGHT 15
+#define DUNGEON_WIDTH  25
+#define DUNGEON_HEIGHT 15
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
 // ------------------------------------------------------------------------------------------------
 
-enum TILE
+enum TERRAIN
 {
-    TILE_ZERO,
-    TILE_ONE,
-    TILE_COUNT
+    TERRAIN_WALL,
+    TERRAIN_FLOOR,
+    TERRAIN_COUNT
 };
 
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
+extern TERRAIN dungeonCells[DUNGEON_WIDTH * DUNGEON_HEIGHT];
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-void InitViewPieces(GtkTable *viewPort, GtkImage *viewPieces[]);
-void UpdateViewPieces(GtkImage *viewPieces[], GdkPixbuf **tiles);
-const guint8* GetTileData(enum TILE tile);
+TERRAIN GetCellTerrain(guint positionX, guint positionY);
+void SetCellTerrain(guint positionX, guint positionY, TERRAIN terrain);
+void RandomizeDungeon(void);
 
-#endif // VIEWPORT_H
+#endif // DUNGEON_CELL_H
