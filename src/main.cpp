@@ -2,8 +2,7 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <glib-2.0/glib.h>
 #include <cstdlib>
-#include "tile_zero.h"
-#include "tile_one.h"
+#include "viewPort.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -11,8 +10,6 @@
 
 //#define KINDLE_HF_BUILD 1
 #define SCALE_SIZE 48
-#define VIEWPORT_WIDTH  25
-#define VIEWPORT_HEIGHT 15
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -31,11 +28,7 @@ enum Color
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern const guint8 tile_zero[];
-extern const guint8 tile_one[];
 static GtkWindow *applicationMain;
-static GtkTable *viewPort;
-static GtkImage *viewPieces[VIEWPORT_HEIGHT][VIEWPORT_WIDTH];
 static GtkButton *buttonQuit;
 
 // ------------------------------------------------------------------------------------------------
@@ -43,7 +36,6 @@ static GtkButton *buttonQuit;
 // ------------------------------------------------------------------------------------------------
 
 void SetBackgroundColor(GtkWidget *widget, enum Color colorName);
-void InitViewPieces(void);
 
 // ------------------------------------------------------------------------------------------------
 // The main application loop.
@@ -53,27 +45,32 @@ int main(int argc, char *argv[])
 
     // Initialize global Gtk widgets.
     applicationMain = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-    viewPort = GTK_TABLE(gtk_table_new(VIEWPORT_HEIGHT, VIEWPORT_WIDTH, TRUE));
-    InitViewPieces();
     buttonQuit = GTK_BUTTON(gtk_button_new_with_label("Quit"));
 
     // Initialize non-global Gtk widgets.
+    GtkTable *viewPort = GTK_TABLE(gtk_table_new(VIEWPORT_HEIGHT, VIEWPORT_WIDTH, TRUE));
+    GtkImage *viewPieces[VIEWPORT_WIDTH * VIEWPORT_HEIGHT];
+    InitViewPieces(viewPort, viewPieces);
     GtkVBox *vbox = GTK_VBOX(gtk_vbox_new(TRUE, 0));
+
+    // Initialize GdkPixbufs.
     GError * error = NULL;
-    GdkPixbuf *PixbufZero = gdk_pixbuf_new_from_inline(-1, tile_zero, FALSE, &error);
-    GdkPixbuf *PixbufOne = gdk_pixbuf_new_from_inline(-1, tile_one, FALSE, &error);
+    GdkPixbuf *PixbufZero = gdk_pixbuf_new_from_inline(-1, GetTileData(TILE_ZERO), FALSE, &error);
+    GdkPixbuf *PixbufOne = gdk_pixbuf_new_from_inline(-1, GetTileData(TILE_ONE), FALSE, &error);
     PixbufZero = gdk_pixbuf_scale_simple(PixbufZero, SCALE_SIZE, SCALE_SIZE, GDK_INTERP_NEAREST);
     PixbufOne = gdk_pixbuf_scale_simple(PixbufOne, SCALE_SIZE, SCALE_SIZE, GDK_INTERP_NEAREST);
 
-    // Set the viewPieces to show pixbufExample.
+    // Set the viewPieces to show pixbufs.
     for (guint y = 0; y < VIEWPORT_HEIGHT; y++)
     {
         for (guint x = 0; x < VIEWPORT_WIDTH; x++)
         {
+            guint index = (y * VIEWPORT_WIDTH) + x;
+
             if (x % 2 == 0)
-                gtk_image_set_from_pixbuf(viewPieces[y][x], PixbufZero);
+                gtk_image_set_from_pixbuf(viewPieces[index], PixbufZero);
             else
-                gtk_image_set_from_pixbuf(viewPieces[y][x], PixbufOne);
+                gtk_image_set_from_pixbuf(viewPieces[index], PixbufOne);
         }
     }
 
@@ -128,20 +125,5 @@ void SetBackgroundColor(GtkWidget *widget, enum Color colorName)
     if (gdk_color_parse(string, &color))
     {
         gtk_widget_modify_bg(widget, GTK_STATE_NORMAL, &color);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Initializes the viewPieces and adds them to table cells in the viewPort.
-void InitViewPieces(void)
-{
-    for (guint y = 0; y < VIEWPORT_HEIGHT; y++)
-    {
-        for (guint x = 0; x < VIEWPORT_WIDTH; x++)
-        {
-            viewPieces[y][x] = GTK_IMAGE(gtk_image_new());
-            gtk_table_attach(viewPort, GTK_WIDGET(viewPieces[y][x]), x, x+1, y, y+1,
-                             GTK_SHRINK, GTK_SHRINK, 0, 0);
-        }
     }
 }

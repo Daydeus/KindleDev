@@ -14,6 +14,7 @@ gtk_dep = dependency('gtk+-2.0')
 ####################
 sources = files(
     './src/main.cpp',
+    './src/viewPort.cpp',
     './src/tile_zero.cpp',
     './src/tile_one.cpp',
 )
