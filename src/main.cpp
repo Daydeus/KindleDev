@@ -55,10 +55,12 @@ int main(int argc, char *argv[])
 
     // Initialize GdkPixbufs.
     GError * error = NULL;
-    GdkPixbuf *PixbufZero = gdk_pixbuf_new_from_inline(-1, GetTileData(TILE_ZERO), FALSE, &error);
-    GdkPixbuf *PixbufOne = gdk_pixbuf_new_from_inline(-1, GetTileData(TILE_ONE), FALSE, &error);
-    PixbufZero = gdk_pixbuf_scale_simple(PixbufZero, SCALE_SIZE, SCALE_SIZE, GDK_INTERP_NEAREST);
-    PixbufOne = gdk_pixbuf_scale_simple(PixbufOne, SCALE_SIZE, SCALE_SIZE, GDK_INTERP_NEAREST);
+    GdkPixbuf *tiles[TILE_COUNT];
+    for (guint i = 0; i < TILE_COUNT; i++)
+    {
+        tiles[i] = gdk_pixbuf_new_from_inline(-1, GetTileData((enum TILE)i), FALSE, &error);
+        tiles[i] = gdk_pixbuf_scale_simple(tiles[i], SCALE_SIZE, SCALE_SIZE, GDK_INTERP_NEAREST);
+    }
 
     // Set the viewPieces to show pixbufs.
     for (guint y = 0; y < VIEWPORT_HEIGHT; y++)
@@ -68,9 +70,9 @@ int main(int argc, char *argv[])
             guint index = (y * VIEWPORT_WIDTH) + x;
 
             if (x % 2 == 0)
-                gtk_image_set_from_pixbuf(viewPieces[index], PixbufZero);
+                gtk_image_set_from_pixbuf(viewPieces[index], tiles[TILE_ZERO]);
             else
-                gtk_image_set_from_pixbuf(viewPieces[index], PixbufOne);
+                gtk_image_set_from_pixbuf(viewPieces[index], tiles[TILE_ONE]);
         }
     }
 
@@ -93,8 +95,10 @@ int main(int argc, char *argv[])
     gtk_main();
 
     // Free memory used by GdkPixbufs.
-    g_object_unref(PixbufZero);
-    g_object_unref(PixbufOne);
+    for (guint i = 0; i < TILE_COUNT; i++)
+    {
+        g_object_unref(tiles[i]);
+    }
 
     return 0;
 }
