@@ -23,6 +23,9 @@
 
 extern const guint8 tile_zero[];
 extern const guint8 tile_one[];
+GtkTable *viewPort = NULL;
+GtkImage *viewPieces[VIEWPORT_WIDTH * VIEWPORT_HEIGHT] = {NULL};
+GdkPixbuf *tiles[TILE_COUNT] = {NULL};
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -30,9 +33,21 @@ extern const guint8 tile_one[];
 
 
 // ------------------------------------------------------------------------------------------------
-// Initializes the viewPieces and adds them to table cells in the viewPort.
-extern void InitViewPieces(GtkTable *viewPort, GtkImage *viewPieces[])
+// Initializes the GtkTable, GdkPixbufs, and GtkImages required for the viewPort to function.
+void InitViewPort(void)
 {
+    // Initialize the viewPort GtkTable.
+    viewPort = GTK_TABLE(gtk_table_new(VIEWPORT_HEIGHT, VIEWPORT_WIDTH, TRUE));
+
+    // Load image data to Pixbufs.
+    GError * error = NULL;
+    for (guint i = 0; i < TILE_COUNT; i++)
+    {
+        tiles[i] = gdk_pixbuf_new_from_inline(-1, GetTileData((enum TILE)i), FALSE, &error);
+        tiles[i] = gdk_pixbuf_scale_simple(tiles[i], SCALE_SIZE, SCALE_SIZE, GDK_INTERP_NEAREST);
+    }
+
+    // Initialize the viewPieces GtkImage and attach to viewPort.
     for (guint y = 0; y < VIEWPORT_HEIGHT; y++)
     {
         for (guint x = 0; x < VIEWPORT_WIDTH; x++)
@@ -48,7 +63,7 @@ extern void InitViewPieces(GtkTable *viewPort, GtkImage *viewPieces[])
 
 // ------------------------------------------------------------------------------------------------
 // Changes the pixbuf the GtkImage viewPiece points to based on the contents of the dungeonCells.
-extern void UpdateViewPieces(GtkImage *viewPieces[], GdkPixbuf **tiles)
+void UpdateViewPieces(void)
 {
     for (guint y = 0; y < VIEWPORT_HEIGHT; y++)
     {
@@ -64,7 +79,7 @@ extern void UpdateViewPieces(GtkImage *viewPieces[], GdkPixbuf **tiles)
 
 // ------------------------------------------------------------------------------------------------
 // Returns the array of image data required for gdk_pixbuf_new_from_inline.
-extern const guint8* GetTileData(enum TILE tile)
+const guint8* GetTileData(enum TILE tile)
 {
     switch (tile)
     {
@@ -72,5 +87,31 @@ extern const guint8* GetTileData(enum TILE tile)
         return tile_zero;
     case TILE_ONE:
         return tile_one;
+    case TILE_COUNT:
+        return NULL;
+    }
+    return NULL;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Read image data into the GdkPixbufs tiles array.
+void LoadImagesToPixbufs(void)
+{
+    GError * error = NULL;
+    for (guint i = 0; i < TILE_COUNT; i++)
+    {
+        tiles[i] = gdk_pixbuf_new_from_inline(-1, GetTileData((enum TILE)i), FALSE, &error);
+        tiles[i] = gdk_pixbuf_scale_simple(tiles[i], SCALE_SIZE, SCALE_SIZE, GDK_INTERP_NEAREST);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Free the GdkPixbufs for the tiles array.
+void FreePixbufs(void)
+{
+    // Free memory used by GdkPixbufs.
+    for (guint i = 0; i < TILE_COUNT; i++)
+    {
+        g_object_unref(tiles[i]);
     }
 }

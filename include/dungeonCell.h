@@ -34,6 +34,6 @@ extern TERRAIN dungeonCells[DUNGEON_WIDTH * DUNGEON_HEIGHT];
 
 TERRAIN GetCellTerrain(guint positionX, guint positionY);
 void SetCellTerrain(guint positionX, guint positionY, TERRAIN terrain);
-void RandomizeDungeon(void);
+void RandomizeDungeon(GtkWidget *widget, gpointer data);
 
 #endif // DUNGEON_CELL_H

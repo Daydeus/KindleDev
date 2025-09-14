@@ -11,7 +11,6 @@
 // ------------------------------------------------------------------------------------------------
 
 //#define KINDLE_HF_BUILD 1
-#define SCALE_SIZE 48
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -31,6 +30,7 @@ enum Color
 // ------------------------------------------------------------------------------------------------
 
 static GtkWindow *applicationMain;
+static GtkButton *buttonRandomize;
 static GtkButton *buttonQuit;
 extern TERRAIN dungeonCells[DUNGEON_WIDTH * DUNGEON_HEIGHT];
 
@@ -46,38 +46,28 @@ int main(int argc, char *argv[])
 {
     // Randomize dungeonCells.
     srand(time(NULL));
-    RandomizeDungeon();
 
     gtk_init(&argc, &argv);
 
     // Initialize global Gtk widgets.
     applicationMain = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
+    buttonRandomize = GTK_BUTTON(gtk_button_new_with_label("Randomize"));
     buttonQuit = GTK_BUTTON(gtk_button_new_with_label("Quit"));
+    InitViewPort();
+    UpdateViewPieces();
 
     // Initialize non-global Gtk widgets.
-    GtkTable *viewPort = GTK_TABLE(gtk_table_new(VIEWPORT_HEIGHT, VIEWPORT_WIDTH, TRUE));
-    GtkImage *viewPieces[VIEWPORT_WIDTH * VIEWPORT_HEIGHT];
-    InitViewPieces(viewPort, viewPieces);
     GtkVBox *vbox = GTK_VBOX(gtk_vbox_new(TRUE, 0));
-
-    // Initialize GdkPixbufs.
-    GError * error = NULL;
-    GdkPixbuf *tiles[TILE_COUNT];
-    for (guint i = 0; i < TILE_COUNT; i++)
-    {
-        tiles[i] = gdk_pixbuf_new_from_inline(-1, GetTileData((enum TILE)i), FALSE, &error);
-        tiles[i] = gdk_pixbuf_scale_simple(tiles[i], SCALE_SIZE, SCALE_SIZE, GDK_INTERP_NEAREST);
-    }
-
-   UpdateViewPieces(viewPieces, tiles);
 
     // Add widgets to containers.
     gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(vbox));
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(viewPort), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(buttonRandomize), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(buttonQuit), FALSE, FALSE, 0);
 
     // Exit the application when the main window is closed or the quit button pressed.
     g_signal_connect(applicationMain, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(buttonRandomize, "button_press_event", G_CALLBACK(RandomizeDungeon), NULL);
     g_signal_connect(buttonQuit, "button_press_event", G_CALLBACK(gtk_main_quit), NULL);
 
     // Set the intial options before applicationMain is made visible.
@@ -89,11 +79,7 @@ int main(int argc, char *argv[])
 
     gtk_main();
 
-    // Free memory used by GdkPixbufs.
-    for (guint i = 0; i < TILE_COUNT; i++)
-    {
-        g_object_unref(tiles[i]);
-    }
+    FreePixbufs();
 
     return 0;
 }

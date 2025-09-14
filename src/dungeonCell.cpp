@@ -3,6 +3,7 @@
 #include <glib-2.0/glib.h>
 #include <cstdlib>
 #include "dungeonCell.h"
+#include "viewPort.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -43,7 +44,7 @@ void SetCellTerrain(guint positionX, guint positionY, TERRAIN terrain)
 
 // ------------------------------------------------------------------------------------------------
 // Randomizes the terrain of the dungeonCells.
-void RandomizeDungeon(void)
+void RandomizeDungeon(GtkWidget *widget, gpointer data)
 {
     for (guint y = 0; y < DUNGEON_HEIGHT; y++)
     {
@@ -53,5 +54,7 @@ void RandomizeDungeon(void)
             SetCellTerrain(x, y, (TERRAIN)(rand() % 2));
         }
     }
+
+    UpdateViewPieces();
 }
 
