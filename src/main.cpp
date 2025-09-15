@@ -58,10 +58,12 @@ int main(int argc, char *argv[])
 
     // Initialize non-global Gtk widgets.
     GtkVBox *vbox = GTK_VBOX(gtk_vbox_new(TRUE, 0));
+    GtkAlignment *viewPortAlign = GTK_ALIGNMENT(gtk_alignment_new(0.5, 0, 0 , 0));
 
     // Add widgets to containers.
     gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(vbox));
-    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(viewPort), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(viewPortAlign), FALSE, FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(viewPortAlign), GTK_WIDGET(viewPort));
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(buttonRandomize), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(buttonQuit), FALSE, FALSE, 0);
 
