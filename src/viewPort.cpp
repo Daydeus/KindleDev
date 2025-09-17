@@ -40,12 +40,7 @@ void InitViewPort(void)
     viewPort = GTK_TABLE(gtk_table_new(VIEWPORT_HEIGHT, VIEWPORT_WIDTH, TRUE));
 
     // Load image data to Pixbufs.
-    GError * error = NULL;
-    for (guint i = 0; i < TILE_COUNT; i++)
-    {
-        tiles[i] = gdk_pixbuf_new_from_inline(-1, GetTileData((enum TILE)i), FALSE, &error);
-        tiles[i] = gdk_pixbuf_scale_simple(tiles[i], SCALE_SIZE, SCALE_SIZE, GDK_INTERP_NEAREST);
-    }
+   LoadImagesToPixbufs();
 
     // Initialize the viewPieces GtkImage and attach to viewPort.
     for (guint y = 0; y < VIEWPORT_HEIGHT; y++)
@@ -101,7 +96,10 @@ void LoadImagesToPixbufs(void)
     for (guint i = 0; i < TILE_COUNT; i++)
     {
         tiles[i] = gdk_pixbuf_new_from_inline(-1, GetTileData((enum TILE)i), FALSE, &error);
+
+        #ifdef KINDLE_BUILD
         tiles[i] = gdk_pixbuf_scale_simple(tiles[i], SCALE_SIZE, SCALE_SIZE, GDK_INTERP_NEAREST);
+        #endif
     }
 }
 

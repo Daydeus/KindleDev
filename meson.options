@@ -4,3 +4,9 @@ option(
     value: '',
     description: 'The path to the Kindle\'s mounted rootfs (for linking libraries)'
 )
+option(
+    'kindle_build',
+    type : 'boolean',
+    value : false,
+    description : 'Include conditionally compiled code for the kindle build.'
+)

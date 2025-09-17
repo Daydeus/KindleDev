@@ -9,6 +9,12 @@ project(
 # Define dependencies we want
 gtk_dep = dependency('gtk+-2.0')
 
+# Check for conditional compilation
+if get_option('kindle_build')
+    add_project_arguments('-DKINDLE_BUILD', language: 'cpp')
+endif
+
+
 ####################
 # Project definition
 ####################
