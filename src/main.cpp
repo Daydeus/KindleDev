@@ -28,9 +28,6 @@ enum Color
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-static GtkWindow *applicationMain;
-static GtkButton *buttonRandomize;
-static GtkButton *buttonQuit;
 extern TERRAIN dungeonCells[DUNGEON_WIDTH * DUNGEON_HEIGHT];
 
 // ------------------------------------------------------------------------------------------------
@@ -48,23 +45,23 @@ int main(int argc, char *argv[])
 
     gtk_init(&argc, &argv);
 
-    // Initialize global Gtk widgets.
-    applicationMain = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-    buttonRandomize = GTK_BUTTON(gtk_button_new_with_label("Randomize"));
-    buttonQuit = GTK_BUTTON(gtk_button_new_with_label("Quit"));
+    // Initialize non-global Gtk widgets.
+    GtkWindow *applicationMain = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
+    GtkVBox *vboxMain = GTK_VBOX(gtk_vbox_new(TRUE, 0));
+    GtkAlignment *viewPortAlign = GTK_ALIGNMENT(gtk_alignment_new(0.5, 0, 0 , 0));
+    GtkButton *buttonRandomize = GTK_BUTTON(gtk_button_new_with_label("Randomize"));
+    GtkButton *buttonQuit = GTK_BUTTON(gtk_button_new_with_label("Quit"));
+
+    // Initialize and setup dungeon viewport.
     InitViewPort();
     UpdateViewPieces();
 
-    // Initialize non-global Gtk widgets.
-    GtkVBox *vbox = GTK_VBOX(gtk_vbox_new(TRUE, 0));
-    GtkAlignment *viewPortAlign = GTK_ALIGNMENT(gtk_alignment_new(0.5, 0, 0 , 0));
-
     // Add widgets to containers.
-    gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(vbox));
-    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(viewPortAlign), FALSE, FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(vboxMain));
+    gtk_box_pack_start(GTK_BOX(vboxMain), GTK_WIDGET(viewPortAlign), FALSE, FALSE, 0);
     gtk_container_add(GTK_CONTAINER(viewPortAlign), GTK_WIDGET(viewPort));
-    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(buttonRandomize), FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(buttonQuit), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vboxMain), GTK_WIDGET(buttonRandomize), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vboxMain), GTK_WIDGET(buttonQuit), FALSE, FALSE, 0);
 
     // Exit the application when the main window is closed or the quit button pressed.
     g_signal_connect(applicationMain, "destroy", G_CALLBACK(gtk_main_quit), NULL);

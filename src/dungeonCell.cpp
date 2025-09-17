@@ -50,7 +50,6 @@ void RandomizeDungeon(GtkWidget *widget, gpointer data)
     {
         for (guint x = 0; x < DUNGEON_WIDTH; x++)
         {
-            guint index = (y * DUNGEON_WIDTH) + x;
             SetCellTerrain(x, y, (TERRAIN)(rand() % 2));
         }
     }
