@@ -10,6 +10,10 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
+void on_button_up(GtkWidget *widget);
+void on_button_down(GtkWidget *widget);
+void on_button_left(GtkWidget *widget);
+void on_button_right(GtkWidget *widget);
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -49,6 +53,11 @@ int main(int argc, char *argv[])
     GtkWindow *applicationMain = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
     GtkVBox *vboxMain = GTK_VBOX(gtk_vbox_new(TRUE, 0));
     GtkAlignment *viewPortAlign = GTK_ALIGNMENT(gtk_alignment_new(0.5, 0, 0 , 0));
+    GtkHBox  *hboxControls = GTK_HBOX(gtk_hbox_new(TRUE, 0));
+    GtkButton *buttonUp = GTK_BUTTON(gtk_button_new_with_label("Move Up"));
+    GtkButton *buttonDown = GTK_BUTTON(gtk_button_new_with_label("Move Down"));
+    GtkButton *buttonLeft = GTK_BUTTON(gtk_button_new_with_label("Move Left"));
+    GtkButton *buttonRight = GTK_BUTTON(gtk_button_new_with_label("Move Right"));
     GtkButton *buttonRandomize = GTK_BUTTON(gtk_button_new_with_label("Randomize"));
     GtkButton *buttonQuit = GTK_BUTTON(gtk_button_new_with_label("Quit"));
 
@@ -60,11 +69,20 @@ int main(int argc, char *argv[])
     gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(vboxMain));
     gtk_box_pack_start(GTK_BOX(vboxMain), GTK_WIDGET(viewPortAlign), FALSE, FALSE, 0);
     gtk_container_add(GTK_CONTAINER(viewPortAlign), GTK_WIDGET(viewPort));
-    gtk_box_pack_start(GTK_BOX(vboxMain), GTK_WIDGET(buttonRandomize), FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vboxMain), GTK_WIDGET(buttonQuit), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vboxMain), GTK_WIDGET(hboxControls), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonUp), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonDown), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonLeft), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonRight), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonRandomize), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonQuit), FALSE, FALSE, 0);
 
     // Exit the application when the main window is closed or the quit button pressed.
     g_signal_connect(applicationMain, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(buttonUp, "button_press_event", G_CALLBACK(on_button_up), NULL);
+    g_signal_connect(buttonDown, "button_press_event", G_CALLBACK(on_button_down), NULL);
+    g_signal_connect(buttonLeft, "button_press_event", G_CALLBACK(on_button_left), NULL);
+    g_signal_connect(buttonRight, "button_press_event", G_CALLBACK(on_button_right), NULL);
     g_signal_connect(buttonRandomize, "button_press_event", G_CALLBACK(RandomizeDungeon), NULL);
     g_signal_connect(buttonQuit, "button_press_event", G_CALLBACK(gtk_main_quit), NULL);
 
@@ -80,6 +98,38 @@ int main(int argc, char *argv[])
     FreePixbufs();
 
     return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Moves the viewPort origin position up one space and updates the viewPieces.
+void on_button_up(GtkWidget *widget)
+{
+    MoveViewPosition(DIR_UP, 1);
+    UpdateViewPieces();
+}
+
+// ------------------------------------------------------------------------------------------------
+// Moves the viewPort origin position down one space and updates the viewPieces.
+void on_button_down(GtkWidget *widget)
+{
+    MoveViewPosition(DIR_DOWN, 1);
+    UpdateViewPieces();
+}
+
+// ------------------------------------------------------------------------------------------------
+// Moves the viewPort origin position left one space and updates the viewPieces.
+void on_button_left(GtkWidget *widget)
+{
+    MoveViewPosition(DIR_LEFT, 1);
+    UpdateViewPieces();
+}
+
+// ------------------------------------------------------------------------------------------------
+// Moves the viewPort origin position right one space and updates the viewPieces.
+void on_button_right(GtkWidget *widget)
+{
+    MoveViewPosition(DIR_RIGHT, 1);
+    UpdateViewPieces();
 }
 
 // ------------------------------------------------------------------------------------------------

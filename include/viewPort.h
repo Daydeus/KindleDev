@@ -18,10 +18,26 @@
 
 enum TILE
 {
+    TILE_NULL,
     TILE_ZERO,
     TILE_ONE,
     TILE_COUNT
 };
+
+enum DIRECTION
+{
+    DIR_UP,
+    DIR_DOWN,
+    DIR_LEFT,
+    DIR_RIGHT,
+    DIR_COUNT
+};
+
+typedef struct
+{
+    gint x;
+    gint y;
+} Point;
 
 // ------------------------------------------------------------------------------------------------
 // Global Variables
@@ -37,6 +53,9 @@ extern GdkPixbuf *tiles[TILE_COUNT];
 
 void InitViewPort(void);
 void UpdateViewPieces(void);
+Point* GetViewPosition(void);
+void SetViewPosition(gint positionX, gint positionY);
+void MoveViewPosition(DIRECTION direction, guint distance);
 const guint8* GetTileData(enum TILE tile);
 void LoadImagesToPixbufs(void);
 void FreePixbufs(void);

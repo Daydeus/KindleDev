@@ -27,6 +27,18 @@ TERRAIN dungeonCells[DUNGEON_WIDTH * DUNGEON_HEIGHT] = {TERRAIN_WALL};
 
 
 // ------------------------------------------------------------------------------------------------
+// Returns true if the given position is not within the dungeon.
+gboolean IsOutsideDungeon(gint positionX, gint positionY)
+{
+    if (positionX < 0 || positionX >= DUNGEON_WIDTH)
+        return TRUE;
+    if (positionY < 0 || positionY >= DUNGEON_HEIGHT)
+        return TRUE;
+
+    return FALSE;
+}
+
+// ------------------------------------------------------------------------------------------------
 // Gets the terrain of the dungeonCell at the given position.
 TERRAIN GetCellTerrain(guint positionX, guint positionY)
 {
@@ -50,7 +62,7 @@ void RandomizeDungeon(GtkWidget *widget, gpointer data)
     {
         for (guint x = 0; x < DUNGEON_WIDTH; x++)
         {
-            SetCellTerrain(x, y, (TERRAIN)(rand() % 2));
+            SetCellTerrain(x, y, (TERRAIN)(rand() % TILE_COUNT));
         }
     }
 

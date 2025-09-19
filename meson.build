@@ -22,6 +22,7 @@ sources = files(
     './src/main.cpp',
     './src/viewPort.cpp',
     './src/dungeonCell.cpp',
+    './src/tile_null.cpp',
     './src/tile_zero.cpp',
     './src/tile_one.cpp',
 )
