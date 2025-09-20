@@ -17,8 +17,9 @@
 
 enum TERRAIN
 {
-    TERRAIN_WALL,
+    TERRAIN_NULL,
     TERRAIN_FLOOR,
+    TERRAIN_WALL,
     TERRAIN_COUNT
 };
 
@@ -35,6 +36,5 @@ extern TERRAIN dungeonCells[DUNGEON_WIDTH * DUNGEON_HEIGHT];
 gboolean IsOutsideDungeon(gint positionX, gint positionY);
 TERRAIN GetCellTerrain(guint positionX, guint positionY);
 void SetCellTerrain(guint positionX, guint positionY, TERRAIN terrain);
-void RandomizeDungeon(GtkWidget *widget, gpointer data);
 
 #endif // DUNGEON_CELL_H

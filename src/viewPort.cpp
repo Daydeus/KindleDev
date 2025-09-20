@@ -5,8 +5,15 @@
 #include "dungeonCell.h"
 #include "viewPort.h"
 #include "tile_null.h"
-#include "tile_zero.h"
-#include "tile_one.h"
+#include "tile_floor_base.h"
+#include "tile_wall_bottom.h"
+#include "tile_wall_top.h"
+#include "tile_wall_right.h"
+#include "tile_wall_top_right.h"
+#include "tile_wall_left.h"
+#include "tile_wall_top_left.h"
+#include "tile_wall_right_left.h"
+#include "tile_wall_top_right_left.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -23,8 +30,15 @@
 // ------------------------------------------------------------------------------------------------
 
 extern const guint8 tile_null[];
-extern const guint8 tile_zero[];
-extern const guint8 tile_one[];
+extern const guint8 tile_floor_base[];
+extern const guint8 tile_wall_top[];
+extern const guint8 tile_wall_top_right[];
+extern const guint8 tile_wall_right[];
+extern const guint8 tile_wall_bottom[];
+extern const guint8 tile_wall_left[];
+extern const guint8 tile_wall_top_left[];
+extern const guint8 tile_wall_right_left[];
+extern const guint8 tile_wall_top_right_left[];
 GtkTable *viewPort = NULL;
 GtkImage *viewPieces[VIEWPORT_WIDTH * VIEWPORT_HEIGHT] = {NULL};
 GdkPixbuf *tiles[TILE_COUNT] = {NULL};
@@ -34,6 +48,7 @@ Point viewPosition = {0};
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
+static TILE GetTileForCell(gint positionX, gint positionY);
 
 // ------------------------------------------------------------------------------------------------
 // Initializes the GtkTable, GdkPixbufs, and GtkImages required for the viewPort to function.
@@ -71,15 +86,8 @@ void UpdateViewPieces(void)
         {
             guint index = (y * VIEWPORT_WIDTH) + x;
 
-            if (IsOutsideDungeon(originPos->x + x, originPos->y + y))
-            {
-                gtk_image_set_from_pixbuf(viewPieces[index], tiles[TILE_NULL]);
-            }
-            else
-            {
-                guint tileIndex = (guint)GetCellTerrain(originPos->x + x, originPos->y + y);
-                gtk_image_set_from_pixbuf(viewPieces[index], tiles[tileIndex]);
-            }
+            guint tileIndex = (guint)GetTileForCell(originPos->x + x, originPos->y + y);
+            gtk_image_set_from_pixbuf(viewPieces[index], tiles[tileIndex]);
         }
     }
 }
@@ -136,14 +144,118 @@ const guint8* GetTileData(enum TILE tile)
     {
     case TILE_NULL:
         return tile_null;
-    case TILE_ZERO:
-        return tile_zero;
-    case TILE_ONE:
-        return tile_one;
+    case TILE_WALL_TOP:
+        return tile_wall_top;
+    case TILE_WALL_RIGHT:
+        return tile_wall_right;
+    case TILE_WALL_TOP_RIGHT:
+        return tile_wall_top_right;
+    case TILE_WALL_BOTTOM:
+        return tile_wall_bottom;
+    case TILE_WALL_LEFT:
+        return tile_wall_left;
+    case TILE_WALL_TOP_LEFT:
+        return tile_wall_top_left;
+    case TILE_WALL_RIGHT_LEFT:
+        return tile_wall_right_left;
+    case TILE_WALL_TOP_RIGHT_LEFT:
+        return tile_wall_top_right_left;
+    case TILE_FLOOR_BASE:
+        return tile_floor_base;
     case TILE_COUNT:
         return NULL;
     }
     return NULL;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns the tile image for a TERRAIN_WALL cell based on the surrounding cells.
+static TILE GetWallTile(gint positionX, gint positionY)
+{
+    guint tileMask = 0;
+    TERRAIN cellUp = GetCellTerrain(positionX, positionY - 1);
+    TERRAIN cellRight = GetCellTerrain(positionX + 1, positionY);
+    TERRAIN cellLeft = GetCellTerrain(positionX - 1, positionY);
+    TERRAIN cellDown = GetCellTerrain(positionX, positionY + 1);
+    TERRAIN cell45 = GetCellTerrain(positionX + 1, positionY - 1);
+    TERRAIN cell135 = GetCellTerrain(positionX + 1, positionY + 1);
+    TERRAIN cell225 = GetCellTerrain(positionX - 1, positionY - 1);
+    TERRAIN cell315 = GetCellTerrain(positionX - 1, positionY + 1);
+
+    if (cellUp == TERRAIN_FLOOR)
+        tileMask +=1;
+    if (cellRight == TERRAIN_FLOOR)
+        tileMask +=2;
+    if (cellDown == TERRAIN_FLOOR)
+        tileMask +=4;
+    if (cellLeft == TERRAIN_FLOOR)
+        tileMask +=8;
+
+    switch ((TILE_MASK)tileMask)
+    {
+    case MASK_TOP:
+        if (cell135 == TERRAIN_FLOOR && cell315 == TERRAIN_FLOOR)
+            return TILE_WALL_TOP_RIGHT_LEFT;
+        else if (cell135 == TERRAIN_FLOOR)
+            return TILE_WALL_TOP_RIGHT;
+        else if (cell315 == TERRAIN_FLOOR)
+            return TILE_WALL_TOP_LEFT;
+        else
+            return TILE_WALL_TOP;
+    case MASK_RIGHT:
+        if (cell225 == TERRAIN_FLOOR && cell315 == TERRAIN_FLOOR)
+            return TILE_WALL_RIGHT_LEFT;
+        else
+            return TILE_WALL_RIGHT;
+    case MASK_BOTTOM:
+    case MASK_TOP_BOTTOM:
+    case MASK_TOP_RIGHT_BOTTOM:
+    case MASK_TOP_BOTTOM_LEFT:
+    case MASK_TOP_RIGHT_BOTTOM_LEFT:
+    case MASK_RIGHT_BOTTOM_LEFT:
+    case MASK_BOTTOM_LEFT:
+    case MASK_RIGHT_BOTTOM:
+        return TILE_WALL_BOTTOM;
+    case MASK_LEFT:
+        if (cell45 == TERRAIN_FLOOR && cell135 == TERRAIN_FLOOR)
+            return TILE_WALL_RIGHT_LEFT;
+        else
+            return TILE_WALL_LEFT;
+    case MASK_RIGHT_LEFT:
+        return TILE_WALL_RIGHT_LEFT;
+    case MASK_TOP_RIGHT:
+        return TILE_WALL_TOP_RIGHT;
+    case MASK_TOP_LEFT:
+        return TILE_WALL_TOP_LEFT;
+    case MASK_TOP_RIGHT_LEFT:
+        return TILE_WALL_TOP_RIGHT_LEFT;
+    default:
+        if (cell135 == TERRAIN_FLOOR && cell315 == TERRAIN_FLOOR)
+            return TILE_WALL_RIGHT_LEFT;
+        else if (cell45 == TERRAIN_FLOOR && cell135 == TERRAIN_FLOOR)
+            return TILE_WALL_RIGHT;
+        else if (cell225 == TERRAIN_FLOOR && cell315 == TERRAIN_FLOOR)
+            return TILE_WALL_LEFT;
+        else
+        return TILE_NULL;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns the index of the tiles array to enter the viewPiece based on the dungeonCell's terrain.
+static TILE GetTileForCell(gint positionX, gint positionY)
+{
+    switch (GetCellTerrain(positionX, positionY))
+    {
+    case TERRAIN_FLOOR:
+        return TILE_FLOOR_BASE;
+    case TERRAIN_WALL:
+        return GetWallTile(positionX, positionY);
+    case TERRAIN_NULL:
+        return TILE_NULL;
+    }
+
+    return TILE_NULL;
 }
 
 // ------------------------------------------------------------------------------------------------

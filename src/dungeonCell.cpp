@@ -3,7 +3,6 @@
 #include <glib-2.0/glib.h>
 #include <cstdlib>
 #include "dungeonCell.h"
-#include "viewPort.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -19,7 +18,7 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-TERRAIN dungeonCells[DUNGEON_WIDTH * DUNGEON_HEIGHT] = {TERRAIN_WALL};
+TERRAIN dungeonCells[DUNGEON_WIDTH * DUNGEON_HEIGHT] = {TERRAIN_NULL};
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -43,7 +42,11 @@ gboolean IsOutsideDungeon(gint positionX, gint positionY)
 TERRAIN GetCellTerrain(guint positionX, guint positionY)
 {
     guint index = (positionY * DUNGEON_WIDTH) + positionX;
-    return dungeonCells[index];
+
+    if (!IsOutsideDungeon(positionX, positionY))
+        return dungeonCells[index];
+    else
+        return TERRAIN_NULL;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -53,19 +56,3 @@ void SetCellTerrain(guint positionX, guint positionY, TERRAIN terrain)
     guint index = (positionY * DUNGEON_WIDTH) + positionX;
     dungeonCells[index] = terrain;
 }
-
-// ------------------------------------------------------------------------------------------------
-// Randomizes the terrain of the dungeonCells.
-void RandomizeDungeon(GtkWidget *widget, gpointer data)
-{
-    for (guint y = 0; y < DUNGEON_HEIGHT; y++)
-    {
-        for (guint x = 0; x < DUNGEON_WIDTH; x++)
-        {
-            SetCellTerrain(x, y, (TERRAIN)(rand() % TILE_COUNT));
-        }
-    }
-
-    UpdateViewPieces();
-}
-

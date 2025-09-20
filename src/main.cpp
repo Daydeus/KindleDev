@@ -14,6 +14,7 @@ void on_button_up(GtkWidget *widget);
 void on_button_down(GtkWidget *widget);
 void on_button_left(GtkWidget *widget);
 void on_button_right(GtkWidget *widget);
+void RandomizeDungeon(GtkWidget *widget);
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -129,6 +130,21 @@ void on_button_left(GtkWidget *widget)
 void on_button_right(GtkWidget *widget)
 {
     MoveViewPosition(DIR_RIGHT, 1);
+    UpdateViewPieces();
+}
+
+// ------------------------------------------------------------------------------------------------
+// Randomizes the terrain of the dungeonCells.
+void RandomizeDungeon(GtkWidget *widget)
+{
+    for (guint y = 0; y < DUNGEON_HEIGHT; y++)
+    {
+        for (guint x = 0; x < DUNGEON_WIDTH; x++)
+        {
+            SetCellTerrain(x, y, (TERRAIN)(rand() % 2 + 1));
+        }
+    }
+
     UpdateViewPieces();
 }
 

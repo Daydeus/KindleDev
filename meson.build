@@ -23,8 +23,15 @@ sources = files(
     './src/viewPort.cpp',
     './src/dungeonCell.cpp',
     './src/tile_null.cpp',
-    './src/tile_zero.cpp',
-    './src/tile_one.cpp',
+    './src/tile_floor_base.cpp',
+    './src/tile_wall_top.cpp',
+    './src/tile_wall_right.cpp',
+    './src/tile_wall_top_right.cpp',
+    './src/tile_wall_bottom.cpp',
+    './src/tile_wall_left.cpp',
+    './src/tile_wall_top_left.cpp',
+    './src/tile_wall_right_left.cpp',
+    './src/tile_wall_top_right_left.cpp',
 )
 
 include_dirs = include_directories(
