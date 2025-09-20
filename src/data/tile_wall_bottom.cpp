@@ -1,7 +1,7 @@
 /* GdkPixbuf RGB C-Source image dump */
 
 #include <glib-2.0/glib.h>
-  #include "tile_wall_bottom.h"
+  #include "data/tile_wall_bottom.h"
 
 #ifdef __SUNPRO_C
 #pragma align 4 (tile_wall_bottom)

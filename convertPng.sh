@@ -14,7 +14,7 @@ if [ -f "$PATH_TO_IMAGE" ]; then
   FILE_NAME=$(basename "$PATH_TO_IMAGE" .png)
 
   # Define the output C source code file name.
-  CODE_FILE="src/$FILE_NAME.cpp"
+  CODE_FILE="src/data/$FILE_NAME.cpp"
 
   # Run gdk-pixbuf-csource to generate C code from the image.
   # --name: Specifies the identifier name for the generated variables/macros.
@@ -26,12 +26,12 @@ if [ -f "$PATH_TO_IMAGE" ]; then
   # Add header includes to generated C source file.
   sed -i "3i\
   #include <glib-2.0/glib.h>\n\
-  #include \"$FILE_NAME.h\"\n" "$CODE_FILE"
+  #include \"data/$FILE_NAME.h\"\n" "$CODE_FILE"
 
   # Create header file if it doesn't already exist.
-  if [ ! -f "include/$FILE_NAME.h" ]; then
+  if [ ! -f "include/data/$FILE_NAME.h" ]; then
     # Define the output C header file name.
-    HEADER_FILE="include/$FILE_NAME.h"
+    HEADER_FILE="include/data/$FILE_NAME.h"
 
     # Define content of the header file.
     HEADER_CONTENT="// Header file for c-source converted $FILE_NAME.png

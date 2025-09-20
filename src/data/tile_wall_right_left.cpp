@@ -1,15 +1,15 @@
 /* GdkPixbuf RGB C-Source image dump */
 
 #include <glib-2.0/glib.h>
-  #include "tile_wall_right_left.h"
+  #include "data/tile_wall_right_left.h"
 
 #ifdef __SUNPRO_C
 #pragma align 4 (tile_wall_right_left)
 #endif
 #ifdef __GNUC__
-const guint8 tile_wall_right_left[] __attribute__ ((__aligned__ (4))) = 
+const guint8 tile_wall_right_left[] __attribute__ ((__aligned__ (4))) =
 #else
-const guint8 tile_wall_right_left[] = 
+const guint8 tile_wall_right_left[] =
 #endif
 { ""
   /* Pixbuf magic (0x47646b50) */

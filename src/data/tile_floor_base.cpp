@@ -1,15 +1,15 @@
 /* GdkPixbuf RGB C-Source image dump */
 
 #include <glib-2.0/glib.h>
-  #include "tile_floor_base.h"
+  #include "data/tile_floor_base.h"
 
 #ifdef __SUNPRO_C
 #pragma align 4 (tile_floor_base)
 #endif
 #ifdef __GNUC__
-const guint8 tile_floor_base[] __attribute__ ((__aligned__ (4))) = 
+const guint8 tile_floor_base[] __attribute__ ((__aligned__ (4))) =
 #else
-const guint8 tile_floor_base[] = 
+const guint8 tile_floor_base[] =
 #endif
 { ""
   /* Pixbuf magic (0x47646b50) */

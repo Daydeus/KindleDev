@@ -4,16 +4,16 @@
 #include <cstdlib>
 #include "dungeonCell.h"
 #include "viewPort.h"
-#include "tile_null.h"
-#include "tile_floor_base.h"
-#include "tile_wall_bottom.h"
-#include "tile_wall_top.h"
-#include "tile_wall_right.h"
-#include "tile_wall_top_right.h"
-#include "tile_wall_left.h"
-#include "tile_wall_top_left.h"
-#include "tile_wall_right_left.h"
-#include "tile_wall_top_right_left.h"
+#include "data/tile_null.h"
+#include "data/tile_floor_base.h"
+#include "data/tile_wall_bottom.h"
+#include "data/tile_wall_top.h"
+#include "data/tile_wall_right.h"
+#include "data/tile_wall_top_right.h"
+#include "data/tile_wall_left.h"
+#include "data/tile_wall_top_left.h"
+#include "data/tile_wall_right_left.h"
+#include "data/tile_wall_top_right_left.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
