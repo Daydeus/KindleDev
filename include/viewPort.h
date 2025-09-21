@@ -67,6 +67,7 @@ enum DIRECTION
 
 extern GtkTable *viewPort;
 extern GtkImage *viewPieces[VIEWPORT_WIDTH * VIEWPORT_HEIGHT];
+extern GtkEventBox *viewPieceEvents[VIEWPORT_WIDTH * VIEWPORT_HEIGHT];
 extern GdkPixbuf *tiles[TILE_COUNT];
 
 // ------------------------------------------------------------------------------------------------
@@ -78,7 +79,9 @@ void UpdateViewPieces(void);
 Point* GetViewPosition(void);
 void SetViewPosition(gint positionX, gint positionY);
 void MoveViewPosition(DIRECTION direction, guint distance);
+void CenterViewPositionOn(gint positionX, gint positionY);
 const guint8* GetTileData(enum TILE tile);
+void on_viewPiece_pressed(GtkWidget *widget, gpointer callbackData);
 void LoadImagesToPixbufs(void);
 void FreePixbufs(void);
 

@@ -41,6 +41,7 @@ extern const guint8 tile_wall_right_left[];
 extern const guint8 tile_wall_top_right_left[];
 GtkTable *viewPort = NULL;
 GtkImage *viewPieces[VIEWPORT_WIDTH * VIEWPORT_HEIGHT] = {NULL};
+GtkEventBox *viewPieceEvents[VIEWPORT_WIDTH * VIEWPORT_HEIGHT] = {NULL};
 GdkPixbuf *tiles[TILE_COUNT] = {NULL};
 Point viewPosition = {0};
 
@@ -60,7 +61,8 @@ void InitViewPort(void)
     // Load image data to Pixbufs.
    LoadImagesToPixbufs();
 
-    // Initialize the viewPieces GtkImage and attach to viewPort.
+    // Initialize the viewPieces GtkImages, add them to the viewPieceEvents GtkEventBoxes
+    // and attach them to the GtkTable viewPort.
     for (guint y = 0; y < VIEWPORT_HEIGHT; y++)
     {
         for (guint x = 0; x < VIEWPORT_WIDTH; x++)
@@ -68,8 +70,13 @@ void InitViewPort(void)
             guint index = (y * VIEWPORT_WIDTH) + x;
 
             viewPieces[index] = GTK_IMAGE(gtk_image_new());
-            gtk_table_attach(viewPort, GTK_WIDGET(viewPieces[index]), x, x+1, y, y+1,
+            viewPieceEvents[index] = GTK_EVENT_BOX(gtk_event_box_new());
+
+            gtk_container_add(GTK_CONTAINER(viewPieceEvents[index]), GTK_WIDGET(viewPieces[index]));
+            gtk_table_attach(viewPort, GTK_WIDGET(viewPieceEvents[index]), x, x+1, y, y+1,
                              GTK_SHRINK, GTK_SHRINK, 0, 0);
+
+            g_signal_connect(viewPieceEvents[index], "button_press_event", G_CALLBACK(on_viewPiece_pressed), NULL);
         }
     }
 }
@@ -134,6 +141,13 @@ void MoveViewPosition(DIRECTION direction, guint distance)
     }
 
     SetViewPosition(position->x, position->y);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets the dungeonCell position of the viewPort origin such that the given position is centered.
+void CenterViewPositionOn(gint positionX, gint positionY)
+{
+    SetViewPosition(positionX - VIEWPORT_WIDTH / 2, positionY - VIEWPORT_HEIGHT / 2);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -256,6 +270,27 @@ static TILE GetTileForCell(gint positionX, gint positionY)
     }
 
     return TILE_NULL;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns the index of the tiles array to enter the viewPiece based on the dungeonCell's terrain.
+void on_viewPiece_pressed(GtkWidget *widget, gpointer callbackData)
+{
+    guint screenEntryX = 0, screenEntryY = 0;
+    Point *viewPosition = GetViewPosition();
+
+    gtk_container_child_get(GTK_CONTAINER(viewPort), widget, "left-attach", &screenEntryX,
+                            "top-attach", &screenEntryY, NULL);
+
+    gint selectedCellX = viewPosition->x + screenEntryX;
+    gint selectedCellY = viewPosition->y + screenEntryY;
+
+    if (!IsOutsideDungeon(selectedCellX, selectedCellY))
+    {
+        g_print("The selected cell is (%d, %d).\n", selectedCellX, selectedCellY);
+        CenterViewPositionOn(selectedCellX, selectedCellY);
+        UpdateViewPieces();
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
