@@ -5,6 +5,7 @@
 #include <time.h>
 #include "dungeonCell.h"
 #include "viewPort.h"
+#include "dungeonGeneration.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -14,7 +15,7 @@ void on_button_up(GtkWidget *widget);
 void on_button_down(GtkWidget *widget);
 void on_button_left(GtkWidget *widget);
 void on_button_right(GtkWidget *widget);
-void RandomizeDungeon(GtkWidget *widget);
+void on_button_generate(GtkWidget *widget);
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -59,7 +60,7 @@ int main(int argc, char *argv[])
     GtkButton *buttonDown = GTK_BUTTON(gtk_button_new_with_label("Move Down"));
     GtkButton *buttonLeft = GTK_BUTTON(gtk_button_new_with_label("Move Left"));
     GtkButton *buttonRight = GTK_BUTTON(gtk_button_new_with_label("Move Right"));
-    GtkButton *buttonRandomize = GTK_BUTTON(gtk_button_new_with_label("Randomize"));
+    GtkButton *buttonGenerate = GTK_BUTTON(gtk_button_new_with_label("Generate\nMap"));
     GtkButton *buttonQuit = GTK_BUTTON(gtk_button_new_with_label("Quit"));
 
     // Initialize and setup dungeon viewport.
@@ -75,7 +76,7 @@ int main(int argc, char *argv[])
     gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonDown), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonLeft), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonRight), FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonRandomize), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonGenerate), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonQuit), FALSE, FALSE, 0);
 
     // Exit the application when the main window is closed or the quit button pressed.
@@ -84,7 +85,7 @@ int main(int argc, char *argv[])
     g_signal_connect(buttonDown, "button_press_event", G_CALLBACK(on_button_down), NULL);
     g_signal_connect(buttonLeft, "button_press_event", G_CALLBACK(on_button_left), NULL);
     g_signal_connect(buttonRight, "button_press_event", G_CALLBACK(on_button_right), NULL);
-    g_signal_connect(buttonRandomize, "button_press_event", G_CALLBACK(RandomizeDungeon), NULL);
+    g_signal_connect(buttonGenerate, "button_press_event", G_CALLBACK(on_button_generate), NULL);
     g_signal_connect(buttonQuit, "button_press_event", G_CALLBACK(gtk_main_quit), NULL);
 
     // Set the intial options before applicationMain is made visible.
@@ -134,17 +135,10 @@ void on_button_right(GtkWidget *widget)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Randomizes the terrain of the dungeonCells.
-void RandomizeDungeon(GtkWidget *widget)
+// Generates a new dungeon to explore.
+void on_button_generate(GtkWidget *widget)
 {
-    for (guint y = 0; y < DUNGEON_HEIGHT; y++)
-    {
-        for (guint x = 0; x < DUNGEON_WIDTH; x++)
-        {
-            SetCellTerrain(x, y, (TERRAIN)(rand() % 2 + 1));
-        }
-    }
-
+    GenerateDungeon();
     UpdateViewPieces();
 }
 
