@@ -11,11 +11,6 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-void on_button_up(GtkWidget *widget);
-void on_button_down(GtkWidget *widget);
-void on_button_left(GtkWidget *widget);
-void on_button_right(GtkWidget *widget);
-void on_button_generate(GtkWidget *widget);
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -40,6 +35,11 @@ extern TERRAIN dungeonCells[DUNGEON_WIDTH * DUNGEON_HEIGHT];
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
+void on_button_up(GtkWidget *widget);
+void on_button_down(GtkWidget *widget);
+void on_button_left(GtkWidget *widget);
+void on_button_right(GtkWidget *widget);
+void on_button_generate(GtkWidget *widget);
 void SetBackgroundColor(GtkWidget *widget, enum Color colorName);
 
 // ------------------------------------------------------------------------------------------------
