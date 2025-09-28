@@ -28,6 +28,7 @@ enum TILE
     TILE_WALL_RIGHT_LEFT,
     TILE_WALL_TOP_RIGHT_LEFT,
     TILE_FLOOR_BASE,
+    TILE_CELL_SELECTED,
     TILE_COUNT
 };
 
@@ -69,6 +70,7 @@ extern GtkTable *viewPort;
 extern GtkImage *viewPieces[VIEWPORT_WIDTH * VIEWPORT_HEIGHT];
 extern GtkEventBox *viewPieceEvents[VIEWPORT_WIDTH * VIEWPORT_HEIGHT];
 extern GdkPixbuf *tiles[TILE_COUNT];
+extern Point selectedCell;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -80,6 +82,8 @@ Point* GetViewPosition(void);
 void SetViewPosition(gint positionX, gint positionY);
 void MoveViewPosition(DIRECTION direction, guint distance);
 void CenterViewPositionOn(gint positionX, gint positionY);
+Point* GetSelectedCell(void);
+void SetSelectedCell(gint positionX, gint positionY);
 const guint8* GetTileData(enum TILE tile);
 void on_viewPiece_pressed(GtkWidget *widget, gpointer callbackData);
 void LoadImagesToPixbufs(void);

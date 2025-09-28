@@ -35,6 +35,7 @@ sources = files(
     './src/data/tile_wall_top_left.cpp',
     './src/data/tile_wall_right_left.cpp',
     './src/data/tile_wall_top_right_left.cpp',
+    './src/data/tile_cell_selected.cpp',
 )
 
 include_dirs = include_directories(

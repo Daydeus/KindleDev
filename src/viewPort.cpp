@@ -14,6 +14,7 @@
 #include "data/tile_wall_top_left.h"
 #include "data/tile_wall_right_left.h"
 #include "data/tile_wall_top_right_left.h"
+#include "data/tile_cell_selected.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -39,17 +40,22 @@ extern const guint8 tile_wall_left[];
 extern const guint8 tile_wall_top_left[];
 extern const guint8 tile_wall_right_left[];
 extern const guint8 tile_wall_top_right_left[];
+extern const guint8 tile_cell_selected[];
+
 GtkTable *viewPort = NULL;
 GtkImage *viewPieces[VIEWPORT_WIDTH * VIEWPORT_HEIGHT] = {NULL};
 GtkEventBox *viewPieceEvents[VIEWPORT_WIDTH * VIEWPORT_HEIGHT] = {NULL};
 GdkPixbuf *tiles[TILE_COUNT] = {NULL};
-Point viewPosition = {0};
+Point viewPosition = {0}; // The dungeonCell position of the viewPort origin.
+Point selectedCell = {0}; // The current player-selected dungeonCell in the viewPort.
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
 static TILE GetTileForCell(gint positionX, gint positionY);
+static TILE GetTileForCellSelected(gint positionX, gint positionY);
+static TILE GetTileForTerrain(gint positionX, gint positionY);
 
 // ------------------------------------------------------------------------------------------------
 // Initializes the GtkTable, GdkPixbufs, and GtkImages required for the viewPort to function.
@@ -113,7 +119,6 @@ void SetViewPosition(gint positionX, gint positionY)
 {
     viewPosition.x = positionX;
     viewPosition.y = positionY;
-
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -151,6 +156,23 @@ void CenterViewPositionOn(gint positionX, gint positionY)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Gets the dungeonCell position of the currently selected cell in the viewPort.
+Point* GetSelectedCell(void)
+{
+    return &selectedCell;
+
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets the currently selected dungeonCell in the viewPort to the given position.
+void SetSelectedCell(gint positionX, gint positionY)
+{
+    selectedCell.x = positionX;
+    selectedCell.y = positionY;
+
+}
+
+// ------------------------------------------------------------------------------------------------
 // Returns the array of image data required for gdk_pixbuf_new_from_inline.
 const guint8* GetTileData(enum TILE tile)
 {
@@ -176,6 +198,8 @@ const guint8* GetTileData(enum TILE tile)
         return tile_wall_top_right_left;
     case TILE_FLOOR_BASE:
         return tile_floor_base;
+    case TILE_CELL_SELECTED:
+        return tile_cell_selected;
     case TILE_COUNT:
         return NULL;
     }
@@ -256,10 +280,20 @@ static TILE GetWallTile(gint positionX, gint positionY)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the index of the tiles array to enter the viewPiece based on the dungeonCell's terrain.
-static TILE GetTileForCell(gint positionX, gint positionY)
+// Returns the index of the tiles array for the dungeonCell selected indicator.
+static TILE GetTileForCellSelected(gint positionX, gint positionY)
 {
-    switch (GetCellTerrain(positionX, positionY))
+
+    return TILE_CELL_SELECTED;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns the index of the tiles array for the given cell based on its terrain.
+static TILE GetTileForTerrain(gint positionX, gint positionY)
+{
+    TERRAIN terrain = GetCellTerrain(positionX, positionY);
+
+    switch (terrain)
     {
     case TERRAIN_FLOOR:
         return TILE_FLOOR_BASE;
@@ -268,29 +302,50 @@ static TILE GetTileForCell(gint positionX, gint positionY)
     case TERRAIN_NULL:
         return TILE_NULL;
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns the index of the tile to enter in the viewPiece based on the dungeonCell's contents.
+static TILE GetTileForCell(gint positionX, gint positionY)
+{
+    Point *selectedCell = GetSelectedCell();
+
+    // If cell is selected, return tile for selected cell marker.
+    if (selectedCell->x == positionX && selectedCell->y == positionY)
+    {
+        return GetTileForCellSelected(positionX, positionY);
+    }
+    else // Cell is not selected, return terrain tile.
+    {
+        return GetTileForTerrain(positionX, positionY);
+    }
 
     return TILE_NULL;
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the index of the tiles array to enter the viewPiece based on the dungeonCell's terrain.
+// Sets the currently selected cell. If it is the same as the previously selected cell, centers the
+// viewPort on it.
 void on_viewPiece_pressed(GtkWidget *widget, gpointer callbackData)
 {
-    guint screenEntryX = 0, screenEntryY = 0;
+    Point *oldSelected = GetSelectedCell();
     Point *viewPosition = GetViewPosition();
+    Point newSelected = {0};
+    guint viewPieceOffsetX = 0, viewPieceOffsetY = 0;
 
-    gtk_container_child_get(GTK_CONTAINER(viewPort), widget, "left-attach", &screenEntryX,
-                            "top-attach", &screenEntryY, NULL);
+    // Get the viewPiece's offset from the viewPort origin.
+    gtk_container_child_get(GTK_CONTAINER(viewPort), widget, "left-attach", &viewPieceOffsetX,
+                            "top-attach", &viewPieceOffsetY, NULL);
 
-    gint selectedCellX = viewPosition->x + screenEntryX;
-    gint selectedCellY = viewPosition->y + screenEntryY;
+    // Add the viewPosition and the offset together to get the selected dungeonCell.
+    newSelected.x = viewPosition->x + viewPieceOffsetX;
+    newSelected.y = viewPosition->y + viewPieceOffsetY;
 
-    if (!IsOutsideDungeon(selectedCellX, selectedCellY))
-    {
-        g_print("The selected cell is (%d, %d).\n", selectedCellX, selectedCellY);
-        CenterViewPositionOn(selectedCellX, selectedCellY);
-        UpdateViewPieces();
-    }
+    if (newSelected.x == oldSelected->x && newSelected.y == oldSelected->y)
+        CenterViewPositionOn(newSelected.x, newSelected.y);
+
+    SetSelectedCell(newSelected.x, newSelected.y);
+    UpdateViewPieces();
 }
 
 // ------------------------------------------------------------------------------------------------
