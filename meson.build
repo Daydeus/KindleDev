@@ -9,6 +9,9 @@ project(
 # Define dependencies we want
 gtk_dep = dependency('gtk+-2.0')
 
+# Turn off deprecation warnings (Because Gtk2 is so old)
+add_project_arguments('-Wno-deprecated-declarations', language: 'cpp')
+
 # Check for conditional compilation
 if get_option('kindle_build')
     add_project_arguments('-DKINDLE_BUILD', language: 'cpp')
