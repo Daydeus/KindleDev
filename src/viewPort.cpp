@@ -42,9 +42,6 @@ extern const guint8 tile_wall_right_left[];
 extern const guint8 tile_wall_top_right_left[];
 extern const guint8 tile_cell_selected[];
 
-GtkTable *viewPort = NULL;
-GtkImage *viewPieces[VIEWPORT_WIDTH * VIEWPORT_HEIGHT] = {NULL};
-GtkEventBox *viewPieceEvents[VIEWPORT_WIDTH * VIEWPORT_HEIGHT] = {NULL};
 GdkPixbuf *tiles[TILE_COUNT] = {NULL};
 Point viewPosition = {0}; // The dungeonCell position of the viewPort origin.
 Point selectedCell = {0}; // The current player-selected dungeonCell in the viewPort.
@@ -58,59 +55,10 @@ static TILE GetTileForCellSelected(gint positionX, gint positionY);
 static TILE GetTileForTerrain(gint positionX, gint positionY);
 
 // ------------------------------------------------------------------------------------------------
-// Initializes the GtkTable, GdkPixbufs, and GtkImages required for the viewPort to function.
-void InitViewPort(void)
-{
-    // Initialize the viewPort GtkTable.
-    viewPort = GTK_TABLE(gtk_table_new(VIEWPORT_HEIGHT, VIEWPORT_WIDTH, TRUE));
-
-    // Load image data to Pixbufs.
-   LoadImagesToPixbufs();
-
-    // Initialize the viewPieces GtkImages, add them to the viewPieceEvents GtkEventBoxes
-    // and attach them to the GtkTable viewPort.
-    for (guint y = 0; y < VIEWPORT_HEIGHT; y++)
-    {
-        for (guint x = 0; x < VIEWPORT_WIDTH; x++)
-        {
-            guint index = (y * VIEWPORT_WIDTH) + x;
-
-            viewPieces[index] = GTK_IMAGE(gtk_image_new());
-            viewPieceEvents[index] = GTK_EVENT_BOX(gtk_event_box_new());
-
-            gtk_container_add(GTK_CONTAINER(viewPieceEvents[index]), GTK_WIDGET(viewPieces[index]));
-            gtk_table_attach(viewPort, GTK_WIDGET(viewPieceEvents[index]), x, x+1, y, y+1,
-                             GTK_SHRINK, GTK_SHRINK, 0, 0);
-
-            g_signal_connect(viewPieceEvents[index], "button_press_event", G_CALLBACK(on_viewPiece_pressed), NULL);
-        }
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Changes the pixbuf the GtkImage viewPiece points to based on the contents of the dungeonCells.
-void UpdateViewPieces(void)
-{
-    Point *originPos = GetViewPosition();
-
-    for (guint y = 0; y < VIEWPORT_HEIGHT; y++)
-    {
-        for (guint x = 0; x < VIEWPORT_WIDTH; x++)
-        {
-            guint index = (y * VIEWPORT_WIDTH) + x;
-
-            guint tileIndex = (guint)GetTileForCell(originPos->x + x, originPos->y + y);
-            gtk_image_set_from_pixbuf(viewPieces[index], tiles[tileIndex]);
-        }
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
 // Gets the dungeonCell position of the viewPort origin.
 Point* GetViewPosition(void)
 {
     return &viewPosition;
-
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -160,7 +108,6 @@ void CenterViewPositionOn(gint positionX, gint positionY)
 Point* GetSelectedCell(void)
 {
     return &selectedCell;
-
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -169,7 +116,6 @@ void SetSelectedCell(gint positionX, gint positionY)
 {
     selectedCell.x = positionX;
     selectedCell.y = positionY;
-
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -283,7 +229,6 @@ static TILE GetWallTile(gint positionX, gint positionY)
 // Returns the index of the tiles array for the dungeonCell selected indicator.
 static TILE GetTileForCellSelected(gint positionX, gint positionY)
 {
-
     return TILE_CELL_SELECTED;
 }
 
@@ -321,31 +266,6 @@ static TILE GetTileForCell(gint positionX, gint positionY)
     }
 
     return TILE_NULL;
-}
-
-// ------------------------------------------------------------------------------------------------
-// Sets the currently selected cell. If it is the same as the previously selected cell, centers the
-// viewPort on it.
-void on_viewPiece_pressed(GtkWidget *widget, gpointer callbackData)
-{
-    Point *oldSelected = GetSelectedCell();
-    Point *viewPosition = GetViewPosition();
-    Point newSelected = {0};
-    guint viewPieceOffsetX = 0, viewPieceOffsetY = 0;
-
-    // Get the viewPiece's offset from the viewPort origin.
-    gtk_container_child_get(GTK_CONTAINER(viewPort), widget, "left-attach", &viewPieceOffsetX,
-                            "top-attach", &viewPieceOffsetY, NULL);
-
-    // Add the viewPosition and the offset together to get the selected dungeonCell.
-    newSelected.x = viewPosition->x + viewPieceOffsetX;
-    newSelected.y = viewPosition->y + viewPieceOffsetY;
-
-    if (newSelected.x == oldSelected->x && newSelected.y == oldSelected->y)
-        CenterViewPositionOn(newSelected.x, newSelected.y);
-
-    SetSelectedCell(newSelected.x, newSelected.y);
-    UpdateViewPieces();
 }
 
 // ------------------------------------------------------------------------------------------------

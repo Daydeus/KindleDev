@@ -50,11 +50,12 @@ int main(int argc, char *argv[])
     srand(time(NULL));
 
     gtk_init(&argc, &argv);
+    LoadImagesToPixbufs();
+    g_print("ViewPosition is: (%d, %d).\n", viewPosition.x, viewPosition.y);
 
     // Initialize non-global Gtk widgets.
     GtkWindow *applicationMain = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
     GtkVBox *vboxMain = GTK_VBOX(gtk_vbox_new(TRUE, 0));
-    GtkAlignment *viewPortAlign = GTK_ALIGNMENT(gtk_alignment_new(0.5, 0, 0 , 0));
     GtkHBox  *hboxControls = GTK_HBOX(gtk_hbox_new(TRUE, 0));
     GtkButton *buttonUp = GTK_BUTTON(gtk_button_new_with_label("Move Up"));
     GtkButton *buttonDown = GTK_BUTTON(gtk_button_new_with_label("Move Down"));
@@ -63,14 +64,8 @@ int main(int argc, char *argv[])
     GtkButton *buttonGenerate = GTK_BUTTON(gtk_button_new_with_label("Generate\nMap"));
     GtkButton *buttonQuit = GTK_BUTTON(gtk_button_new_with_label("Quit"));
 
-    // Initialize and setup dungeon viewport.
-    InitViewPort();
-    UpdateViewPieces();
-
     // Add widgets to containers.
     gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(vboxMain));
-    gtk_box_pack_start(GTK_BOX(vboxMain), GTK_WIDGET(viewPortAlign), FALSE, FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(viewPortAlign), GTK_WIDGET(viewPort));
     gtk_box_pack_start(GTK_BOX(vboxMain), GTK_WIDGET(hboxControls), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonUp), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonDown), FALSE, FALSE, 0);
@@ -107,7 +102,7 @@ int main(int argc, char *argv[])
 void on_button_up(GtkWidget *widget)
 {
     MoveViewPosition(DIR_UP, 1);
-    UpdateViewPieces();
+    g_print("ViewPosition is: (%d, %d).\n", viewPosition.x, viewPosition.y);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -115,7 +110,7 @@ void on_button_up(GtkWidget *widget)
 void on_button_down(GtkWidget *widget)
 {
     MoveViewPosition(DIR_DOWN, 1);
-    UpdateViewPieces();
+    g_print("ViewPosition is: (%d, %d).\n", viewPosition.x, viewPosition.y);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -123,7 +118,7 @@ void on_button_down(GtkWidget *widget)
 void on_button_left(GtkWidget *widget)
 {
     MoveViewPosition(DIR_LEFT, 1);
-    UpdateViewPieces();
+    g_print("ViewPosition is: (%d, %d).\n", viewPosition.x, viewPosition.y);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -131,15 +126,14 @@ void on_button_left(GtkWidget *widget)
 void on_button_right(GtkWidget *widget)
 {
     MoveViewPosition(DIR_RIGHT, 1);
-    UpdateViewPieces();
+    g_print("ViewPosition is: (%d, %d).\n", viewPosition.x, viewPosition.y);
 }
 
 // ------------------------------------------------------------------------------------------------
 // Generates a new dungeon to explore.
 void on_button_generate(GtkWidget *widget)
 {
-    GenerateDungeon();
-    UpdateViewPieces();
+    //GenerateDungeon();
 }
 
 // ------------------------------------------------------------------------------------------------
