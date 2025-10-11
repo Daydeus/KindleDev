@@ -1,6 +1,7 @@
 #include <gtk-2.0/gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <glib-2.0/glib.h>
+#include <cairo/cairo.h>
 #include <cstdlib>
 #include <time.h>
 #include "dungeonCell.h"
@@ -41,6 +42,7 @@ void on_button_left(GtkWidget *widget);
 void on_button_right(GtkWidget *widget);
 void on_button_generate(GtkWidget *widget);
 void SetBackgroundColor(GtkWidget *widget, enum Color colorName);
+gboolean on_draw_event(GtkWidget *widget, cairo_t *context, gpointer userData);
 
 // ------------------------------------------------------------------------------------------------
 // The main application loop.
@@ -55,6 +57,8 @@ int main(int argc, char *argv[])
 
     // Initialize non-global Gtk widgets.
     GtkWindow *applicationMain = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
+    GtkWidget * drawingArea = gtk_drawing_area_new();
+    gtk_widget_set_size_request(drawingArea, VIEWPORT_WIDTH * TILE_SIZE, VIEWPORT_HEIGHT * TILE_SIZE);
     GtkVBox *vboxMain = GTK_VBOX(gtk_vbox_new(TRUE, 0));
     GtkHBox  *hboxControls = GTK_HBOX(gtk_hbox_new(TRUE, 0));
     GtkButton *buttonUp = GTK_BUTTON(gtk_button_new_with_label("Move Up"));
@@ -66,6 +70,7 @@ int main(int argc, char *argv[])
 
     // Add widgets to containers.
     gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(vboxMain));
+    gtk_box_pack_start(GTK_BOX(vboxMain), GTK_WIDGET(drawingArea), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vboxMain), GTK_WIDGET(hboxControls), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonUp), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonDown), FALSE, FALSE, 0);
@@ -76,6 +81,7 @@ int main(int argc, char *argv[])
 
     // Exit the application when the main window is closed or the quit button pressed.
     g_signal_connect(applicationMain, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(G_OBJECT(drawingArea), "expose_event", G_CALLBACK(on_draw_event), NULL);
     g_signal_connect(buttonUp, "button_press_event", G_CALLBACK(on_button_up), NULL);
     g_signal_connect(buttonDown, "button_press_event", G_CALLBACK(on_button_down), NULL);
     g_signal_connect(buttonLeft, "button_press_event", G_CALLBACK(on_button_left), NULL);
@@ -133,7 +139,7 @@ void on_button_right(GtkWidget *widget)
 // Generates a new dungeon to explore.
 void on_button_generate(GtkWidget *widget)
 {
-    //GenerateDungeon();
+    GenerateDungeon();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -163,4 +169,37 @@ void SetBackgroundColor(GtkWidget *widget, enum Color colorName)
     {
         gtk_widget_modify_bg(widget, GTK_STATE_NORMAL, &color);
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+//
+gboolean on_draw_event(GtkWidget *widget, cairo_t *context, gpointer userData)
+{
+    // Get the GdkWindow from the widget
+    GdkWindow *window = gtk_widget_get_window(widget);
+
+    if (window)
+    {
+        // Create a Cairo context from the GdkWindow
+        cairo_t *context = gdk_cairo_create(window);
+        Point *viewPosition = GetViewPosition();
+
+        for (gint y = 0; y < VIEWPORT_HEIGHT; y++)
+        {
+            for (gint x = 0; x < VIEWPORT_WIDTH; x++)
+            {
+                gint viewPortX = TILE_SIZE * x;
+                gint viewPortY = TILE_SIZE * y;
+                gint cellX = viewPosition->x + x;
+                gint cellY = viewPosition->y + y;
+
+                gdk_cairo_set_source_pixbuf(context, tiles[4], viewPortX, viewPortY);
+                cairo_paint(context);
+            }
+        }
+
+        // Clean up the Cairo context
+        cairo_destroy(context);
+    }
+    return FALSE;
 }

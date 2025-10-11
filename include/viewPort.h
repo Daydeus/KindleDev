@@ -8,9 +8,13 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
+#ifdef KINDLE_BUILD
+    #define TILE_SIZE 48
+#else
+    #define TILE_SIZE 24
+#endif
 #define VIEWPORT_WIDTH  25
 #define VIEWPORT_HEIGHT 15
-#define SCALE_SIZE 48
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -84,4 +88,5 @@ const guint8* GetTileData(enum TILE tile);
 void LoadImagesToPixbufs(void);
 void FreePixbufs(void);
 
+TILE GetTileForCell(gint positionX, gint positionY);
 #endif // VIEWPORT_H

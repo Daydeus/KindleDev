@@ -50,7 +50,7 @@ Point selectedCell = {0}; // The current player-selected dungeonCell in the view
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-static TILE GetTileForCell(gint positionX, gint positionY);
+//static TILE GetTileForCell(gint positionX, gint positionY);
 static TILE GetTileForCellSelected(gint positionX, gint positionY);
 static TILE GetTileForTerrain(gint positionX, gint positionY);
 
@@ -251,16 +251,18 @@ static TILE GetTileForTerrain(gint positionX, gint positionY)
 
 // ------------------------------------------------------------------------------------------------
 // Returns the index of the tile to enter in the viewPiece based on the dungeonCell's contents.
-static TILE GetTileForCell(gint positionX, gint positionY)
+TILE GetTileForCell(gint positionX, gint positionY)
 {
     Point *selectedCell = GetSelectedCell();
 
+    /*
     // If cell is selected, return tile for selected cell marker.
     if (selectedCell->x == positionX && selectedCell->y == positionY)
     {
         return GetTileForCellSelected(positionX, positionY);
     }
     else // Cell is not selected, return terrain tile.
+    */
     {
         return GetTileForTerrain(positionX, positionY);
     }
@@ -276,10 +278,7 @@ void LoadImagesToPixbufs(void)
     for (guint i = 0; i < TILE_COUNT; i++)
     {
         tiles[i] = gdk_pixbuf_new_from_inline(-1, GetTileData((enum TILE)i), FALSE, &error);
-
-        #ifdef KINDLE_BUILD
-        tiles[i] = gdk_pixbuf_scale_simple(tiles[i], SCALE_SIZE, SCALE_SIZE, GDK_INTERP_NEAREST);
-        #endif
+        tiles[i] = gdk_pixbuf_scale_simple(tiles[i], TILE_SIZE, TILE_SIZE, GDK_INTERP_NEAREST);
     }
 }
 
