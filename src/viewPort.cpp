@@ -1,6 +1,7 @@
 #include <gtk-2.0/gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <glib-2.0/glib.h>
+#include <cairo/cairo.h>
 #include <cstdlib>
 #include "dungeonCell.h"
 #include "viewPort.h"
@@ -43,6 +44,7 @@ extern const guint8 tile_wall_top_right_left[];
 extern const guint8 tile_cell_selected[];
 
 GdkPixbuf *tiles[TILE_COUNT] = {NULL};
+GtkWidget *viewPort = NULL;
 Point viewPosition = {0}; // The dungeonCell position of the viewPort origin.
 Point selectedCell = {0}; // The current player-selected dungeonCell in the viewPort.
 
@@ -50,9 +52,20 @@ Point selectedCell = {0}; // The current player-selected dungeonCell in the view
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-//static TILE GetTileForCell(gint positionX, gint positionY);
-static TILE GetTileForCellSelected(gint positionX, gint positionY);
-static TILE GetTileForTerrain(gint positionX, gint positionY);
+static TILE GetWallTile(gint positionX, gint positionY);
+static GdkPixbuf* GetTileForCellSelected(gint positionX, gint positionY);
+static GdkPixbuf* GetTileForTerrain(gint positionX, gint positionY);
+static GdkPixbuf* GetTileForCell(gint positionX, gint positionY);
+static GdkPixbuf* GetPixbufFromTile(TILE tile);
+
+// ------------------------------------------------------------------------------------------------
+//
+void InitViewPort(void)
+{
+    LoadImagesToPixbufs();
+    viewPort = gtk_drawing_area_new();
+    gtk_widget_set_size_request(viewPort, VIEWPORT_WIDTH * TILE_SIZE, VIEWPORT_HEIGHT * TILE_SIZE);
+}
 
 // ------------------------------------------------------------------------------------------------
 // Gets the dungeonCell position of the viewPort origin.
@@ -226,48 +239,58 @@ static TILE GetWallTile(gint positionX, gint positionY)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the index of the tiles array for the dungeonCell selected indicator.
-static TILE GetTileForCellSelected(gint positionX, gint positionY)
+// Returns the GdkPixbuf from the tiles array for the dungeonCell selected indicator.
+static GdkPixbuf* GetTileForCellSelected(gint positionX, gint positionY)
 {
-    return TILE_CELL_SELECTED;
+    return GetPixbufFromTile(TILE_CELL_SELECTED);
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the index of the tiles array for the given cell based on its terrain.
-static TILE GetTileForTerrain(gint positionX, gint positionY)
+// Returns the GdkPixbuf from the tiles array for the given cell based on its terrain.
+static GdkPixbuf* GetTileForTerrain(gint positionX, gint positionY)
 {
     TERRAIN terrain = GetCellTerrain(positionX, positionY);
+    TILE tile;
 
     switch (terrain)
     {
     case TERRAIN_FLOOR:
-        return TILE_FLOOR_BASE;
+        tile = TILE_FLOOR_BASE;
+        break;
     case TERRAIN_WALL:
-        return GetWallTile(positionX, positionY);
-    case TERRAIN_NULL:
-        return TILE_NULL;
+        tile = GetWallTile(positionX, positionY);
+        break;
+    default:
+        tile = TILE_NULL;
     }
+
+    return GetPixbufFromTile(tile);
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the index of the tile to enter in the viewPiece based on the dungeonCell's contents.
-TILE GetTileForCell(gint positionX, gint positionY)
+// Returns the GdkPixbuf from the tiles array based on the dungeonCell's contents.
+static GdkPixbuf* GetTileForCell(gint positionX, gint positionY)
 {
     Point *selectedCell = GetSelectedCell();
 
-    /*
     // If cell is selected, return tile for selected cell marker.
     if (selectedCell->x == positionX && selectedCell->y == positionY)
     {
         return GetTileForCellSelected(positionX, positionY);
     }
     else // Cell is not selected, return terrain tile.
-    */
     {
         return GetTileForTerrain(positionX, positionY);
     }
 
-    return TILE_NULL;
+    return GetPixbufFromTile(TILE_NULL);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns a GdkPixbuf based on the given idex to the tiles array.
+static GdkPixbuf* GetPixbufFromTile(TILE tile)
+{
+    return tiles[tile];
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -291,4 +314,40 @@ void FreePixbufs(void)
     {
         g_object_unref(tiles[i]);
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Callback function to update the tiles shown on the viewPort.
+gboolean UpdateViewPort(GtkWidget *widget, cairo_t *context, gpointer userData)
+{
+    // Get the GdkWindow from the widget
+    GdkWindow *window = gtk_widget_get_window(widget);
+
+    if (window)
+    {
+        // Create a Cairo context from the GdkWindow
+        cairo_t *context = gdk_cairo_create(window);
+        Point *viewPosition = GetViewPosition();
+
+        for (gint y = 0; y < VIEWPORT_HEIGHT; y++)
+        {
+            for (gint x = 0; x < VIEWPORT_WIDTH; x++)
+            {
+                // The pixel position within the viewPort.
+                gint viewPortX = TILE_SIZE * x;
+                gint viewPortY = TILE_SIZE * y;
+
+                // The cell position within the dungeon.
+                gint cellX = viewPosition->x + x;
+                gint cellY = viewPosition->y + y;
+
+                gdk_cairo_set_source_pixbuf(context, GetTileForCell(cellX, cellY), viewPortX, viewPortY);
+                cairo_paint(context);
+            }
+        }
+
+        // Clean up the Cairo context
+        cairo_destroy(context);
+    }
+    return FALSE;
 }
