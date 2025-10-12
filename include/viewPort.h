@@ -71,7 +71,7 @@ enum DIRECTION
 // ------------------------------------------------------------------------------------------------
 
 extern GdkPixbuf *tiles[TILE_COUNT];
-extern GtkWidget *viewPort;
+extern GtkDrawingArea *viewPort;
 extern Point viewPosition;
 extern Point selectedCell;
 
@@ -83,12 +83,13 @@ void InitViewPort(void);
 Point* GetViewPosition(void);
 void SetViewPosition(gint positionX, gint positionY);
 void MoveViewPosition(DIRECTION direction, guint distance);
-void CenterViewPositionOn(gint positionX, gint positionY);
+void CenterViewPortOn(gint positionX, gint positionY);
 Point* GetSelectedCell(void);
 void SetSelectedCell(gint positionX, gint positionY);
 const guint8* GetTileData(enum TILE tile);
 void LoadImagesToPixbufs(void);
 void FreePixbufs(void);
-gboolean UpdateViewPort(GtkWidget *widget, cairo_t *context, gpointer userData);
+gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userData);
+gboolean on_viewPort_click(GtkWidget *widget, GdkEventButton *event, gpointer userData);
 
 #endif // VIEWPORT_H

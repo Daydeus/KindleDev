@@ -51,7 +51,6 @@ int main(int argc, char *argv[])
     srand(time(NULL));
 
     gtk_init(&argc, &argv);
-    g_print("ViewPosition is: (%d, %d).\n", viewPosition.x, viewPosition.y);
 
     // Initialize non-global Gtk widgets.
     GtkWindow *applicationMain = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
@@ -78,15 +77,19 @@ int main(int argc, char *argv[])
     gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonGenerate), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonQuit), FALSE, FALSE, 0);
 
-    // Exit the application when the main window is closed or the quit button pressed.
+    // Connect widget signals to callbacks.
     g_signal_connect(applicationMain, "destroy", G_CALLBACK(gtk_main_quit), NULL);
-    g_signal_connect(G_OBJECT(viewPort), "expose_event", G_CALLBACK(UpdateViewPort), NULL);
+    g_signal_connect(viewPort, "expose_event", G_CALLBACK(on_viewPort_update), NULL);
+    g_signal_connect(viewPort, "button_press_event", G_CALLBACK(on_viewPort_click), NULL);
     g_signal_connect(buttonUp, "button_press_event", G_CALLBACK(on_button_up), NULL);
     g_signal_connect(buttonDown, "button_press_event", G_CALLBACK(on_button_down), NULL);
     g_signal_connect(buttonLeft, "button_press_event", G_CALLBACK(on_button_left), NULL);
     g_signal_connect(buttonRight, "button_press_event", G_CALLBACK(on_button_right), NULL);
     g_signal_connect(buttonGenerate, "button_press_event", G_CALLBACK(on_button_generate), NULL);
     g_signal_connect(buttonQuit, "button_press_event", G_CALLBACK(gtk_main_quit), NULL);
+
+    // Add required events to the mask for the viewPort.
+    gtk_widget_set_events(GTK_WIDGET(viewPort), GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK);
 
     // Set the intial options before applicationMain is made visible.
     gtk_window_set_title(GTK_WINDOW(applicationMain), "L:A_N:application_ID:kindle-gtk_PC:T");
@@ -109,8 +112,7 @@ int main(int argc, char *argv[])
 void on_button_up(GtkWidget *widget)
 {
     MoveViewPosition(DIR_UP, 1);
-    gtk_widget_queue_draw(viewPort);
-    g_print("ViewPosition is: (%d, %d).\n", viewPosition.x, viewPosition.y);
+    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -118,8 +120,7 @@ void on_button_up(GtkWidget *widget)
 void on_button_down(GtkWidget *widget)
 {
     MoveViewPosition(DIR_DOWN, 1);
-    gtk_widget_queue_draw(viewPort);
-    g_print("ViewPosition is: (%d, %d).\n", viewPosition.x, viewPosition.y);
+    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -127,8 +128,7 @@ void on_button_down(GtkWidget *widget)
 void on_button_left(GtkWidget *widget)
 {
     MoveViewPosition(DIR_LEFT, 1);
-    gtk_widget_queue_draw(viewPort);
-    g_print("ViewPosition is: (%d, %d).\n", viewPosition.x, viewPosition.y);
+    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -136,8 +136,7 @@ void on_button_left(GtkWidget *widget)
 void on_button_right(GtkWidget *widget)
 {
     MoveViewPosition(DIR_RIGHT, 1);
-    gtk_widget_queue_draw(viewPort);
-    g_print("ViewPosition is: (%d, %d).\n", viewPosition.x, viewPosition.y);
+    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -145,7 +144,7 @@ void on_button_right(GtkWidget *widget)
 void on_button_generate(GtkWidget *widget)
 {
     GenerateDungeon();
-    gtk_widget_queue_draw(viewPort);
+    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
 }
 
 // ------------------------------------------------------------------------------------------------

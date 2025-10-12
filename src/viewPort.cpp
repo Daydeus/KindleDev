@@ -44,7 +44,7 @@ extern const guint8 tile_wall_top_right_left[];
 extern const guint8 tile_cell_selected[];
 
 GdkPixbuf *tiles[TILE_COUNT] = {NULL};
-GtkWidget *viewPort = NULL;
+GtkDrawingArea *viewPort = NULL;
 Point viewPosition = {0}; // The dungeonCell position of the viewPort origin.
 Point selectedCell = {0}; // The current player-selected dungeonCell in the viewPort.
 
@@ -59,12 +59,12 @@ static GdkPixbuf* GetTileForCell(gint positionX, gint positionY);
 static GdkPixbuf* GetPixbufFromTile(TILE tile);
 
 // ------------------------------------------------------------------------------------------------
-//
+// Load GdkPixbuf tiles and initialize the dungeon viewPort.
 void InitViewPort(void)
 {
     LoadImagesToPixbufs();
-    viewPort = gtk_drawing_area_new();
-    gtk_widget_set_size_request(viewPort, VIEWPORT_WIDTH * TILE_SIZE, VIEWPORT_HEIGHT * TILE_SIZE);
+    viewPort = GTK_DRAWING_AREA(gtk_drawing_area_new());
+    gtk_widget_set_size_request(GTK_WIDGET(viewPort), VIEWPORT_WIDTH * TILE_SIZE, VIEWPORT_HEIGHT * TILE_SIZE);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ void MoveViewPosition(DIRECTION direction, guint distance)
 
 // ------------------------------------------------------------------------------------------------
 // Sets the dungeonCell position of the viewPort origin such that the given position is centered.
-void CenterViewPositionOn(gint positionX, gint positionY)
+void CenterViewPortOn(gint positionX, gint positionY)
 {
     SetViewPosition(positionX - VIEWPORT_WIDTH / 2, positionY - VIEWPORT_HEIGHT / 2);
 }
@@ -162,6 +162,7 @@ const guint8* GetTileData(enum TILE tile)
     case TILE_COUNT:
         return NULL;
     }
+
     return NULL;
 }
 
@@ -318,7 +319,7 @@ void FreePixbufs(void)
 
 // ------------------------------------------------------------------------------------------------
 // Callback function to update the tiles shown on the viewPort.
-gboolean UpdateViewPort(GtkWidget *widget, cairo_t *context, gpointer userData)
+gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userData)
 {
     // Get the GdkWindow from the widget
     GdkWindow *window = gtk_widget_get_window(widget);
@@ -333,15 +334,18 @@ gboolean UpdateViewPort(GtkWidget *widget, cairo_t *context, gpointer userData)
         {
             for (gint x = 0; x < VIEWPORT_WIDTH; x++)
             {
-                // The pixel position within the viewPort.
-                gint viewPortX = TILE_SIZE * x;
-                gint viewPortY = TILE_SIZE * y;
+                // The pixel position within the viewPort to be changed.
+                gint pixelX = TILE_SIZE * x;
+                gint pixelY = TILE_SIZE * y;
 
-                // The cell position within the dungeon.
+                // The dungeon cell to be drawn in the viewPort.
                 gint cellX = viewPosition->x + x;
                 gint cellY = viewPosition->y + y;
 
-                gdk_cairo_set_source_pixbuf(context, GetTileForCell(cellX, cellY), viewPortX, viewPortY);
+                // Sets the GdkPixbuf tile to be drawn and the position to draw it.
+                gdk_cairo_set_source_pixbuf(context, GetTileForCell(cellX, cellY), pixelX, pixelY);
+
+                // Draws the pixbuf tile.
                 cairo_paint(context);
             }
         }
@@ -350,4 +354,33 @@ gboolean UpdateViewPort(GtkWidget *widget, cairo_t *context, gpointer userData)
         cairo_destroy(context);
     }
     return FALSE;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Callback function to track input on the viewPort.
+gboolean on_viewPort_click(GtkWidget *widget, GdkEventButton *event, gpointer userData)
+{
+    Point clickedTile = {0};
+    Point *viewPosition = GetViewPosition();
+    Point *oldSelectedCell = GetSelectedCell();
+    Point newSelectedCell = {0};
+
+    // Get pixbuf tile that was clicked.
+    clickedTile.x = (gint)(event->x / TILE_SIZE);
+    clickedTile.y = (gint)(event->y / TILE_SIZE);
+
+    // Get the dungeon cell of the clicked tile.
+    newSelectedCell.x = viewPosition->x + clickedTile.x;
+    newSelectedCell.y = viewPosition->y + clickedTile.y;
+
+    // Center viewPort on selected dungeon cell if it was clicked again.
+    if (newSelectedCell.x == oldSelectedCell->x && newSelectedCell.y == oldSelectedCell->y)
+        CenterViewPortOn(newSelectedCell.x, newSelectedCell.y);
+    else
+        SetSelectedCell(newSelectedCell.x, newSelectedCell.y);
+
+    // Queue update to the viewPort.
+    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+
+    return TRUE;
 }
