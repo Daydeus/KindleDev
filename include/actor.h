@@ -1,51 +1,62 @@
-#ifndef DUNGEON_CELL_H
-#define DUNGEON_CELL_H
+#ifndef ACTOR_H
+#define ACTOR_H
 
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
-#include "actor.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#define DUNGEON_WIDTH  60
-#define DUNGEON_HEIGHT 40
+#define MAX_ACTOR_COUNT 1
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
 // ------------------------------------------------------------------------------------------------
 
-enum Terrain
+enum Direction
 {
-    TERRAIN_NULL,
-    TERRAIN_FLOOR,
-    TERRAIN_WALL,
-    TERRAIN_COUNT
+    DIR_UP,
+    DIR_DOWN,
+    DIR_LEFT,
+    DIR_RIGHT,
+    DIR_COUNT
+};
+
+enum ActorSpecies
+{
+    SPECIES_NULL,
+    SPECIES_PLAYER,
+    SPECIES_COUNT
 };
 
 typedef struct
 {
-    Terrain terrain;
-    Actor *actor;
-} DungeonCell;
+    gint x;
+    gint y;
+} Point;
 
+typedef struct
+{
+    ActorSpecies species;
+    Point position;
+} Actor;
 
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern DungeonCell cells[DUNGEON_HEIGHT][DUNGEON_WIDTH];
+extern Actor actors[MAX_ACTOR_COUNT];
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-gboolean IsOutsideDungeon(gint positionX, gint positionY);
-DungeonCell* GetCellAtPosition(gint positionX, gint positionY);
-Terrain GetCellTerrain(gint positionX, gint positionY);
-void SetCellTerrain(gint positionX, gint positionY, Terrain terrain);
-Actor* GetCellsActor(gint positionX, gint positionY);
-void SetCellsActor(gint positionX, gint positionY, Actor *actor);
+Actor* GetActor(guint actorIndex);
+ActorSpecies GetActorSpecies(Actor *actor);
+void SetActorSpecies(Actor *actor, ActorSpecies species);
+Point* GetActorPosition(Actor *actor);
+void SetActorPosition(Actor *actor, gint positionX, gint positionY);
+void MoveActorPosition(Actor *actor, Direction direction, guint distance);
 
-#endif // DUNGEON_CELL_H
+#endif // ACTOR_H

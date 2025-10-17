@@ -3,6 +3,7 @@
 #include <glib-2.0/glib.h>
 #include <cstdlib>
 #include "dungeonCell.h"
+#include "actor.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -18,7 +19,7 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-TERRAIN dungeonCells[DUNGEON_WIDTH * DUNGEON_HEIGHT] = {TERRAIN_NULL};
+DungeonCell cells[DUNGEON_HEIGHT][DUNGEON_WIDTH] = {};
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -38,21 +39,47 @@ gboolean IsOutsideDungeon(gint positionX, gint positionY)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Gets the terrain of the dungeonCell at the given position.
-TERRAIN GetCellTerrain(guint positionX, guint positionY)
+// Gets the dungeonCell at the given position.
+DungeonCell* GetCellAtPosition(gint positionX, gint positionY)
 {
-    guint index = (positionY * DUNGEON_WIDTH) + positionX;
-
     if (!IsOutsideDungeon(positionX, positionY))
-        return dungeonCells[index];
+        return &cells[positionY][positionX];
+    else
+        return NULL;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Gets the terrain of the dungeonCell at the given position.
+Terrain GetCellTerrain(gint positionX, gint positionY)
+{
+    if (!IsOutsideDungeon(positionX, positionY))
+        return cells[positionY][positionX].terrain;
     else
         return TERRAIN_NULL;
 }
 
 // ------------------------------------------------------------------------------------------------
 // Sets the terrain of the dungeonCell at the given position.
-void SetCellTerrain(guint positionX, guint positionY, TERRAIN terrain)
+void SetCellTerrain(gint positionX, gint positionY, Terrain terrain)
 {
-    guint index = (positionY * DUNGEON_WIDTH) + positionX;
-    dungeonCells[index] = terrain;
+    if (!IsOutsideDungeon(positionX, positionY))
+        cells[positionY][positionX].terrain = terrain;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Gets the pointer of the actor at the given dungeonCell position.
+Actor* GetCellsActor(gint positionX, gint positionY)
+{
+    if (!IsOutsideDungeon(positionX, positionY))
+        return cells[positionY][positionX].actor;
+    else
+        return NULL;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets the pointer for the actor at the given dungeonCell position.
+void SetCellsActor(gint positionX, gint positionY, Actor *actor)
+{
+    if (!IsOutsideDungeon(positionX, positionY))
+        cells[positionY][positionX].actor = actor;
 }

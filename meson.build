@@ -23,9 +23,10 @@ endif
 ####################
 sources = files(
     './src/main.cpp',
-    './src/viewPort.cpp',
+    './src/actor.cpp',
     './src/dungeonCell.cpp',
     './src/dungeonGeneration.cpp',
+    './src/viewPort.cpp',
 
 ### C-Source files for tile graphics
     './src/data/tile_null.cpp',
@@ -39,6 +40,7 @@ sources = files(
     './src/data/tile_wall_right_left.cpp',
     './src/data/tile_wall_top_right_left.cpp',
     './src/data/tile_cell_selected.cpp',
+    './src/data/tile_at.cpp',
 )
 
 include_dirs = include_directories(

@@ -3,6 +3,7 @@
 #include <glib-2.0/glib.h>
 #include <cairo/cairo.h>
 #include <cstdlib>
+#include "actor.h"
 #include "dungeonCell.h"
 #include "viewPort.h"
 #include "data/tile_null.h"
@@ -16,6 +17,7 @@
 #include "data/tile_wall_right_left.h"
 #include "data/tile_wall_top_right_left.h"
 #include "data/tile_cell_selected.h"
+#include "data/tile_at.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -42,6 +44,7 @@ extern const guint8 tile_wall_top_left[];
 extern const guint8 tile_wall_right_left[];
 extern const guint8 tile_wall_top_right_left[];
 extern const guint8 tile_cell_selected[];
+extern const guint8 tile_at[];
 
 GdkPixbuf *tiles[TILE_COUNT] = {NULL};
 GtkDrawingArea *viewPort = NULL;
@@ -52,11 +55,11 @@ Point selectedCell = {0}; // The current player-selected dungeonCell in the view
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-static TILE GetWallTile(gint positionX, gint positionY);
+static Tile GetWallTile(gint positionX, gint positionY);
 static GdkPixbuf* GetTileForCellSelected(gint positionX, gint positionY);
 static GdkPixbuf* GetTileForTerrain(gint positionX, gint positionY);
 static GdkPixbuf* GetTileForCell(gint positionX, gint positionY);
-static GdkPixbuf* GetPixbufFromTile(TILE tile);
+static GdkPixbuf* GetPixbufFromTile(Tile tile);
 
 // ------------------------------------------------------------------------------------------------
 // Load GdkPixbuf tiles and initialize the dungeon viewPort.
@@ -84,7 +87,7 @@ void SetViewPosition(gint positionX, gint positionY)
 
 // ------------------------------------------------------------------------------------------------
 // Moves the dungeonCell position of the viewPort origin based on the given direction and distance.
-void MoveViewPosition(DIRECTION direction, guint distance)
+void MoveViewPosition(Direction direction, guint distance)
 {
     Point *position = GetViewPosition();
 
@@ -133,7 +136,7 @@ void SetSelectedCell(gint positionX, gint positionY)
 
 // ------------------------------------------------------------------------------------------------
 // Returns the array of image data required for gdk_pixbuf_new_from_inline.
-const guint8* GetTileData(enum TILE tile)
+const guint8* GetTileData(Tile tile)
 {
     switch (tile)
     {
@@ -159,6 +162,8 @@ const guint8* GetTileData(enum TILE tile)
         return tile_floor_base;
     case TILE_CELL_SELECTED:
         return tile_cell_selected;
+    case TILE_AT:
+        return tile_at;
     case TILE_COUNT:
         return NULL;
     }
@@ -168,17 +173,17 @@ const guint8* GetTileData(enum TILE tile)
 
 // ------------------------------------------------------------------------------------------------
 // Returns the tile image for a TERRAIN_WALL cell based on the surrounding cells.
-static TILE GetWallTile(gint positionX, gint positionY)
+static Tile GetWallTile(gint positionX, gint positionY)
 {
     guint tileMask = 0;
-    TERRAIN cellUp = GetCellTerrain(positionX, positionY - 1);
-    TERRAIN cellRight = GetCellTerrain(positionX + 1, positionY);
-    TERRAIN cellLeft = GetCellTerrain(positionX - 1, positionY);
-    TERRAIN cellDown = GetCellTerrain(positionX, positionY + 1);
-    TERRAIN cell45 = GetCellTerrain(positionX + 1, positionY - 1);
-    TERRAIN cell135 = GetCellTerrain(positionX + 1, positionY + 1);
-    TERRAIN cell225 = GetCellTerrain(positionX - 1, positionY - 1);
-    TERRAIN cell315 = GetCellTerrain(positionX - 1, positionY + 1);
+    Terrain cellUp = GetCellTerrain(positionX, positionY - 1);
+    Terrain cellRight = GetCellTerrain(positionX + 1, positionY);
+    Terrain cellLeft = GetCellTerrain(positionX - 1, positionY);
+    Terrain cellDown = GetCellTerrain(positionX, positionY + 1);
+    Terrain cell45 = GetCellTerrain(positionX + 1, positionY - 1);
+    Terrain cell135 = GetCellTerrain(positionX + 1, positionY + 1);
+    Terrain cell225 = GetCellTerrain(positionX - 1, positionY - 1);
+    Terrain cell315 = GetCellTerrain(positionX - 1, positionY + 1);
 
     if (cellUp == TERRAIN_FLOOR)
         tileMask +=1;
@@ -189,7 +194,7 @@ static TILE GetWallTile(gint positionX, gint positionY)
     if (cellLeft == TERRAIN_FLOOR)
         tileMask +=8;
 
-    switch ((TILE_MASK)tileMask)
+    switch ((TileMask)tileMask)
     {
     case MASK_TOP:
         if (cell135 == TERRAIN_FLOOR && cell315 == TERRAIN_FLOOR)
@@ -247,11 +252,30 @@ static GdkPixbuf* GetTileForCellSelected(gint positionX, gint positionY)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Returns the GdkPixbuf from the tiles array for the given actor.
+static GdkPixbuf* GetTileForActor(Actor *actor)
+{
+    ActorSpecies species = actor->species;
+    Tile tile;
+
+    switch (species)
+    {
+    case SPECIES_PLAYER:
+        tile = TILE_AT;
+        break;
+    default:
+        tile = TILE_NULL;
+    }
+
+    return GetPixbufFromTile(tile);
+}
+
+// ------------------------------------------------------------------------------------------------
 // Returns the GdkPixbuf from the tiles array for the given cell based on its terrain.
 static GdkPixbuf* GetTileForTerrain(gint positionX, gint positionY)
 {
-    TERRAIN terrain = GetCellTerrain(positionX, positionY);
-    TILE tile;
+    Terrain terrain = GetCellTerrain(positionX, positionY);
+    Tile tile;
 
     switch (terrain)
     {
@@ -272,24 +296,24 @@ static GdkPixbuf* GetTileForTerrain(gint positionX, gint positionY)
 // Returns the GdkPixbuf from the tiles array based on the dungeonCell's contents.
 static GdkPixbuf* GetTileForCell(gint positionX, gint positionY)
 {
+    DungeonCell *cellToDraw = GetCellAtPosition(positionX, positionY);
     Point *selectedCell = GetSelectedCell();
 
-    // If cell is selected, return tile for selected cell marker.
-    if (selectedCell->x == positionX && selectedCell->y == positionY)
-    {
+    if (IsOutsideDungeon(positionX, positionY))
+        return GetPixbufFromTile(TILE_NULL);
+    else if (selectedCell->x == positionX && selectedCell->y == positionY)
         return GetTileForCellSelected(positionX, positionY);
-    }
-    else // Cell is not selected, return terrain tile.
-    {
+    else if (cellToDraw->actor != NULL)
+        return GetTileForActor(cellToDraw->actor);
+    else
         return GetTileForTerrain(positionX, positionY);
-    }
 
     return GetPixbufFromTile(TILE_NULL);
 }
 
 // ------------------------------------------------------------------------------------------------
 // Returns a GdkPixbuf based on the given idex to the tiles array.
-static GdkPixbuf* GetPixbufFromTile(TILE tile)
+static GdkPixbuf* GetPixbufFromTile(Tile tile)
 {
     return tiles[tile];
 }
@@ -301,7 +325,7 @@ void LoadImagesToPixbufs(void)
     GError * error = NULL;
     for (guint i = 0; i < TILE_COUNT; i++)
     {
-        tiles[i] = gdk_pixbuf_new_from_inline(-1, GetTileData((enum TILE)i), FALSE, &error);
+        tiles[i] = gdk_pixbuf_new_from_inline(-1, GetTileData((Tile)i), FALSE, &error);
         tiles[i] = gdk_pixbuf_scale_simple(tiles[i], TILE_SIZE, TILE_SIZE, GDK_INTERP_NEAREST);
     }
 }
@@ -329,6 +353,7 @@ gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userDa
         // Create a Cairo context from the GdkWindow
         cairo_t *context = gdk_cairo_create(window);
         Point *viewPosition = GetViewPosition();
+        Point *selectedCell = GetSelectedCell();
 
         for (gint y = 0; y < VIEWPORT_HEIGHT; y++)
         {
@@ -342,11 +367,23 @@ gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userDa
                 gint cellX = viewPosition->x + x;
                 gint cellY = viewPosition->y + y;
 
-                // Sets the GdkPixbuf tile to be drawn and the position to draw it.
-                gdk_cairo_set_source_pixbuf(context, GetTileForCell(cellX, cellY), pixelX, pixelY);
-
-                // Draws the pixbuf tile.
+                // Draws the terrain for the cell.
+                gdk_cairo_set_source_pixbuf(context, GetTileForTerrain(cellX, cellY), pixelX, pixelY);
                 cairo_paint(context);
+
+                // If position contains an actor, draw it over the terrain.
+                if (GetCellsActor(cellX, cellY) != NULL)
+                {
+                    gdk_cairo_set_source_pixbuf(context, tiles[TILE_AT], pixelX, pixelY);
+                    cairo_paint(context);
+                }
+
+                // If position is also the selected cell, draw the cursor over everything else.
+                if (selectedCell->x == cellX && selectedCell->y == cellY)
+                {
+                    gdk_cairo_set_source_pixbuf(context, tiles[TILE_CELL_SELECTED], pixelX, pixelY);
+                    cairo_paint(context);
+                }
             }
         }
 
@@ -375,9 +412,14 @@ gboolean on_viewPort_click(GtkWidget *widget, GdkEventButton *event, gpointer us
 
     // Center viewPort on selected dungeon cell if it was clicked again.
     if (newSelectedCell.x == oldSelectedCell->x && newSelectedCell.y == oldSelectedCell->y)
+    {
         CenterViewPortOn(newSelectedCell.x, newSelectedCell.y);
+        SetActorPosition(&actors[0], newSelectedCell.x, newSelectedCell.y);
+    }
     else
+    {
         SetSelectedCell(newSelectedCell.x, newSelectedCell.y);
+    }
 
     // Queue update to the viewPort.
     gtk_widget_queue_draw(GTK_WIDGET(viewPort));

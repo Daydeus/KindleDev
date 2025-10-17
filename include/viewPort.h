@@ -3,6 +3,7 @@
 
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
+#include "actor.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -20,7 +21,7 @@
 // Data Types
 // ------------------------------------------------------------------------------------------------
 
-enum TILE
+enum Tile
 {
     TILE_NULL,
     TILE_WALL_TOP,
@@ -33,10 +34,11 @@ enum TILE
     TILE_WALL_TOP_RIGHT_LEFT,
     TILE_FLOOR_BASE,
     TILE_CELL_SELECTED,
+    TILE_AT,
     TILE_COUNT
 };
 
-enum TILE_MASK
+enum TileMask
 {
     MASK_NONE,
     MASK_TOP,
@@ -57,15 +59,6 @@ enum TILE_MASK
     MASK_COUNT
 };
 
-enum DIRECTION
-{
-    DIR_UP,
-    DIR_DOWN,
-    DIR_LEFT,
-    DIR_RIGHT,
-    DIR_COUNT
-};
-
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
@@ -82,11 +75,11 @@ extern Point selectedCell;
 void InitViewPort(void);
 Point* GetViewPosition(void);
 void SetViewPosition(gint positionX, gint positionY);
-void MoveViewPosition(DIRECTION direction, guint distance);
+void MoveViewPosition(Direction direction, guint distance);
 void CenterViewPortOn(gint positionX, gint positionY);
 Point* GetSelectedCell(void);
 void SetSelectedCell(gint positionX, gint positionY);
-const guint8* GetTileData(enum TILE tile);
+const guint8* GetTileData(Tile tile);
 void LoadImagesToPixbufs(void);
 void FreePixbufs(void);
 gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userData);
