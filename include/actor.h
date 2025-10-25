@@ -38,6 +38,7 @@ extern Actor actors[MAX_ACTOR_COUNT];
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
+void InitActors(void);
 Actor* GetActor(guint actorIndex);
 ActorSpecies GetActorSpecies(Actor *actor);
 void SetActorSpecies(Actor *actor, ActorSpecies species);

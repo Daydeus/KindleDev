@@ -97,10 +97,9 @@ int main(int argc, char *argv[])
     gtk_window_maximize(GTK_WINDOW(applicationMain));
     SetBackgroundColor(GTK_WIDGET(viewPort), COLOR_WHITE);
 
-    // Init player position and center viewPort on it.
+    // Init game.
     GenerateDungeon();
-    SetActorPosition(&actors[0], rand() % DUNGEON_WIDTH, rand() % DUNGEON_HEIGHT);
-    SetActorSpecies(&actors[0], SPECIES_PLAYER);
+    InitActors();
     CenterViewPortOn(actors[0].position.x, actors[0].position.y);
 
     gtk_widget_show_all(GTK_WIDGET(applicationMain));
