@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
     SetBackgroundColor(GTK_WIDGET(viewPort), COLOR_WHITE);
 
     // Init player position and center viewPort on it.
+    GenerateDungeon();
     SetActorPosition(&actors[0], rand() % DUNGEON_WIDTH, rand() % DUNGEON_HEIGHT);
     SetActorSpecies(&actors[0], SPECIES_PLAYER);
     CenterViewPortOn(actors[0].position.x, actors[0].position.y);
@@ -116,7 +117,7 @@ int main(int argc, char *argv[])
 // Moves the viewPort origin position up one space and updates the viewPieces.
 void on_button_up(GtkWidget *widget)
 {
-    MoveActorPosition(&actors[0], DIR_UP, 1);
+    MoveActorPosition(&actors[0], DIR_NORTH, 1);
     CenterViewPortOn(actors[0].position.x, actors[0].position.y);
     gtk_widget_queue_draw(GTK_WIDGET(viewPort));
 }
@@ -125,7 +126,7 @@ void on_button_up(GtkWidget *widget)
 // Moves the viewPort origin position down one space and updates the viewPieces.
 void on_button_down(GtkWidget *widget)
 {
-    MoveActorPosition(&actors[0], DIR_DOWN, 1);
+    MoveActorPosition(&actors[0], DIR_SOUTH, 1);
     CenterViewPortOn(actors[0].position.x, actors[0].position.y);
     gtk_widget_queue_draw(GTK_WIDGET(viewPort));
 }
@@ -134,7 +135,7 @@ void on_button_down(GtkWidget *widget)
 // Moves the viewPort origin position left one space and updates the viewPieces.
 void on_button_left(GtkWidget *widget)
 {
-    MoveActorPosition(&actors[0], DIR_LEFT, 1);
+    MoveActorPosition(&actors[0], DIR_WEST, 1);
     CenterViewPortOn(actors[0].position.x, actors[0].position.y);
     gtk_widget_queue_draw(GTK_WIDGET(viewPort));
 }
@@ -143,7 +144,7 @@ void on_button_left(GtkWidget *widget)
 // Moves the viewPort origin position right one space and updates the viewPieces.
 void on_button_right(GtkWidget *widget)
 {
-    MoveActorPosition(&actors[0], DIR_RIGHT, 1);
+    MoveActorPosition(&actors[0], DIR_EAST, 1);
     CenterViewPortOn(actors[0].position.x, actors[0].position.y);
     gtk_widget_queue_draw(GTK_WIDGET(viewPort));
 }

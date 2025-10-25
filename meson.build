@@ -26,6 +26,7 @@ sources = files(
     './src/actor.cpp',
     './src/dungeonCell.cpp',
     './src/dungeonGeneration.cpp',
+    './src/global.cpp',
     './src/viewPort.cpp',
 
 ### C-Source files for tile graphics

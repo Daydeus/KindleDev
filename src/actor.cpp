@@ -1,5 +1,6 @@
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
+#include "global.h"
 #include "actor.h"
 #include "dungeonCell.h"
 
@@ -60,15 +61,12 @@ void SetActorPosition(Actor *actor, gint positionX, gint positionY)
         return;
 
     Point *oldPosition = GetActorPosition(actor);
-    DungeonCell *oldCell = GetCellAtPosition(oldPosition->x, oldPosition->y);
-    DungeonCell *newCell = GetCellAtPosition(positionX, positionY);
+
+    SetCellsActor(oldPosition->x, oldPosition->y, NULL);
+    SetCellsActor(positionX, positionY, actor);
 
     actor->position.x = positionX;
     actor->position.y = positionY;
-    oldCell->actor = NULL;
-    newCell->actor = actor;
-
-    g_print("Actor's position: (%d, %d).\n", actors[0].position.x, actors[0].position.y);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -77,24 +75,12 @@ void MoveActorPosition(Actor *actor, Direction direction, guint distance)
 {
     Point *position = GetActorPosition(actor);
 
-    switch (direction)
-    {
-    case DIR_UP:
-        position->y -= distance;
-        break;
-    case DIR_DOWN:
-        position->y += distance;
-        break;
-    case DIR_LEFT:
-        position->x -= distance;
-        break;
-    case DIR_RIGHT:
-        position->x += distance;
-        break;
-    default:
-        break;
-    }
+    SetCellsActor(position->x, position->y, NULL);
+
+    position->x += hMovement[direction] * distance;
+    position->y += vMovement[direction] * distance;
 
     SetActorPosition(actor, position->x, position->y);
+    SetCellsActor(position->x, position->y, actor);
 }
 

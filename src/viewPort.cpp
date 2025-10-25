@@ -3,6 +3,7 @@
 #include <glib-2.0/glib.h>
 #include <cairo/cairo.h>
 #include <cstdlib>
+#include "global.h"
 #include "actor.h"
 #include "dungeonCell.h"
 #include "viewPort.h"
@@ -32,19 +33,6 @@
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
-
-extern const guint8 tile_null[];
-extern const guint8 tile_floor_base[];
-extern const guint8 tile_wall_top[];
-extern const guint8 tile_wall_top_right[];
-extern const guint8 tile_wall_right[];
-extern const guint8 tile_wall_bottom[];
-extern const guint8 tile_wall_left[];
-extern const guint8 tile_wall_top_left[];
-extern const guint8 tile_wall_right_left[];
-extern const guint8 tile_wall_top_right_left[];
-extern const guint8 tile_cell_selected[];
-extern const guint8 tile_at[];
 
 GdkPixbuf *tiles[TILE_COUNT] = {NULL};
 GtkDrawingArea *viewPort = NULL;
@@ -91,23 +79,8 @@ void MoveViewPosition(Direction direction, guint distance)
 {
     Point *position = GetViewPosition();
 
-    switch (direction)
-    {
-    case DIR_UP:
-        position->y -= distance;
-        break;
-    case DIR_DOWN:
-        position->y += distance;
-        break;
-    case DIR_LEFT:
-        position->x -= distance;
-        break;
-    case DIR_RIGHT:
-        position->x += distance;
-        break;
-    default:
-        break;
-    }
+    position->x += hMovement[direction] * distance;
+    position->y += vMovement[direction] * distance;
 
     SetViewPosition(position->x, position->y);
 }
