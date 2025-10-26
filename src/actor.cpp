@@ -1,5 +1,6 @@
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
+#include <cstdlib>
 #include "global.h"
 #include "actor.h"
 #include "dungeonCell.h"
@@ -90,17 +91,29 @@ void SetActorPosition(Actor *actor, gint positionX, gint positionY)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Moves the dungeonCell position of the given actor based on the given direction and distance.
-void MoveActorPosition(Actor *actor, Direction direction, guint distance)
+// Attempts to move the given actor one space in the given direction.
+// Returns FALSE if the action fails.
+gboolean ActionWalk(Actor *actor, Direction direction)
 {
-    Point *position = GetActorPosition(actor);
+    Point *oldPosition = GetActorPosition(actor);
+    Point newPosition;
 
-    SetCellsActor(position->x, position->y, NULL);
+    newPosition.x = oldPosition->x + hMovement[direction];
+    newPosition.y = oldPosition->y + vMovement[direction];
 
-    position->x += hMovement[direction] * distance;
-    position->y += vMovement[direction] * distance;
+    if (IsOutsideDungeon(newPosition.x, newPosition.y))
+    {
+        return FALSE;
+    }
+    if (!IsTerrainTraversable(newPosition.x, newPosition.y))
+    {
+        return FALSE;
+    }
 
-    SetActorPosition(actor, position->x, position->y);
-    SetCellsActor(position->x, position->y, actor);
+    SetCellsActor(oldPosition->x, oldPosition->y, NULL);
+
+    SetCellsActor(newPosition.x, newPosition.y, actor);
+    SetActorPosition(actor, newPosition.x, newPosition.y);
+
+    return TRUE;
 }
-

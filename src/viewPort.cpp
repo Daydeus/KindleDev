@@ -383,11 +383,14 @@ gboolean on_viewPort_click(GtkWidget *widget, GdkEventButton *event, gpointer us
     newSelectedCell.x = viewPosition->x + clickedTile.x;
     newSelectedCell.y = viewPosition->y + clickedTile.y;
 
-    // Center viewPort on selected dungeon cell if it was clicked again.
+    // Center viewPort on selected dungeon cell if it was clicked again and is traversable.
     if (newSelectedCell.x == oldSelectedCell->x && newSelectedCell.y == oldSelectedCell->y)
     {
-        CenterViewPortOn(newSelectedCell.x, newSelectedCell.y);
-        SetActorPosition(&actors[0], newSelectedCell.x, newSelectedCell.y);
+        if (IsTerrainTraversable(newSelectedCell.x, newSelectedCell.y))
+        {
+            CenterViewPortOn(newSelectedCell.x, newSelectedCell.y);
+            SetActorPosition(&actors[0], newSelectedCell.x, newSelectedCell.y);
+        }
     }
     else
     {

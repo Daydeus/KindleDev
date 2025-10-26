@@ -83,3 +83,22 @@ void SetCellsActor(gint positionX, gint positionY, Actor *actor)
     if (!IsOutsideDungeon(positionX, positionY))
         cells[positionY][positionX].actor = actor;
 }
+
+// ------------------------------------------------------------------------------------------------
+// Returns whether the given cell's terrain is traversable.
+gboolean IsTerrainTraversable(gint positionX, gint positionY)
+{
+    if (IsOutsideDungeon(positionX, positionY))
+    {
+        return FALSE;
+    }
+    else
+    {
+        Terrain terrain = GetCellTerrain(positionX, positionY);
+
+        if (terrain == TERRAIN_FLOOR)
+            return TRUE;
+        else
+            return FALSE;
+    }
+}

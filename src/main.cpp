@@ -1,7 +1,6 @@
 #include <gtk-2.0/gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <glib-2.0/glib.h>
-#include <cairo/cairo.h>
 #include <cstdlib>
 #include <time.h>
 #include "actor.h"
@@ -116,36 +115,44 @@ int main(int argc, char *argv[])
 // Moves the viewPort origin position up one space and updates the viewPieces.
 void on_button_up(GtkWidget *widget)
 {
-    MoveActorPosition(&actors[0], DIR_NORTH, 1);
-    CenterViewPortOn(actors[0].position.x, actors[0].position.y);
-    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+    if (ActionWalk(&actors[0], DIR_NORTH))
+    {
+        CenterViewPortOn(actors[0].position.x, actors[0].position.y);
+        gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 // Moves the viewPort origin position down one space and updates the viewPieces.
 void on_button_down(GtkWidget *widget)
 {
-    MoveActorPosition(&actors[0], DIR_SOUTH, 1);
-    CenterViewPortOn(actors[0].position.x, actors[0].position.y);
-    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+    if (ActionWalk(&actors[0], DIR_SOUTH))
+    {
+        CenterViewPortOn(actors[0].position.x, actors[0].position.y);
+        gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 // Moves the viewPort origin position left one space and updates the viewPieces.
 void on_button_left(GtkWidget *widget)
 {
-    MoveActorPosition(&actors[0], DIR_WEST, 1);
-    CenterViewPortOn(actors[0].position.x, actors[0].position.y);
-    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+    if (ActionWalk(&actors[0], DIR_WEST))
+    {
+        CenterViewPortOn(actors[0].position.x, actors[0].position.y);
+        gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 // Moves the viewPort origin position right one space and updates the viewPieces.
 void on_button_right(GtkWidget *widget)
 {
-    MoveActorPosition(&actors[0], DIR_EAST, 1);
-    CenterViewPortOn(actors[0].position.x, actors[0].position.y);
-    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+    if (ActionWalk(&actors[0], DIR_EAST))
+    {
+        CenterViewPortOn(actors[0].position.x, actors[0].position.y);
+        gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -153,6 +160,8 @@ void on_button_right(GtkWidget *widget)
 void on_button_generate(GtkWidget *widget)
 {
     GenerateDungeon();
+    InitActors();
+    CenterViewPortOn(actors[0].position.x, actors[0].position.y);
     gtk_widget_queue_draw(GTK_WIDGET(viewPort));
 }
 

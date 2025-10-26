@@ -44,6 +44,6 @@ ActorSpecies GetActorSpecies(Actor *actor);
 void SetActorSpecies(Actor *actor, ActorSpecies species);
 Point* GetActorPosition(Actor *actor);
 void SetActorPosition(Actor *actor, gint positionX, gint positionY);
-void MoveActorPosition(Actor *actor, Direction direction, guint distance);
+gboolean ActionWalk(Actor *actor, Direction direction);
 
 #endif // ACTOR_H
