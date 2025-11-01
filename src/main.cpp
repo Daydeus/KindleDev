@@ -33,7 +33,6 @@ void on_button_down(GtkWidget *widget);
 void on_button_left(GtkWidget *widget);
 void on_button_right(GtkWidget *widget);
 void on_button_generate(GtkWidget *widget);
-void SetBackgroundColor(GtkWidget *widget, enum Color colorName);
 
 // ------------------------------------------------------------------------------------------------
 // The main application loop.
@@ -85,9 +84,9 @@ int main(int argc, char *argv[])
 
     // Set the intial options before applicationMain is made visible.
     gtk_window_set_title(GTK_WINDOW(applicationMain), "L:A_N:application_ID:kindle-gtk_PC:T");
-    SetBackgroundColor(GTK_WIDGET(applicationMain), COLOR_WHITE);
+    SetWidgetBgColor(GTK_WIDGET(applicationMain), COLOR_WHITE);
     gtk_window_maximize(GTK_WINDOW(applicationMain));
-    SetBackgroundColor(GTK_WIDGET(viewPort), COLOR_WHITE);
+    SetWidgetBgColor(GTK_WIDGET(viewPort), COLOR_WHITE);
 
     // Init game.
     GenerateDungeon();
@@ -156,33 +155,4 @@ void on_button_generate(GtkWidget *widget)
     InitActors();
     CenterViewPortOn(actors[0].position.x, actors[0].position.y);
     gtk_widget_queue_draw(GTK_WIDGET(viewPort));
-}
-
-// ------------------------------------------------------------------------------------------------
-// Sets the widget's background color.
-void SetBackgroundColor(GtkWidget *widget, enum Color colorName)
-{
-    const gchar* string;
-    GdkColor color;
-
-    switch (colorName)
-    {
-    case COLOR_BLACK:
-        string = "#000000";
-    break;
-    case COLOR_GREY_DARK:
-        string = "#444444";
-    break;
-    case COLOR_GREY_LIGHT:
-        string = "#bbbbbb";
-    break;
-    case COLOR_WHITE:
-        string = "#ffffff";
-    break;
-    }
-
-    if (gdk_color_parse(string, &color))
-    {
-        gtk_widget_modify_bg(widget, GTK_STATE_NORMAL, &color);
-    }
 }

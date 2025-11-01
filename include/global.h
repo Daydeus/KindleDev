@@ -54,5 +54,6 @@ extern const gint8 vMovement[DIR_COUNT];
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
+void SetWidgetBgColor(GtkWidget *widget, enum Color colorName);
 
 #endif // GLOBAL_H
