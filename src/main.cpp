@@ -3,6 +3,7 @@
 #include <glib-2.0/glib.h>
 #include <cstdlib>
 #include <time.h>
+#include "global.h"
 #include "actor.h"
 #include "dungeonCell.h"
 #include "viewPort.h"
@@ -17,14 +18,6 @@
 // Data Types
 // ------------------------------------------------------------------------------------------------
 
-// Colors available for the application to use.
-enum Color
-{
-    COLOR_BLACK,
-    COLOR_GREY_DARK,
-    COLOR_GREY_LIGHT,
-    COLOR_WHITE
-};
 
 // ------------------------------------------------------------------------------------------------
 // Global Variables

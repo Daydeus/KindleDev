@@ -13,6 +13,16 @@
 // Data Types
 // ------------------------------------------------------------------------------------------------
 
+// Colors available for the application to use.
+enum Color
+{
+    COLOR_BLACK,
+    COLOR_GREY_DARK,
+    COLOR_GREY_LIGHT,
+    COLOR_WHITE,
+    COLOR_COUNT
+};
+
 enum Direction
 {
     DIR_NULL,
