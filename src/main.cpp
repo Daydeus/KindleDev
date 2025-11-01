@@ -46,8 +46,8 @@ int main(int argc, char *argv[])
     // Initialize non-global Gtk widgets.
     GtkWindow *applicationMain = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
     InitViewPort();
-    GtkVBox *vboxMain = GTK_VBOX(gtk_vbox_new(TRUE, 0));
-    GtkAlignment *viewPortAlign = GTK_ALIGNMENT(gtk_alignment_new(0.5, 0, 0 ,0));
+    GtkAlignment *alignMain = GTK_ALIGNMENT(gtk_alignment_new(0.5, 0, 0 ,0));
+    GtkTable *tableMain = GTK_TABLE(gtk_table_new(5, 1, FALSE));
     GtkHBox  *hboxControls = GTK_HBOX(gtk_hbox_new(TRUE, 0));
     GtkButton *buttonUp = GTK_BUTTON(gtk_button_new_with_label("Move Up"));
     GtkButton *buttonDown = GTK_BUTTON(gtk_button_new_with_label("Move Down"));
@@ -57,10 +57,10 @@ int main(int argc, char *argv[])
     GtkButton *buttonQuit = GTK_BUTTON(gtk_button_new_with_label("Quit"));
 
     // Add widgets to containers.
-    gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(vboxMain));
-    gtk_box_pack_start(GTK_BOX(vboxMain), GTK_WIDGET(viewPortAlign), FALSE, FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(viewPortAlign), GTK_WIDGET(viewPort));
-    gtk_box_pack_start(GTK_BOX(vboxMain), GTK_WIDGET(hboxControls), FALSE, FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(alignMain));
+    gtk_container_add(GTK_CONTAINER(alignMain), GTK_WIDGET(tableMain));
+    gtk_table_attach(tableMain, GTK_WIDGET(viewPort), 0, 1, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
+    gtk_table_attach(tableMain, GTK_WIDGET(hboxControls), 0, 1, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
     gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonUp), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonDown), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonLeft), FALSE, FALSE, 0);
