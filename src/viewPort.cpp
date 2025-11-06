@@ -7,18 +7,25 @@
 #include "actor.h"
 #include "dungeonCell.h"
 #include "viewPort.h"
-#include "data/tile_null.h"
-#include "data/tile_floor_base.h"
-#include "data/tile_wall_bottom.h"
-#include "data/tile_wall_top.h"
-#include "data/tile_wall_right.h"
-#include "data/tile_wall_top_right.h"
-#include "data/tile_wall_left.h"
-#include "data/tile_wall_top_left.h"
-#include "data/tile_wall_right_left.h"
-#include "data/tile_wall_top_right_left.h"
-#include "data/tile_cell_selected.h"
 #include "data/tile_at.h"
+#include "data/tile_cell_selected.h"
+#include "data/tile_floor.h"
+#include "data/tile_null.h"
+#include "data/tile_wall_cave_dualCorners_northWestToSouthEast.h"
+#include "data/tile_wall_cave_dualCorners_southWestToNorthEast.h"
+#include "data/tile_wall_cave_facing_east.h"
+#include "data/tile_wall_cave_facing_north.h"
+#include "data/tile_wall_cave_facing_south.h"
+#include "data/tile_wall_cave_facing_west.h"
+#include "data/tile_wall_cave_innerCorner_northEast.h"
+#include "data/tile_wall_cave_innerCorner_northWest.h"
+#include "data/tile_wall_cave_innerCorner_southEast.h"
+#include "data/tile_wall_cave_innerCorner_southWest.h"
+#include "data/tile_wall_cave_outerCorner_northEast.h"
+#include "data/tile_wall_cave_outerCorner_northWest.h"
+#include "data/tile_wall_cave_outerCorner_southEast.h"
+#include "data/tile_wall_cave_outerCorner_southWest.h"
+#include "data/tile_wall_cave_standalone.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -55,7 +62,7 @@ void InitViewPort(void)
 {
     LoadImagesToPixbufs();
     viewPort = GTK_DRAWING_AREA(gtk_drawing_area_new());
-    gtk_widget_set_size_request(GTK_WIDGET(viewPort), VIEWPORT_WIDTH * TILE_SIZE, VIEWPORT_HEIGHT * TILE_SIZE);
+    gtk_widget_set_size_request(GTK_WIDGET(viewPort), VIEWPORT_WIDTH_PIXELS, VIEWPORT_HEIGHT_PIXELS);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -89,7 +96,7 @@ void MoveViewPosition(Direction direction, guint distance)
 // Sets the dungeonCell position of the viewPort origin such that the given position is centered.
 void CenterViewPortOn(gint positionX, gint positionY)
 {
-    SetViewPosition(positionX - VIEWPORT_WIDTH / 2, positionY - VIEWPORT_HEIGHT / 2);
+    SetViewPosition(positionX - VIEWPORT_WIDTH_TILES / 2, positionY - VIEWPORT_HEIGHT_TILES / 2);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -115,28 +122,42 @@ const guint8* GetTileData(Tile tile)
     {
     case TILE_NULL:
         return tile_null;
-    case TILE_WALL_TOP:
-        return tile_wall_top;
-    case TILE_WALL_RIGHT:
-        return tile_wall_right;
-    case TILE_WALL_TOP_RIGHT:
-        return tile_wall_top_right;
-    case TILE_WALL_BOTTOM:
-        return tile_wall_bottom;
-    case TILE_WALL_LEFT:
-        return tile_wall_left;
-    case TILE_WALL_TOP_LEFT:
-        return tile_wall_top_left;
-    case TILE_WALL_RIGHT_LEFT:
-        return tile_wall_right_left;
-    case TILE_WALL_TOP_RIGHT_LEFT:
-        return tile_wall_top_right_left;
-    case TILE_FLOOR_BASE:
-        return tile_floor_base;
-    case TILE_CELL_SELECTED:
-        return tile_cell_selected;
+    case TILE_WALL_DUAL_CORNERS_NORTHWEST_SOUTHEAST:
+        return tile_wall_cave_dualCorners_northWestToSouthEast;
+    case TILE_WALL_DUAL_CORNERS_SOUTHWEST_NORTHEAST:
+        return tile_wall_cave_dualCorners_southWestToNorthEast;
+    case TILE_WALL_FACING_EAST:
+        return tile_wall_cave_facing_east;
+    case TILE_WALL_FACING_NORTH:
+        return tile_wall_cave_facing_north;
+    case TILE_WALL_FACING_SOUTH:
+        return tile_wall_cave_facing_south;
+    case TILE_WALL_FACING_WEST:
+        return tile_wall_cave_facing_west;
+    case TILE_WALL_INNER_CORNER_NORTHEAST:
+        return tile_wall_cave_innerCorner_northEast;
+    case TILE_WALL_INNER_CORNER_NORTHWEST:
+        return tile_wall_cave_innerCorner_northWest;
+    case TILE_WALL_INNER_CORNER_SOUTHEAST:
+        return tile_wall_cave_innerCorner_southEast;
+    case TILE_WALL_INNER_CORNER_SOUTHWEST:
+        return tile_wall_cave_innerCorner_southWest;
+    case TILE_WALL_OUTER_CORNER_NORTHEAST:
+        return tile_wall_cave_outerCorner_northEast;
+    case TILE_WALL_OUTER_CORNER_NORTHWEST:
+        return tile_wall_cave_outerCorner_northWest;
+    case TILE_WALL_OUTER_CORNER_SOUTHEAST:
+        return tile_wall_cave_outerCorner_southEast;
+    case TILE_WALL_OUTER_CORNER_SOUTHWEST:
+        return tile_wall_cave_outerCorner_southWest;
+    case TILE_WALL_STANDALONE:
+        return tile_wall_cave_standalone;
+    case TILE_FLOOR:
+        return tile_floor;
     case TILE_AT:
         return tile_at;
+    case TILE_CELL_SELECTED:
+        return tile_cell_selected;
     case TILE_COUNT:
         return NULL;
     }
@@ -148,73 +169,51 @@ const guint8* GetTileData(Tile tile)
 // Returns the tile image for a TERRAIN_WALL cell based on the surrounding cells.
 static Tile GetWallTile(gint positionX, gint positionY)
 {
-    guint tileMask = 0;
-    Terrain cellUp = GetCellTerrain(positionX, positionY - 1);
-    Terrain cellRight = GetCellTerrain(positionX + 1, positionY);
-    Terrain cellLeft = GetCellTerrain(positionX - 1, positionY);
-    Terrain cellDown = GetCellTerrain(positionX, positionY + 1);
-    Terrain cell45 = GetCellTerrain(positionX + 1, positionY - 1);
-    Terrain cell135 = GetCellTerrain(positionX + 1, positionY + 1);
-    Terrain cell225 = GetCellTerrain(positionX - 1, positionY - 1);
-    Terrain cell315 = GetCellTerrain(positionX - 1, positionY + 1);
+    guint tile = TILE_NULL;
+    Terrain neighbors[DIR_COUNT] = {TERRAIN_NULL};
 
-    if (cellUp == TERRAIN_FLOOR)
-        tileMask +=1;
-    if (cellRight == TERRAIN_FLOOR)
-        tileMask +=2;
-    if (cellDown == TERRAIN_FLOOR)
-        tileMask +=4;
-    if (cellLeft == TERRAIN_FLOOR)
-        tileMask +=8;
-
-    switch ((TileMask)tileMask)
+    // Get terrain for each neighboring cell.
+    for (guint i = 0; i < DIR_COUNT; i++)
     {
-    case MASK_TOP:
-        if (cell135 == TERRAIN_FLOOR && cell315 == TERRAIN_FLOOR)
-            return TILE_WALL_TOP_RIGHT_LEFT;
-        else if (cell135 == TERRAIN_FLOOR)
-            return TILE_WALL_TOP_RIGHT;
-        else if (cell315 == TERRAIN_FLOOR)
-            return TILE_WALL_TOP_LEFT;
-        else
-            return TILE_WALL_TOP;
-    case MASK_RIGHT:
-        if (cell225 == TERRAIN_FLOOR && cell315 == TERRAIN_FLOOR)
-            return TILE_WALL_RIGHT_LEFT;
-        else
-            return TILE_WALL_RIGHT;
-    case MASK_BOTTOM:
-    case MASK_TOP_BOTTOM:
-    case MASK_TOP_RIGHT_BOTTOM:
-    case MASK_TOP_BOTTOM_LEFT:
-    case MASK_TOP_RIGHT_BOTTOM_LEFT:
-    case MASK_RIGHT_BOTTOM_LEFT:
-    case MASK_BOTTOM_LEFT:
-    case MASK_RIGHT_BOTTOM:
-        return TILE_WALL_BOTTOM;
-    case MASK_LEFT:
-        if (cell45 == TERRAIN_FLOOR && cell135 == TERRAIN_FLOOR)
-            return TILE_WALL_RIGHT_LEFT;
-        else
-            return TILE_WALL_LEFT;
-    case MASK_RIGHT_LEFT:
-        return TILE_WALL_RIGHT_LEFT;
-    case MASK_TOP_RIGHT:
-        return TILE_WALL_TOP_RIGHT;
-    case MASK_TOP_LEFT:
-        return TILE_WALL_TOP_LEFT;
-    case MASK_TOP_RIGHT_LEFT:
-        return TILE_WALL_TOP_RIGHT_LEFT;
-    default:
-        if (cell135 == TERRAIN_FLOOR && cell315 == TERRAIN_FLOOR)
-            return TILE_WALL_RIGHT_LEFT;
-        else if (cell45 == TERRAIN_FLOOR && cell135 == TERRAIN_FLOOR)
-            return TILE_WALL_RIGHT;
-        else if (cell225 == TERRAIN_FLOOR && cell315 == TERRAIN_FLOOR)
-            return TILE_WALL_LEFT;
-        else
-        return TILE_NULL;
+        gint cellX = positionX + hMovement[i];
+        gint cellY = positionY + vMovement[i];
+
+        neighbors[i] = GetCellTerrain(cellX, cellY);
     }
+
+    // Check corner neighbors for TERRAIN_FLOOR.
+    if (neighbors[DIR_NORTH_EAST] == TERRAIN_FLOOR)
+        tile |= MASK_NORTH_EAST;
+    if (neighbors[DIR_SOUTH_EAST] == TERRAIN_FLOOR)
+        tile |= MASK_SOUTH_EAST;
+    if (neighbors[DIR_SOUTH_WEST] == TERRAIN_FLOOR)
+        tile |= MASK_SOUTH_WEST;
+    if (neighbors[DIR_NORTH_WEST] == TERRAIN_FLOOR)
+        tile |= MASK_NORTH_WEST;
+
+    // Check edge neighbors for TERRAIN_FLOOR.
+    if (neighbors[DIR_NORTH] == TERRAIN_FLOOR)
+    {
+        tile |= MASK_NORTH_EAST;
+        tile |= MASK_NORTH_WEST;
+    }
+    if (neighbors[DIR_EAST] == TERRAIN_FLOOR)
+    {
+        tile |= MASK_NORTH_EAST;
+        tile |= MASK_SOUTH_EAST;
+    }
+    if (neighbors[DIR_SOUTH] == TERRAIN_FLOOR)
+    {
+        tile |= MASK_SOUTH_EAST;
+        tile |= MASK_SOUTH_WEST;
+    }
+    if (neighbors[DIR_WEST] == TERRAIN_FLOOR)
+    {
+        tile |= MASK_SOUTH_WEST;
+        tile |= MASK_NORTH_WEST;
+    }
+
+    return (Tile)tile;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -253,7 +252,7 @@ static GdkPixbuf* GetTileForTerrain(gint positionX, gint positionY)
     switch (terrain)
     {
     case TERRAIN_FLOOR:
-        tile = TILE_FLOOR_BASE;
+        tile = TILE_FLOOR;
         break;
     case TERRAIN_WALL:
         tile = GetWallTile(positionX, positionY);
@@ -328,9 +327,9 @@ gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userDa
         Point *viewPosition = GetViewPosition();
         Point *selectedCell = GetSelectedCell();
 
-        for (gint y = 0; y < VIEWPORT_HEIGHT; y++)
+        for (gint y = 0; y < VIEWPORT_HEIGHT_TILES; y++)
         {
-            for (gint x = 0; x < VIEWPORT_WIDTH; x++)
+            for (gint x = 0; x < VIEWPORT_WIDTH_TILES; x++)
             {
                 // The pixel position within the viewPort to be changed.
                 gint pixelX = TILE_SIZE * x;

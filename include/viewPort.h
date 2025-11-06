@@ -9,53 +9,55 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
+#define SCREEN_WIDTH_PIXELS  1264
+#define SCREEN_HEIGHT_PIXELS 1680
+
 #ifdef KINDLE_BUILD
-    #define TILE_SIZE 48
+#define TILE_SIZE 32
 #else
-    #define TILE_SIZE 24
+#define TILE_SIZE 32
 #endif
-#define VIEWPORT_WIDTH  25
-#define VIEWPORT_HEIGHT 15
+
+#define VIEWPORT_WIDTH_TILES  39
+#define VIEWPORT_HEIGHT_TILES 25
+#define VIEWPORT_WIDTH_PIXELS  VIEWPORT_WIDTH_TILES * TILE_SIZE
+#define VIEWPORT_HEIGHT_PIXELS VIEWPORT_HEIGHT_TILES * TILE_SIZE
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
 // ------------------------------------------------------------------------------------------------
 
+// Indices for tiles in the GdkPixbuf tiles array.
 enum Tile
 {
     TILE_NULL,
-    TILE_WALL_TOP,
-    TILE_WALL_RIGHT,
-    TILE_WALL_TOP_RIGHT,
-    TILE_WALL_BOTTOM,
-    TILE_WALL_LEFT,
-    TILE_WALL_TOP_LEFT,
-    TILE_WALL_RIGHT_LEFT,
-    TILE_WALL_TOP_RIGHT_LEFT,
-    TILE_FLOOR_BASE,
-    TILE_CELL_SELECTED,
+    TILE_WALL_INNER_CORNER_NORTHEAST,
+    TILE_WALL_INNER_CORNER_SOUTHEAST,
+    TILE_WALL_FACING_EAST,
+    TILE_WALL_INNER_CORNER_SOUTHWEST,
+    TILE_WALL_DUAL_CORNERS_SOUTHWEST_NORTHEAST,
+    TILE_WALL_FACING_SOUTH,
+    TILE_WALL_OUTER_CORNER_SOUTHEAST,
+    TILE_WALL_INNER_CORNER_NORTHWEST,
+    TILE_WALL_FACING_NORTH,
+    TILE_WALL_DUAL_CORNERS_NORTHWEST_SOUTHEAST,
+    TILE_WALL_OUTER_CORNER_NORTHEAST,
+    TILE_WALL_FACING_WEST,
+    TILE_WALL_OUTER_CORNER_NORTHWEST,
+    TILE_WALL_OUTER_CORNER_SOUTHWEST,
+    TILE_WALL_STANDALONE,
+    TILE_FLOOR,
     TILE_AT,
+    TILE_CELL_SELECTED,
     TILE_COUNT
 };
 
 enum TileMask
 {
-    MASK_NONE,
-    MASK_TOP,
-    MASK_RIGHT,
-    MASK_TOP_RIGHT,
-    MASK_BOTTOM,
-    MASK_TOP_BOTTOM,
-    MASK_RIGHT_BOTTOM,
-    MASK_TOP_RIGHT_BOTTOM,
-    MASK_LEFT,
-    MASK_TOP_LEFT,
-    MASK_RIGHT_LEFT,
-    MASK_TOP_RIGHT_LEFT,
-    MASK_BOTTOM_LEFT,
-    MASK_TOP_BOTTOM_LEFT,
-    MASK_RIGHT_BOTTOM_LEFT,
-    MASK_TOP_RIGHT_BOTTOM_LEFT,
+    MASK_NORTH_EAST = 1,
+    MASK_SOUTH_EAST = 2,
+    MASK_SOUTH_WEST = 4,
+    MASK_NORTH_WEST = 8,
     MASK_COUNT
 };
 

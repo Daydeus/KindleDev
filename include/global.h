@@ -25,7 +25,6 @@ enum Color
 
 enum Direction
 {
-    DIR_NULL,
     DIR_NORTH,
     DIR_NORTH_EAST,
     DIR_EAST,
