@@ -7,25 +7,25 @@
 #include "actor.h"
 #include "dungeonCell.h"
 #include "viewPort.h"
-#include "data/tile_at.h"
-#include "data/tile_cell_selected.h"
-#include "data/tile_floor.h"
-#include "data/tile_null.h"
-#include "data/tile_wall_cave_dualCorners_northWestToSouthEast.h"
-#include "data/tile_wall_cave_dualCorners_southWestToNorthEast.h"
-#include "data/tile_wall_cave_facing_east.h"
-#include "data/tile_wall_cave_facing_north.h"
-#include "data/tile_wall_cave_facing_south.h"
-#include "data/tile_wall_cave_facing_west.h"
-#include "data/tile_wall_cave_innerCorner_northEast.h"
-#include "data/tile_wall_cave_innerCorner_northWest.h"
-#include "data/tile_wall_cave_innerCorner_southEast.h"
-#include "data/tile_wall_cave_innerCorner_southWest.h"
-#include "data/tile_wall_cave_outerCorner_northEast.h"
-#include "data/tile_wall_cave_outerCorner_northWest.h"
-#include "data/tile_wall_cave_outerCorner_southEast.h"
-#include "data/tile_wall_cave_outerCorner_southWest.h"
-#include "data/tile_wall_cave_standalone.h"
+#include "data/tiles/tile_at.h"
+#include "data/tiles/tile_cell_selected.h"
+#include "data/tiles/tile_floor.h"
+#include "data/tiles/tile_null.h"
+#include "data/tiles/tile_wall_cave_dualCorners_northWestToSouthEast.h"
+#include "data/tiles/tile_wall_cave_dualCorners_southWestToNorthEast.h"
+#include "data/tiles/tile_wall_cave_facing_east.h"
+#include "data/tiles/tile_wall_cave_facing_north.h"
+#include "data/tiles/tile_wall_cave_facing_south.h"
+#include "data/tiles/tile_wall_cave_facing_west.h"
+#include "data/tiles/tile_wall_cave_innerCorner_northEast.h"
+#include "data/tiles/tile_wall_cave_innerCorner_northWest.h"
+#include "data/tiles/tile_wall_cave_innerCorner_southEast.h"
+#include "data/tiles/tile_wall_cave_innerCorner_southWest.h"
+#include "data/tiles/tile_wall_cave_outerCorner_northEast.h"
+#include "data/tiles/tile_wall_cave_outerCorner_northWest.h"
+#include "data/tiles/tile_wall_cave_outerCorner_southEast.h"
+#include "data/tiles/tile_wall_cave_outerCorner_southWest.h"
+#include "data/tiles/tile_wall_cave_standalone.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -55,14 +55,23 @@ static GdkPixbuf* GetTileForCellSelected(gint positionX, gint positionY);
 static GdkPixbuf* GetTileForTerrain(gint positionX, gint positionY);
 static GdkPixbuf* GetTileForCell(gint positionX, gint positionY);
 static GdkPixbuf* GetPixbufFromTile(Tile tile);
+static const guint8* GetTileImageData(Tile tile);
 
 // ------------------------------------------------------------------------------------------------
 // Load GdkPixbuf tiles and initialize the dungeon viewPort.
 void InitViewPort(void)
 {
-    LoadImagesToPixbufs();
+    LoadTiles();
+
+    // Initialize the viewPort.
     viewPort = GTK_DRAWING_AREA(gtk_drawing_area_new());
     gtk_widget_set_size_request(GTK_WIDGET(viewPort), VIEWPORT_WIDTH_PIXELS, VIEWPORT_HEIGHT_PIXELS);
+    SetWidgetBgColor(GTK_WIDGET(viewPort), COLOR_WHITE);
+
+    // Set up signals.
+    g_signal_connect(viewPort, "expose_event", G_CALLBACK(on_viewPort_update), NULL);
+    g_signal_connect(viewPort, "button_press_event", G_CALLBACK(on_viewPort_click), NULL);
+    gtk_widget_set_events(GTK_WIDGET(viewPort), GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -116,7 +125,7 @@ void SetSelectedCell(gint positionX, gint positionY)
 
 // ------------------------------------------------------------------------------------------------
 // Returns the array of image data required for gdk_pixbuf_new_from_inline.
-const guint8* GetTileData(Tile tile)
+static const guint8* GetTileImageData(Tile tile)
 {
     switch (tile)
     {
@@ -292,19 +301,19 @@ static GdkPixbuf* GetPixbufFromTile(Tile tile)
 
 // ------------------------------------------------------------------------------------------------
 // Read image data into the GdkPixbufs tiles array.
-void LoadImagesToPixbufs(void)
+void LoadTiles(void)
 {
     GError * error = NULL;
     for (guint i = 0; i < TILE_COUNT; i++)
     {
-        tiles[i] = gdk_pixbuf_new_from_inline(-1, GetTileData((Tile)i), FALSE, &error);
+        tiles[i] = gdk_pixbuf_new_from_inline(-1, GetTileImageData((Tile)i), FALSE, &error);
         tiles[i] = gdk_pixbuf_scale_simple(tiles[i], TILE_SIZE, TILE_SIZE, GDK_INTERP_NEAREST);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 // Free the GdkPixbufs for the tiles array.
-void FreePixbufs(void)
+void FreeTiles(void)
 {
     // Free memory used by GdkPixbufs.
     for (guint i = 0; i < TILE_COUNT; i++)

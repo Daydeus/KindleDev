@@ -1,15 +1,15 @@
 /* GdkPixbuf RGBA C-Source image dump */
 
 #include <glib-2.0/glib.h>
-  #include "data/tile_wall_cave_innerCorner_southWest.h"
+  #include "data/tiles/tile_wall_cave_innerCorner_southWest.h"
 
 #ifdef __SUNPRO_C
 #pragma align 4 (tile_wall_cave_innerCorner_southWest)
 #endif
 #ifdef __GNUC__
-const guint8 tile_wall_cave_innerCorner_southWest[] __attribute__ ((__aligned__ (4))) = 
+const guint8 tile_wall_cave_innerCorner_southWest[] __attribute__ ((__aligned__ (4))) =
 #else
-const guint8 tile_wall_cave_innerCorner_southWest[] = 
+const guint8 tile_wall_cave_innerCorner_southWest[] =
 #endif
 { ""
   /* Pixbuf magic (0x47646b50) */

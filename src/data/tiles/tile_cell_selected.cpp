@@ -1,15 +1,15 @@
 /* GdkPixbuf RGBA C-Source image dump */
 
 #include <glib-2.0/glib.h>
-  #include "data/tile_cell_selected.h"
+  #include "data/tiles/tile_cell_selected.h"
 
 #ifdef __SUNPRO_C
 #pragma align 4 (tile_cell_selected)
 #endif
 #ifdef __GNUC__
-const guint8 tile_cell_selected[] __attribute__ ((__aligned__ (4))) = 
+const guint8 tile_cell_selected[] __attribute__ ((__aligned__ (4))) =
 #else
-const guint8 tile_cell_selected[] = 
+const guint8 tile_cell_selected[] =
 #endif
 { ""
   /* Pixbuf magic (0x47646b50) */

@@ -1,15 +1,15 @@
 /* GdkPixbuf RGBA C-Source image dump */
 
 #include <glib-2.0/glib.h>
-  #include "data/tile_null.h"
+  #include "data/tiles/tile_null.h"
 
 #ifdef __SUNPRO_C
 #pragma align 4 (tile_null)
 #endif
 #ifdef __GNUC__
-const guint8 tile_null[] __attribute__ ((__aligned__ (4))) = 
+const guint8 tile_null[] __attribute__ ((__aligned__ (4))) =
 #else
-const guint8 tile_null[] = 
+const guint8 tile_null[] =
 #endif
 { ""
   /* Pixbuf magic (0x47646b50) */

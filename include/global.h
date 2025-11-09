@@ -8,6 +8,8 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
+#define SCREEN_WIDTH_PIXELS  1264
+#define SCREEN_HEIGHT_PIXELS 1680
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -33,7 +35,8 @@ enum Direction
     DIR_SOUTH_WEST,
     DIR_WEST,
     DIR_NORTH_WEST,
-    DIR_COUNT
+    DIR_COUNT,
+    DIR_NONE = DIR_COUNT
 };
 
 typedef struct
@@ -53,6 +56,7 @@ extern const gint8 vMovement[DIR_COUNT];
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
+gboolean IsWithinRectangle(Point *position, Point *origin, gint width, gint height);
 void SetWidgetBgColor(GtkWidget *widget, enum Color colorName);
 
 #endif // GLOBAL_H

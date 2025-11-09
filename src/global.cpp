@@ -25,6 +25,17 @@ const gint8 vMovement[DIR_COUNT] = {-1, -1, 0, 1, 1,  1,  0, -1};
 
 
 // ------------------------------------------------------------------------------------------------
+// Returns if the given position is with the given rectangle.
+gboolean IsWithinRectangle(Point *position, Point *origin, gint width, gint height)
+{
+    if (position->x > origin->x && position->x < origin->x + width
+      && position->y > origin->y && position->y < origin->y + height)
+        return TRUE;
+    else
+        return FALSE;
+}
+
+// ------------------------------------------------------------------------------------------------
 // Sets the widget's background color.
 void SetWidgetBgColor(GtkWidget *widget, enum Color colorName)
 {

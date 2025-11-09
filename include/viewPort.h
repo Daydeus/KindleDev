@@ -3,19 +3,15 @@
 
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
-#include "actor.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#define SCREEN_WIDTH_PIXELS  1264
-#define SCREEN_HEIGHT_PIXELS 1680
-
 #ifdef KINDLE_BUILD
 #define TILE_SIZE 32
 #else
-#define TILE_SIZE 32
+#define TILE_SIZE 16
 #endif
 
 #define VIEWPORT_WIDTH_TILES  39
@@ -81,9 +77,8 @@ void MoveViewPosition(Direction direction, guint distance);
 void CenterViewPortOn(gint positionX, gint positionY);
 Point* GetSelectedCell(void);
 void SetSelectedCell(gint positionX, gint positionY);
-const guint8* GetTileData(Tile tile);
-void LoadImagesToPixbufs(void);
-void FreePixbufs(void);
+void LoadTiles(void);
+void FreeTiles(void);
 gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userData);
 gboolean on_viewPort_click(GtkWidget *widget, GdkEventButton *event, gpointer userData);
 

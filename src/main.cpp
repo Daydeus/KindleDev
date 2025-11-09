@@ -6,8 +6,9 @@
 #include "global.h"
 #include "actor.h"
 #include "dungeonCell.h"
-#include "viewPort.h"
 #include "dungeonGeneration.h"
+#include "playerController.h"
+#include "viewPort.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -46,6 +47,7 @@ int main(int argc, char *argv[])
     // Initialize non-global Gtk widgets.
     GtkWindow *applicationMain = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
     InitViewPort();
+    InitControlsBox();
     GtkAlignment *alignMain = GTK_ALIGNMENT(gtk_alignment_new(0.5, 0, 0 ,0));
     GtkTable *tableMain = GTK_TABLE(gtk_table_new(5, 1, FALSE));
     GtkHBox  *hboxControls = GTK_HBOX(gtk_hbox_new(TRUE, 0));
@@ -67,11 +69,10 @@ int main(int argc, char *argv[])
     gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonRight), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonGenerate), FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonQuit), FALSE, FALSE, 0);
+    gtk_table_attach(tableMain, GTK_WIDGET(playerControlsBox), 0, 1, 2, 3, GTK_SHRINK, GTK_SHRINK, 0, 0);
 
     // Connect widget signals to callbacks.
     g_signal_connect(applicationMain, "destroy", G_CALLBACK(gtk_main_quit), NULL);
-    g_signal_connect(viewPort, "expose_event", G_CALLBACK(on_viewPort_update), NULL);
-    g_signal_connect(viewPort, "button_press_event", G_CALLBACK(on_viewPort_click), NULL);
     g_signal_connect(buttonUp, "button_press_event", G_CALLBACK(on_button_up), NULL);
     g_signal_connect(buttonDown, "button_press_event", G_CALLBACK(on_button_down), NULL);
     g_signal_connect(buttonLeft, "button_press_event", G_CALLBACK(on_button_left), NULL);
@@ -79,14 +80,12 @@ int main(int argc, char *argv[])
     g_signal_connect(buttonGenerate, "button_press_event", G_CALLBACK(on_button_generate), NULL);
     g_signal_connect(buttonQuit, "button_press_event", G_CALLBACK(gtk_main_quit), NULL);
 
-    // Add required events to the mask for the viewPort.
-    gtk_widget_set_events(GTK_WIDGET(viewPort), GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK);
+    // Add required events to the mask for the GtkDrawingAreas.
 
     // Set the intial options before applicationMain is made visible.
     gtk_window_set_title(GTK_WINDOW(applicationMain), "L:A_N:application_ID:kindle-gtk_PC:T");
     SetWidgetBgColor(GTK_WIDGET(applicationMain), COLOR_WHITE);
     gtk_window_maximize(GTK_WINDOW(applicationMain));
-    SetWidgetBgColor(GTK_WIDGET(viewPort), COLOR_WHITE);
 
     // Init game.
     GenerateDungeon();
@@ -98,7 +97,8 @@ int main(int argc, char *argv[])
     gtk_main();
 
     // Exiting program.
-    FreePixbufs();
+    FreeTiles();
+    FreeIcons();
 
     return 0;
 }
