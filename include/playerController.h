@@ -8,7 +8,6 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-
 #ifdef KINDLE_BUILD
 #define ICON_SIZE 128
 #define CONTROLS_BOX_WIDTH  1000

@@ -165,11 +165,11 @@ gboolean on_playerControlsBox_click(GtkWidget *widget, GdkEventButton *event, gp
     clicked.x = (gint)(event->x);
     clicked.y = (gint)(event->y);
 
-    // Move player actor and update viewPort if arrowIcon clicked.
-    Direction arrowIconClicked = WasMovementArrowClicked(&clicked);
-    if (arrowIconClicked != DIR_NONE)
+    // Move player actor and update viewPort if arrowIcon was clicked.
+    Direction dirArrowClicked = WasMovementArrowClicked(&clicked);
+    if (dirArrowClicked != DIR_NONE)
     {
-        ActionWalk(player, arrowIconClicked);
+        ActionWalk(player, dirArrowClicked);
         CenterViewPortOn(player->position.x, player->position.y);
         gtk_widget_queue_draw(GTK_WIDGET(viewPort));
     }
