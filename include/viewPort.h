@@ -8,16 +8,17 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#ifdef KINDLE_BUILD
-#define TILE_SIZE 32
+#if KINDLE_BUILD
+#define VIEWPORT_WIDTH_PIXELS  1216
+#define VIEWPORT_HEIGHT_PIXELS 832
 #else
-#define TILE_SIZE 16
+#define VIEWPORT_WIDTH_PIXELS  704
+#define VIEWPORT_HEIGHT_PIXELS 448
 #endif
 
-#define VIEWPORT_WIDTH_TILES  39
-#define VIEWPORT_HEIGHT_TILES 25
-#define VIEWPORT_WIDTH_PIXELS  VIEWPORT_WIDTH_TILES * TILE_SIZE
-#define VIEWPORT_HEIGHT_PIXELS VIEWPORT_HEIGHT_TILES * TILE_SIZE
+#define TILE_SIZE_16 16
+#define TILE_SIZE_32 32
+#define TILE_SIZE_64 64
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -88,6 +89,7 @@ void CenterViewPortOn(gint positionX, gint positionY);
 Point* GetSelectedCell(void);
 void SetSelectedCell(gint positionX, gint positionY);
 void LoadTiles(void);
+void ScaleTileForZoom(void);
 void FreeTiles(void);
 ZoomLevel GetViewPortZoomLevel(void);
 void SetViewPortZoomLevel(ZoomLevel level);

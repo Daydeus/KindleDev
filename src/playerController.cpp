@@ -144,6 +144,8 @@ gboolean on_playerControlsBox_update(GtkWidget *widget, cairo_t *context, gpoint
         // Create a Cairo context from the GdkWindow
         cairo_t *context = gdk_cairo_create(window);
 
+        Icon iconToDraw = ICON_SETTING_OFF;
+
         // Draw the arrow movement icons.
         for (gint i = 0; i < DIR_COUNT; i++)
         {
@@ -160,15 +162,18 @@ gboolean on_playerControlsBox_update(GtkWidget *widget, cairo_t *context, gpoint
         switch (GetViewPortZoomLevel())
         {
         case ZOOM_LEVEL_OFF:
-            gdk_cairo_set_source_pixbuf(context, icons[ICON_SETTING_OFF], ZOOM_START_X, ZOOM_START_Y);
+            iconToDraw = ICON_SETTING_OFF;
             break;
         case ZOOM_LEVEL_MID:
-            gdk_cairo_set_source_pixbuf(context, icons[ICON_SETTING_MID], ZOOM_START_X, ZOOM_START_Y);
+            iconToDraw = ICON_SETTING_MID;
             break;
         case ZOOM_LEVEL_PEAK:
-            gdk_cairo_set_source_pixbuf(context, icons[ICON_SETTING_ON], ZOOM_START_X, ZOOM_START_Y);
+            iconToDraw = ICON_SETTING_ON;
             break;
+        default:
+            iconToDraw = ICON_SETTING_OFF;
         }
+        gdk_cairo_set_source_pixbuf(context, icons[iconToDraw], ZOOM_START_X, ZOOM_START_Y);
         cairo_paint(context);
 
         // Clean up the Cairo context
@@ -206,6 +211,9 @@ gboolean on_playerControlsBox_click(GtkWidget *widget, GdkEventButton *event, gp
         zoomLevel = (zoomLevel == ZOOM_LEVEL_PEAK) ? ZOOM_LEVEL_OFF : zoomLevel + 1;
 
         SetViewPortZoomLevel((ZoomLevel)zoomLevel);
+        ScaleTileForZoom();
+        CenterViewPortOn(player->position.x, player->position.y);
+        gtk_widget_queue_draw(GTK_WIDGET(viewPort));
         gtk_widget_queue_draw(GTK_WIDGET(playerControlsBox));
     }
 
