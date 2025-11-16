@@ -12,6 +12,9 @@
 #include "data/icons/icon_arrow_southWest.h"
 #include "data/icons/icon_arrow_west.h"
 #include "data/icons/icon_arrow_northWest.h"
+#include "data/icons/icon_setting_off.h"
+#include "data/icons/icon_setting_mid.h"
+#include "data/icons/icon_setting_on.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -95,6 +98,12 @@ static const guint8* GetIconImageData(Icon icon)
         return icon_arrow_west;
     case ICON_ARROW_NORTH_WEST:
         return icon_arrow_northWest;
+    case ICON_SETTING_OFF:
+        return icon_setting_off;
+    case ICON_SETTING_MID:
+        return icon_setting_mid;
+    case ICON_SETTING_ON:
+        return icon_setting_on;
     default:
         return NULL;
     }
@@ -135,6 +144,7 @@ gboolean on_playerControlsBox_update(GtkWidget *widget, cairo_t *context, gpoint
         // Create a Cairo context from the GdkWindow
         cairo_t *context = gdk_cairo_create(window);
 
+        // Draw the arrow movement icons.
         for (gint i = 0; i < DIR_COUNT; i++)
         {
             Point position = {ARROWS_START_X + ICON_SIZE, ARROWS_START_Y + ICON_SIZE};
@@ -142,11 +152,24 @@ gboolean on_playerControlsBox_update(GtkWidget *widget, cairo_t *context, gpoint
             position.x += (hMovement[i] * ICON_SIZE);
             position.y += (vMovement[i] * ICON_SIZE);
 
-            // Draws the terrain for the cell.
             gdk_cairo_set_source_pixbuf(context, icons[i], position.x, position.y);
             cairo_paint(context);
-
         }
+
+        // Draw the ZoomLevel icon.
+        switch (GetViewPortZoomLevel())
+        {
+        case ZOOM_LEVEL_OFF:
+            gdk_cairo_set_source_pixbuf(context, icons[ICON_SETTING_OFF], ZOOM_START_X, ZOOM_START_Y);
+            break;
+        case ZOOM_LEVEL_MID:
+            gdk_cairo_set_source_pixbuf(context, icons[ICON_SETTING_MID], ZOOM_START_X, ZOOM_START_Y);
+            break;
+        case ZOOM_LEVEL_PEAK:
+            gdk_cairo_set_source_pixbuf(context, icons[ICON_SETTING_ON], ZOOM_START_X, ZOOM_START_Y);
+            break;
+        }
+        cairo_paint(context);
 
         // Clean up the Cairo context
         cairo_destroy(context);
@@ -172,6 +195,18 @@ gboolean on_playerControlsBox_click(GtkWidget *widget, GdkEventButton *event, gp
         ActionWalk(player, dirArrowClicked);
         CenterViewPortOn(player->position.x, player->position.y);
         gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+    }
+
+    // Update viewPort's zoom if the zoomIcon was clicked.
+    if (clicked.x > ZOOM_START_X && clicked.x < ZOOM_START_X + ICON_SIZE
+        && clicked.y > ZOOM_START_Y && clicked.y < ZOOM_START_Y + ICON_SIZE)
+    {
+        guint zoomLevel = GetViewPortZoomLevel();
+
+        zoomLevel = (zoomLevel == ZOOM_LEVEL_PEAK) ? ZOOM_LEVEL_OFF : zoomLevel + 1;
+
+        SetViewPortZoomLevel((ZoomLevel)zoomLevel);
+        gtk_widget_queue_draw(GTK_WIDGET(playerControlsBox));
     }
 
     return TRUE;

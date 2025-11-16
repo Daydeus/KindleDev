@@ -57,12 +57,22 @@ enum TileMask
     MASK_COUNT
 };
 
+// Zoom Levels for the viewPort.
+enum ZoomLevel
+{
+    ZOOM_LEVEL_OFF,
+    ZOOM_LEVEL_MID,
+    ZOOM_LEVEL_PEAK,
+    ZOOM_LEVEL_COUNT
+};
+
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
 extern GdkPixbuf *tiles[TILE_COUNT];
 extern GtkDrawingArea *viewPort;
+extern ZoomLevel zoomLevel;
 extern Point viewPosition;
 extern Point selectedCell;
 
@@ -79,6 +89,8 @@ Point* GetSelectedCell(void);
 void SetSelectedCell(gint positionX, gint positionY);
 void LoadTiles(void);
 void FreeTiles(void);
+ZoomLevel GetViewPortZoomLevel(void);
+void SetViewPortZoomLevel(ZoomLevel level);
 gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userData);
 gboolean on_viewPort_click(GtkWidget *widget, GdkEventButton *event, gpointer userData);
 

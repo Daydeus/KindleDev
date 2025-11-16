@@ -60,6 +60,9 @@ sources = files(
     './src/data/icons/icon_arrow_southWest.cpp',
     './src/data/icons/icon_arrow_west.cpp',
     './src/data/icons/icon_arrow_northWest.cpp',
+    './src/data/icons/icon_setting_off.cpp',
+    './src/data/icons/icon_setting_mid.cpp',
+    './src/data/icons/icon_setting_on.cpp',
 )
 
 include_dirs = include_directories(

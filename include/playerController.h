@@ -23,6 +23,9 @@
 #define ARROWS_WIDTH   ICON_SIZE * 3
 #define ARROWS_HEIGHT  ARROWS_WIDTH
 
+#define ZOOM_START_X 400
+#define ZOOM_START_Y 0
+
 // ------------------------------------------------------------------------------------------------
 // Data Types
 // ------------------------------------------------------------------------------------------------
@@ -37,6 +40,9 @@ enum Icon
     ICON_ARROW_SOUTH_WEST,
     ICON_ARROW_WEST,
     ICON_ARROW_NORTH_WEST,
+    ICON_SETTING_OFF,
+    ICON_SETTING_MID,
+    ICON_SETTING_ON,
     ICON_COUNT
 };
 

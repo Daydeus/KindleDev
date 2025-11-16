@@ -43,6 +43,7 @@
 
 GdkPixbuf *tiles[TILE_COUNT] = {NULL};
 GtkDrawingArea *viewPort = NULL;
+ZoomLevel zoomLevel = {ZOOM_LEVEL_OFF};
 Point viewPosition = {0}; // The dungeonCell position of the viewPort origin.
 Point selectedCell = {0}; // The current player-selected dungeonCell in the viewPort.
 
@@ -320,6 +321,20 @@ void FreeTiles(void)
     {
         g_object_unref(tiles[i]);
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Get whether zoom is active on the viewPort.
+ZoomLevel GetViewPortZoomLevel(void)
+{
+    return zoomLevel;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Set whether zoom is active on the viewPort.
+void SetViewPortZoomLevel(ZoomLevel level)
+{
+    zoomLevel = level;
 }
 
 // ------------------------------------------------------------------------------------------------
