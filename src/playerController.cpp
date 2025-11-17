@@ -15,6 +15,7 @@
 #include "data/icons/icon_setting_off.h"
 #include "data/icons/icon_setting_mid.h"
 #include "data/icons/icon_setting_on.h"
+#include "data/icons/icon_setting_exit.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -104,6 +105,8 @@ static const guint8* GetIconImageData(Icon icon)
         return icon_setting_mid;
     case ICON_SETTING_ON:
         return icon_setting_on;
+    case ICON_SETTING_EXIT:
+        return icon_setting_exit;
     default:
         return NULL;
     }
@@ -176,6 +179,11 @@ gboolean on_playerControlsBox_update(GtkWidget *widget, cairo_t *context, gpoint
         gdk_cairo_set_source_pixbuf(context, icons[iconToDraw], ZOOM_START_X, ZOOM_START_Y);
         cairo_paint(context);
 
+        // Draw the Exit icon.
+        gdk_cairo_set_source_pixbuf(context, icons[ICON_SETTING_EXIT], EXIT_START_X, EXIT_START_Y);
+        cairo_paint(context);
+
+
         // Clean up the Cairo context
         cairo_destroy(context);
     }
@@ -215,6 +223,13 @@ gboolean on_playerControlsBox_click(GtkWidget *widget, GdkEventButton *event, gp
         CenterViewPortOn(player->position.x, player->position.y);
         gtk_widget_queue_draw(GTK_WIDGET(viewPort));
         gtk_widget_queue_draw(GTK_WIDGET(playerControlsBox));
+    }
+
+    // Exit the gtk main loop if the exit icon is clicked.
+    if (clicked.x > EXIT_START_X && clicked.x < EXIT_START_X + ICON_SIZE
+        && clicked.y > EXIT_START_Y && clicked.y < EXIT_START_Y + ICON_SIZE)
+    {
+        gtk_main_quit();
     }
 
     return TRUE;

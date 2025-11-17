@@ -63,6 +63,7 @@ sources = files(
     './src/data/icons/icon_setting_off.cpp',
     './src/data/icons/icon_setting_mid.cpp',
     './src/data/icons/icon_setting_on.cpp',
+    './src/data/icons/icon_setting_exit.cpp',
 )
 
 include_dirs = include_directories(

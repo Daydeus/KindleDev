@@ -3,20 +3,20 @@
 
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
+#include "viewPort.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
 #ifdef KINDLE_BUILD
-#define ICON_SIZE 128
-#define CONTROLS_BOX_WIDTH  1000
-#define CONTROLS_BOX_HEIGHT 400
+#define ICON_SIZE 64
 #else
 #define ICON_SIZE 32
-#define CONTROLS_BOX_WIDTH  750
-#define CONTROLS_BOX_HEIGHT 256
 #endif
+
+#define CONTROLS_BOX_WIDTH  VIEWPORT_WIDTH_PIXELS
+#define CONTROLS_BOX_HEIGHT VIEWPORT_HEIGHT_PIXELS
 
 #define ARROWS_START_X 0
 #define ARROWS_START_Y 0
@@ -25,6 +25,9 @@
 
 #define ZOOM_START_X 400
 #define ZOOM_START_Y 0
+
+#define EXIT_START_X 400
+#define EXIT_START_Y 128
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -43,6 +46,7 @@ enum Icon
     ICON_SETTING_OFF,
     ICON_SETTING_MID,
     ICON_SETTING_ON,
+    ICON_SETTING_EXIT,
     ICON_COUNT
 };
 
