@@ -29,11 +29,6 @@
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-void on_button_up(GtkWidget *widget);
-void on_button_down(GtkWidget *widget);
-void on_button_left(GtkWidget *widget);
-void on_button_right(GtkWidget *widget);
-void on_button_generate(GtkWidget *widget);
 
 // ------------------------------------------------------------------------------------------------
 // The main application loop.
@@ -50,37 +45,16 @@ int main(int argc, char *argv[])
     InitControlsBox();
     GtkAlignment *alignMain = GTK_ALIGNMENT(gtk_alignment_new(0.5, 0, 0 ,0));
     GtkTable *tableMain = GTK_TABLE(gtk_table_new(5, 1, FALSE));
-    GtkHBox  *hboxControls = GTK_HBOX(gtk_hbox_new(TRUE, 0));
-    GtkButton *buttonUp = GTK_BUTTON(gtk_button_new_with_label("Move Up"));
-    GtkButton *buttonDown = GTK_BUTTON(gtk_button_new_with_label("Move Down"));
-    GtkButton *buttonLeft = GTK_BUTTON(gtk_button_new_with_label("Move Left"));
-    GtkButton *buttonRight = GTK_BUTTON(gtk_button_new_with_label("Move Right"));
-    GtkButton *buttonGenerate = GTK_BUTTON(gtk_button_new_with_label("Generate\nMap"));
-    GtkButton *buttonQuit = GTK_BUTTON(gtk_button_new_with_label("Quit"));
 
     // Add widgets to containers.
     gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(alignMain));
     gtk_container_add(GTK_CONTAINER(alignMain), GTK_WIDGET(tableMain));
     gtk_table_attach(tableMain, GTK_WIDGET(viewPort), 0, 1, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-    gtk_table_attach(tableMain, GTK_WIDGET(hboxControls), 0, 1, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-    gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonUp), FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonDown), FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonLeft), FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonRight), FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonGenerate), FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hboxControls), GTK_WIDGET(buttonQuit), FALSE, FALSE, 0);
-    gtk_table_attach(tableMain, GTK_WIDGET(playerControlsBox), 0, 1, 2, 3, GTK_SHRINK, GTK_SHRINK, 0, 0);
+    gtk_table_attach(tableMain, GTK_WIDGET(playerControlsBox), 0, 1, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+    gtk_table_set_row_spacing (GTK_TABLE(tableMain), 0, ICON_SIZE);
 
     // Connect widget signals to callbacks.
     g_signal_connect(applicationMain, "destroy", G_CALLBACK(gtk_main_quit), NULL);
-    g_signal_connect(buttonUp, "button_press_event", G_CALLBACK(on_button_up), NULL);
-    g_signal_connect(buttonDown, "button_press_event", G_CALLBACK(on_button_down), NULL);
-    g_signal_connect(buttonLeft, "button_press_event", G_CALLBACK(on_button_left), NULL);
-    g_signal_connect(buttonRight, "button_press_event", G_CALLBACK(on_button_right), NULL);
-    g_signal_connect(buttonGenerate, "button_press_event", G_CALLBACK(on_button_generate), NULL);
-    g_signal_connect(buttonQuit, "button_press_event", G_CALLBACK(gtk_main_quit), NULL);
-
-    // Add required events to the mask for the GtkDrawingAreas.
 
     // Set the intial options before applicationMain is made visible.
     gtk_window_set_title(GTK_WINDOW(applicationMain), "L:A_N:application_ID:kindle-gtk_PC:T");
@@ -101,58 +75,4 @@ int main(int argc, char *argv[])
     FreeIcons();
 
     return 0;
-}
-
-// ------------------------------------------------------------------------------------------------
-// Moves the viewPort origin position up one space and updates the viewPieces.
-void on_button_up(GtkWidget *widget)
-{
-    if (ActionWalk(&actors[0], DIR_NORTH))
-    {
-        CenterViewPortOn(actors[0].position.x, actors[0].position.y);
-        gtk_widget_queue_draw(GTK_WIDGET(viewPort));
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Moves the viewPort origin position down one space and updates the viewPieces.
-void on_button_down(GtkWidget *widget)
-{
-    if (ActionWalk(&actors[0], DIR_SOUTH))
-    {
-        CenterViewPortOn(actors[0].position.x, actors[0].position.y);
-        gtk_widget_queue_draw(GTK_WIDGET(viewPort));
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Moves the viewPort origin position left one space and updates the viewPieces.
-void on_button_left(GtkWidget *widget)
-{
-    if (ActionWalk(&actors[0], DIR_WEST))
-    {
-        CenterViewPortOn(actors[0].position.x, actors[0].position.y);
-        gtk_widget_queue_draw(GTK_WIDGET(viewPort));
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Moves the viewPort origin position right one space and updates the viewPieces.
-void on_button_right(GtkWidget *widget)
-{
-    if (ActionWalk(&actors[0], DIR_EAST))
-    {
-        CenterViewPortOn(actors[0].position.x, actors[0].position.y);
-        gtk_widget_queue_draw(GTK_WIDGET(viewPort));
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Generates a new dungeon to explore.
-void on_button_generate(GtkWidget *widget)
-{
-    GenerateDungeon();
-    InitActors();
-    CenterViewPortOn(actors[0].position.x, actors[0].position.y);
-    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
 }
