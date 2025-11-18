@@ -65,7 +65,7 @@ static Direction WasMovementArrowClicked(Point *position)
 
     for (guint i = 0; i < DIR_COUNT; i++)
     {
-        Point iconOrigin = {ARROWS_START_X + ICON_SIZE, ARROWS_START_Y + ICON_SIZE};
+        Point iconOrigin = {ARROWS_ORIGIN_X + ICON_SIZE, ARROWS_ORIGIN_Y + ICON_SIZE};
 
         iconOrigin.x += (hMovement[i] * ICON_SIZE);
         iconOrigin.y += (vMovement[i] * ICON_SIZE);
@@ -152,7 +152,7 @@ gboolean on_playerControlsBox_update(GtkWidget *widget, cairo_t *context, gpoint
         // Draw the arrow movement icons.
         for (gint i = 0; i < DIR_COUNT; i++)
         {
-            Point position = {ARROWS_START_X + ICON_SIZE, ARROWS_START_Y + ICON_SIZE};
+            Point position = {ARROWS_ORIGIN_X + ICON_SIZE, ARROWS_ORIGIN_Y + ICON_SIZE};
 
             position.x += (hMovement[i] * ICON_SIZE);
             position.y += (vMovement[i] * ICON_SIZE);
@@ -176,11 +176,11 @@ gboolean on_playerControlsBox_update(GtkWidget *widget, cairo_t *context, gpoint
         default:
             iconToDraw = ICON_SETTING_OFF;
         }
-        gdk_cairo_set_source_pixbuf(context, icons[iconToDraw], ZOOM_START_X, ZOOM_START_Y);
+        gdk_cairo_set_source_pixbuf(context, icons[iconToDraw], ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y);
         cairo_paint(context);
 
         // Draw the Exit icon.
-        gdk_cairo_set_source_pixbuf(context, icons[ICON_SETTING_EXIT], EXIT_START_X, EXIT_START_Y);
+        gdk_cairo_set_source_pixbuf(context, icons[ICON_SETTING_EXIT], EXIT_ORIGIN_X, EXIT_ORIGIN_Y);
         cairo_paint(context);
 
 
@@ -195,6 +195,7 @@ gboolean on_playerControlsBox_update(GtkWidget *widget, cairo_t *context, gpoint
 gboolean on_playerControlsBox_click(GtkWidget *widget, GdkEventButton *event, gpointer userData)
 {
     Point clicked = {0};
+    Point iconOrigin = {0};
     Actor *player = GetActor(0);
 
     // Get pixbuf tile that was clicked.
@@ -211,8 +212,8 @@ gboolean on_playerControlsBox_click(GtkWidget *widget, GdkEventButton *event, gp
     }
 
     // Update viewPort's zoom if the zoomIcon was clicked.
-    if (clicked.x > ZOOM_START_X && clicked.x < ZOOM_START_X + ICON_SIZE
-        && clicked.y > ZOOM_START_Y && clicked.y < ZOOM_START_Y + ICON_SIZE)
+    iconOrigin = {ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y};
+    if (IsWithinRectangle(&clicked, &iconOrigin, ICON_SIZE, ICON_SIZE))
     {
         guint zoomLevel = GetViewPortZoomLevel();
 
@@ -226,8 +227,8 @@ gboolean on_playerControlsBox_click(GtkWidget *widget, GdkEventButton *event, gp
     }
 
     // Exit the gtk main loop if the exit icon is clicked.
-    if (clicked.x > EXIT_START_X && clicked.x < EXIT_START_X + ICON_SIZE
-        && clicked.y > EXIT_START_Y && clicked.y < EXIT_START_Y + ICON_SIZE)
+    iconOrigin = {EXIT_ORIGIN_X, EXIT_ORIGIN_Y};
+    if (IsWithinRectangle(&clicked, &iconOrigin, ICON_SIZE, ICON_SIZE))
     {
         gtk_main_quit();
     }

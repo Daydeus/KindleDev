@@ -18,16 +18,16 @@
 #define CONTROLS_BOX_WIDTH  VIEWPORT_WIDTH_PIXELS
 #define CONTROLS_BOX_HEIGHT VIEWPORT_HEIGHT_PIXELS
 
-#define ARROWS_START_X 0
-#define ARROWS_START_Y 0
+#define ARROWS_ORIGIN_X 0
+#define ARROWS_ORIGIN_Y 0
 #define ARROWS_WIDTH   ICON_SIZE * 3
 #define ARROWS_HEIGHT  ARROWS_WIDTH
 
-#define ZOOM_START_X 400
-#define ZOOM_START_Y 0
+#define ZOOM_ORIGIN_X 400
+#define ZOOM_ORIGIN_Y 0
 
-#define EXIT_START_X 400
-#define EXIT_START_Y 128
+#define EXIT_ORIGIN_X 400
+#define EXIT_ORIGIN_Y 128
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
