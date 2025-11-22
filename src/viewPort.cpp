@@ -4,6 +4,7 @@
 #include <cairo/cairo.h>
 #include <cstdlib>
 #include "global.h"
+#include "touchGesture.h"
 #include "actor.h"
 #include "dungeonCell.h"
 #include "viewPort.h"
@@ -58,6 +59,8 @@ static GdkPixbuf* GetTileForCell(gint positionX, gint positionY);
 static GdkPixbuf* GetPixbufFromTile(Tile tile);
 static const guint8* GetTileImageData(Tile tile);
 static guint GetTileSizeForZoomLevel(ZoomLevel level);
+static gboolean on_viewPort_click_press(GtkWidget *widget, GdkEventButton *event, gpointer userData);
+static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *event, gpointer userData);
 
 // ------------------------------------------------------------------------------------------------
 // Load GdkPixbuf tiles and initialize the dungeon viewPort.
@@ -72,8 +75,10 @@ void InitViewPort(void)
 
     // Set up signals.
     g_signal_connect(viewPort, "expose_event", G_CALLBACK(on_viewPort_update), NULL);
-    g_signal_connect(viewPort, "button_press_event", G_CALLBACK(on_viewPort_click), NULL);
-    gtk_widget_set_events(GTK_WIDGET(viewPort), GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK);
+    g_signal_connect(viewPort, "button_press_event", G_CALLBACK(on_viewPort_click_press), NULL);
+    g_signal_connect(viewPort, "button_release_event", G_CALLBACK(on_viewPort_click_release), NULL);
+    gtk_widget_set_events(GTK_WIDGET(viewPort), GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK
+                        | GDK_BUTTON_RELEASE_MASK);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -433,48 +438,84 @@ gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userDa
 }
 
 // ------------------------------------------------------------------------------------------------
-// Callback function to track input on the viewPort.
-gboolean on_viewPort_click(GtkWidget *widget, GdkEventButton *event, gpointer userData)
+// Callback function for when the viewPort is initially pressed.
+static gboolean on_viewPort_click_press(GtkWidget *widget, GdkEventButton *event, gpointer userData)
 {
-    gint tileSize = GetTileSizeForZoomLevel(GetViewPortZoomLevel());
+    Point pixelPos = {(gint)event->x, (gint)event->y};
+
+    SetGestureStartPos(&pixelPos);
+    SetGestureStartTime();
+
+    return FALSE;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Callback function for when the click on the viewPort is released.
+static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *event, gpointer userData)
+{
+    Point currentPos = {(gint)event->x, (gint)event->y};
+    SetGestureEndPos(&currentPos);
+    SetGestureEndTime();
+    GestureType gesture = GetGestureType();
+
+    guint zoomLevel = GetViewPortZoomLevel();
+    gint tileSize = GetTileSizeForZoomLevel((ZoomLevel)zoomLevel);
+    Point pixelPos = {(gint)event->x, (gint)event->y};
     Point clickedTile = {0};
     Point *viewPosition = GetViewPosition();
     Point *oldSelectedCell = GetSelectedCell();
     Point newSelectedCell = {0};
 
-    // Zoom levels other than ZOOM_LEVEL_PEAK have an even number of tiles to draw,
-    // so we draw them offset by half a tile to keep the player centered.
-    if (zoomLevel == ZOOM_LEVEL_PEAK)
+    if (gesture == GESTURE_SINGLE_TAP)
     {
-        clickedTile.x = (gint)(event->x / tileSize);
-        clickedTile.y = (gint)(event->y / tileSize);
-    }
-    else
-    {
-        clickedTile.x = (gint)((event->x + tileSize / 2) / tileSize);
-        clickedTile.y = (gint)((event->y + tileSize / 2) / tileSize);
-    }
-
-    // Get the dungeon cell of the clicked tile.
-    newSelectedCell.x = viewPosition->x + clickedTile.x;
-    newSelectedCell.y = viewPosition->y + clickedTile.y;
-
-    // Center viewPort on selected dungeon cell if it was clicked again and is traversable.
-    if (newSelectedCell.x == oldSelectedCell->x && newSelectedCell.y == oldSelectedCell->y)
-    {
-        if (IsTerrainTraversable(newSelectedCell.x, newSelectedCell.y))
+        // Zoom levels other than ZOOM_LEVEL_PEAK have an even number of tiles to draw,
+        // so we draw them offset by half a tile to keep the player centered.
+        if (zoomLevel == ZOOM_LEVEL_PEAK)
         {
-            CenterViewPortOn(newSelectedCell.x, newSelectedCell.y);
-            SetActorPosition(&actors[0], newSelectedCell.x, newSelectedCell.y);
+            clickedTile.x = pixelPos.x / tileSize;
+            clickedTile.y = pixelPos.y / tileSize;
+        }
+        else
+        {
+            clickedTile.x = (pixelPos.x + tileSize / 2) / tileSize;
+            clickedTile.y = (pixelPos.y + tileSize / 2) / tileSize;
+        }
+
+        // Get the dungeon cell of the clicked tile.
+        newSelectedCell.x = viewPosition->x + clickedTile.x;
+        newSelectedCell.y = viewPosition->y + clickedTile.y;
+
+        // Center viewPort on selected dungeon cell if it was clicked again and is traversable.
+        if (newSelectedCell.x == oldSelectedCell->x && newSelectedCell.y == oldSelectedCell->y)
+        {
+            if (IsTerrainTraversable(newSelectedCell.x, newSelectedCell.y))
+            {
+                CenterViewPortOn(newSelectedCell.x, newSelectedCell.y);
+                SetActorPosition(&actors[0], newSelectedCell.x, newSelectedCell.y);
+            }
+        }
+        else
+        {
+            SetSelectedCell(newSelectedCell.x, newSelectedCell.y);
         }
     }
-    else
+    else if (gesture == GESTURE_SWIPE)
     {
-        SetSelectedCell(newSelectedCell.x, newSelectedCell.y);
+        Direction swipeDirection = GetSwipeDirection();
+        Actor *player = GetActor(0);
+
+        if (IsCardinalDirection(swipeDirection))
+        {
+            // Move in the opposite direction, as the player's position on screen is fixed;
+            // it is the map underneath them that is moving.
+            // TODO: global variable setting for not using the opposite direction of the swipe.
+            ActionWalk(player, GetOppositeDirection(GetSwipeDirection()));
+            CenterViewPortOn(player->position.x, player->position.y);
+        }
     }
 
     // Queue update to the viewPort.
     gtk_widget_queue_draw(GTK_WIDGET(viewPort));
 
-    return TRUE;
+    return FALSE;
 }

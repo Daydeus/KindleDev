@@ -94,6 +94,5 @@ void FreeTiles(void);
 ZoomLevel GetViewPortZoomLevel(void);
 void SetViewPortZoomLevel(ZoomLevel level);
 gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userData);
-gboolean on_viewPort_click(GtkWidget *widget, GdkEventButton *event, gpointer userData);
 
 #endif // VIEWPORT_H

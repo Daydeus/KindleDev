@@ -27,6 +27,7 @@ sources = files(
     './src/dungeonCell.cpp',
     './src/dungeonGeneration.cpp',
     './src/playerController.cpp',
+    './src/touchGesture.cpp',
     './src/viewPort.cpp',
     './src/main.cpp',
 
