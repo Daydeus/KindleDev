@@ -25,6 +25,49 @@ const gint8 vMovement[DIR_COUNT] = {-1, -1, 0, 1, 1,  1,  0, -1};
 
 
 // ------------------------------------------------------------------------------------------------
+// Returns TRUE if the given direction is DIR_NORTH, DIR_EAST, DIR_SOUTH, or DIR_WEST.
+gboolean IsCardinalDirection(Direction direction)
+{
+    switch (direction)
+    {
+    case DIR_NORTH:
+    case DIR_EAST:
+    case DIR_SOUTH:
+    case DIR_WEST:
+        return TRUE;
+    default:
+        return FALSE;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns the direction opposite of the given direction.
+Direction GetOppositeDirection(Direction direction)
+{
+    switch (direction)
+    {
+    case DIR_NORTH:
+        return DIR_SOUTH;
+    case DIR_NORTH_EAST:
+        return DIR_SOUTH_WEST;
+    case DIR_EAST:
+        return DIR_WEST;
+    case DIR_SOUTH_EAST:
+        return DIR_NORTH_WEST;
+    case DIR_SOUTH:
+        return DIR_NORTH;
+    case DIR_SOUTH_WEST:
+        return DIR_NORTH_EAST;
+    case DIR_WEST:
+        return DIR_EAST;
+    case DIR_NORTH_WEST:
+        return DIR_SOUTH_EAST;
+    default:
+        return DIR_NONE;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 // Returns if the given position is with the given rectangle.
 gboolean IsWithinRectangle(Point *position, Point *origin, gint width, gint height)
 {

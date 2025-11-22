@@ -56,6 +56,8 @@ extern const gint8 vMovement[DIR_COUNT];
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
+gboolean IsCardinalDirection(Direction direction);
+Direction GetOppositeDirection(Direction direction);
 gboolean IsWithinRectangle(Point *position, Point *origin, gint width, gint height);
 void SetWidgetBgColor(GtkWidget *widget, enum Color colorName);
 
