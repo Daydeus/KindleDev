@@ -35,13 +35,13 @@ void InitActors(void)
         Actor *actor = GetActor(index);
         Point position = {0, 0};
 
-        while (GetCellTerrain(position.x, position.y) != TERRAIN_FLOOR)
+        while (GetCellTerrain(&position) != TERRAIN_FLOOR)
         {
             position.x = rand() % DUNGEON_WIDTH;
             position.y = rand() % DUNGEON_HEIGHT;
         }
 
-        SetActorPosition(actor, position.x, position.y);
+        SetActorPosition(actor, &position);
         SetActorSpecies(actor, SPECIES_PLAYER);
     }
 }
@@ -76,18 +76,17 @@ Point* GetActorPosition(Actor *actor)
 
 // ------------------------------------------------------------------------------------------------
 // Sets the position of the given actor.
-void SetActorPosition(Actor *actor, gint positionX, gint positionY)
+void SetActorPosition(Actor *actor, Point* position)
 {
-    if (IsOutsideDungeon(positionX, positionY))
+    if (IsOutsideDungeon(position))
         return;
 
     Point *oldPosition = GetActorPosition(actor);
 
-    SetCellsActor(oldPosition->x, oldPosition->y, NULL);
-    SetCellsActor(positionX, positionY, actor);
+    SetCellsActor(oldPosition, NULL);
+    SetCellsActor(position, actor);
 
-    actor->position.x = positionX;
-    actor->position.y = positionY;
+    actor->position = *position;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -101,19 +100,19 @@ gboolean ActionWalk(Actor *actor, Direction direction)
     newPosition.x = oldPosition->x + hMovement[direction];
     newPosition.y = oldPosition->y + vMovement[direction];
 
-    if (IsOutsideDungeon(newPosition.x, newPosition.y))
+    if (IsOutsideDungeon(&newPosition))
     {
         return FALSE;
     }
-    if (!IsTerrainTraversable(newPosition.x, newPosition.y))
+    if (!IsTerrainTraversable(&newPosition))
     {
         return FALSE;
     }
 
-    SetCellsActor(oldPosition->x, oldPosition->y, NULL);
+    SetCellsActor(oldPosition, NULL);
 
-    SetCellsActor(newPosition.x, newPosition.y, actor);
-    SetActorPosition(actor, newPosition.x, newPosition.y);
+    SetCellsActor(&newPosition, actor);
+    SetActorPosition(actor, &newPosition);
 
     return TRUE;
 }

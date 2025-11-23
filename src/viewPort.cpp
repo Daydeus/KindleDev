@@ -52,10 +52,9 @@ Point selectedCell = {0}; // The current player-selected dungeonCell in the view
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-static Tile GetWallTile(gint positionX, gint positionY);
-static GdkPixbuf* GetTileForCellSelected(gint positionX, gint positionY);
-static GdkPixbuf* GetTileForTerrain(gint positionX, gint positionY);
-static GdkPixbuf* GetTileForCell(gint positionX, gint positionY);
+static Tile GetWallTile(Point *position);
+static GdkPixbuf* GetTileForTerrain(Point *position);
+static GdkPixbuf* GetTileForCell(Point *position);
 static GdkPixbuf* GetPixbufFromTile(Tile tile);
 static const guint8* GetTileImageData(Tile tile);
 static guint GetTileSizeForZoomLevel(ZoomLevel level);
@@ -90,10 +89,9 @@ Point* GetViewPosition(void)
 
 // ------------------------------------------------------------------------------------------------
 // Sets the dungeonCell position of the viewPort origin to the given values.
-void SetViewPosition(gint positionX, gint positionY)
+void SetViewPosition(Point *position)
 {
-    viewPosition.x = positionX;
-    viewPosition.y = positionY;
+    viewPosition = *position;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -105,18 +103,20 @@ void MoveViewPosition(Direction direction, guint distance)
     position->x += hMovement[direction] * distance;
     position->y += vMovement[direction] * distance;
 
-    SetViewPosition(position->x, position->y);
+    SetViewPosition(position);
 }
 
 // ------------------------------------------------------------------------------------------------
 // Sets the dungeonCell position of the viewPort origin such that the given position is centered.
-void CenterViewPortOn(gint positionX, gint positionY)
+void CenterViewPortOn(Point *position)
 {
     guint tileSize = GetTileSizeForZoomLevel(GetViewPortZoomLevel());
-    guint viewPortWidth = VIEWPORT_WIDTH_PIXELS / tileSize;
-    guint viewPortHeight = VIEWPORT_HEIGHT_PIXELS / tileSize;
+    gint viewPortWidth = VIEWPORT_WIDTH_PIXELS / tileSize;
+    gint viewPortHeight = VIEWPORT_HEIGHT_PIXELS / tileSize;
+    // TODO: Simplify by making above variables into viewPortWidthHalf and viewPortHeightHalf
+    Point newPosition = {position->x - viewPortWidth / 2, position->y - viewPortHeight / 2};
 
-    SetViewPosition(positionX - viewPortWidth / 2, positionY - viewPortHeight / 2);
+    SetViewPosition(&newPosition);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -128,10 +128,9 @@ Point* GetSelectedCell(void)
 
 // ------------------------------------------------------------------------------------------------
 // Sets the currently selected dungeonCell in the viewPort to the given position.
-void SetSelectedCell(gint positionX, gint positionY)
+void SetSelectedCell(Point *position)
 {
-    selectedCell.x = positionX;
-    selectedCell.y = positionY;
+    selectedCell = *position;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -187,7 +186,7 @@ static const guint8* GetTileImageData(Tile tile)
 
 // ------------------------------------------------------------------------------------------------
 // Returns the tile image for a TERRAIN_WALL cell based on the surrounding cells.
-static Tile GetWallTile(gint positionX, gint positionY)
+static Tile GetWallTile(Point *position)
 {
     guint tile = TILE_NULL;
     Terrain neighbors[DIR_COUNT] = {TERRAIN_NULL};
@@ -195,10 +194,9 @@ static Tile GetWallTile(gint positionX, gint positionY)
     // Get terrain for each neighboring cell.
     for (guint i = 0; i < DIR_COUNT; i++)
     {
-        gint cellX = positionX + hMovement[i];
-        gint cellY = positionY + vMovement[i];
+        Point cellNeighbor = {position->x + hMovement[i], position->y + vMovement[i]};
 
-        neighbors[i] = GetCellTerrain(cellX, cellY);
+        neighbors[i] = GetCellTerrain(&cellNeighbor);
     }
 
     // Check corner neighbors for TERRAIN_FLOOR.
@@ -237,13 +235,6 @@ static Tile GetWallTile(gint positionX, gint positionY)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the GdkPixbuf from the tiles array for the dungeonCell selected indicator.
-static GdkPixbuf* GetTileForCellSelected(gint positionX, gint positionY)
-{
-    return GetPixbufFromTile(TILE_CELL_SELECTED);
-}
-
-// ------------------------------------------------------------------------------------------------
 // Returns the GdkPixbuf from the tiles array for the given actor.
 static GdkPixbuf* GetTileForActor(Actor *actor)
 {
@@ -264,9 +255,9 @@ static GdkPixbuf* GetTileForActor(Actor *actor)
 
 // ------------------------------------------------------------------------------------------------
 // Returns the GdkPixbuf from the tiles array for the given cell based on its terrain.
-static GdkPixbuf* GetTileForTerrain(gint positionX, gint positionY)
+static GdkPixbuf* GetTileForTerrain(Point *position)
 {
-    Terrain terrain = GetCellTerrain(positionX, positionY);
+    Terrain terrain = GetCellTerrain(position);
     Tile tile;
 
     switch (terrain)
@@ -275,32 +266,13 @@ static GdkPixbuf* GetTileForTerrain(gint positionX, gint positionY)
         tile = TILE_FLOOR;
         break;
     case TERRAIN_WALL:
-        tile = GetWallTile(positionX, positionY);
+        tile = GetWallTile(position);
         break;
     default:
         tile = TILE_NULL;
     }
 
     return GetPixbufFromTile(tile);
-}
-
-// ------------------------------------------------------------------------------------------------
-// Returns the GdkPixbuf from the tiles array based on the dungeonCell's contents.
-static GdkPixbuf* GetTileForCell(gint positionX, gint positionY)
-{
-    DungeonCell *cellToDraw = GetCellAtPosition(positionX, positionY);
-    Point *selectedCell = GetSelectedCell();
-
-    if (IsOutsideDungeon(positionX, positionY))
-        return GetPixbufFromTile(TILE_NULL);
-    else if (selectedCell->x == positionX && selectedCell->y == positionY)
-        return GetTileForCellSelected(positionX, positionY);
-    else if (cellToDraw->actor != NULL)
-        return GetTileForActor(cellToDraw->actor);
-    else
-        return GetTileForTerrain(positionX, positionY);
-
-    return GetPixbufFromTile(TILE_NULL);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -354,7 +326,12 @@ ZoomLevel GetViewPortZoomLevel(void)
 // Set whether zoom is active on the viewPort.
 void SetViewPortZoomLevel(ZoomLevel level)
 {
-    zoomLevel = level;
+    if (level < ZOOM_LEVEL_OFF)
+        zoomLevel = ZOOM_LEVEL_OFF;
+    else if (level > ZOOM_LEVEL_PEAK)
+        zoomLevel = ZOOM_LEVEL_PEAK;
+    else
+        zoomLevel = level;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -396,36 +373,34 @@ gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userDa
             for (gint x = 0; x <= VIEWPORT_WIDTH_PIXELS / tileSize; x++)
             {
                 // The pixel position within the viewPort to be changed.
-                gint pixelX = tileSize * x;
-                gint pixelY = tileSize * y;
+                Point pixel = {tileSize * x, tileSize * y};
 
                 // Zoom levels other than ZOOM_LEVEL_PEAK have an even number of tiles to draw,
                 // so we draw them offset by half a tile to keep the player centered.
                 if (zoomLevel != ZOOM_LEVEL_PEAK)
                 {
-                    pixelX -= tileSize / 2;
-                    pixelY -= tileSize / 2;
+                    pixel.x -= tileSize / 2;
+                    pixel.y -= tileSize / 2;
                 }
 
                 // The dungeon cell to be drawn in the viewPort.
-                gint cellX = viewPosition->x + x;
-                gint cellY = viewPosition->y + y;
+                Point cell = {viewPosition->x + x, viewPosition->y + y};
 
                 // Draws the terrain for the cell.
-                gdk_cairo_set_source_pixbuf(context, GetTileForTerrain(cellX, cellY), pixelX, pixelY);
+                gdk_cairo_set_source_pixbuf(context, GetTileForTerrain(&cell), pixel.x, pixel.y);
                 cairo_paint(context);
 
                 // If position contains an actor, draw it over the terrain.
-                if (GetCellsActor(cellX, cellY) != NULL)
+                if (GetCellsActor(&cell) != NULL)
                 {
-                    gdk_cairo_set_source_pixbuf(context, tiles[TILE_AT], pixelX, pixelY);
+                    gdk_cairo_set_source_pixbuf(context, tiles[TILE_AT], pixel.x, pixel.y);
                     cairo_paint(context);
                 }
 
                 // If position is also the selected cell, draw the cursor over everything else.
-                if (selectedCell->x == cellX && selectedCell->y == cellY)
+                if (selectedCell->x == cell.x && selectedCell->y == cell.y)
                 {
-                    gdk_cairo_set_source_pixbuf(context, tiles[TILE_CELL_SELECTED], pixelX, pixelY);
+                    gdk_cairo_set_source_pixbuf(context, tiles[TILE_CELL_SELECTED], pixel.x, pixel.y);
                     cairo_paint(context);
                 }
             }
@@ -488,15 +463,15 @@ static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *eve
         // Center viewPort on selected dungeon cell if it was clicked again and is traversable.
         if (newSelectedCell.x == oldSelectedCell->x && newSelectedCell.y == oldSelectedCell->y)
         {
-            if (IsTerrainTraversable(newSelectedCell.x, newSelectedCell.y))
+            if (IsTerrainTraversable(&newSelectedCell))
             {
-                CenterViewPortOn(newSelectedCell.x, newSelectedCell.y);
-                SetActorPosition(&actors[0], newSelectedCell.x, newSelectedCell.y);
+                CenterViewPortOn(&newSelectedCell);
+                SetActorPosition(&actors[0], &newSelectedCell);
             }
         }
         else
         {
-            SetSelectedCell(newSelectedCell.x, newSelectedCell.y);
+            SetSelectedCell(&newSelectedCell);
         }
     }
     else if (gesture == GESTURE_SWIPE)
@@ -510,7 +485,7 @@ static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *eve
             // it is the map underneath them that is moving.
             // TODO: global variable setting for not using the opposite direction of the swipe.
             ActionWalk(player, GetOppositeDirection(GetSwipeDirection()));
-            CenterViewPortOn(player->position.x, player->position.y);
+            CenterViewPortOn(&player->position);
         }
     }
 

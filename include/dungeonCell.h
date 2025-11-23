@@ -3,6 +3,7 @@
 
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
+#include "global.h"
 #include "actor.h"
 
 // ------------------------------------------------------------------------------------------------
@@ -41,12 +42,12 @@ extern DungeonCell cells[DUNGEON_HEIGHT][DUNGEON_WIDTH];
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-gboolean IsOutsideDungeon(gint positionX, gint positionY);
-DungeonCell* GetCellAtPosition(gint positionX, gint positionY);
-Terrain GetCellTerrain(gint positionX, gint positionY);
-void SetCellTerrain(gint positionX, gint positionY, Terrain terrain);
-Actor* GetCellsActor(gint positionX, gint positionY);
-void SetCellsActor(gint positionX, gint positionY, Actor *actor);
-gboolean IsTerrainTraversable(gint positionX, gint positionY);
+gboolean IsOutsideDungeon(Point *position);
+DungeonCell* GetCellAtPosition(Point *position);
+Terrain GetCellTerrain(Point *position);
+void SetCellTerrain(Point *position, Terrain terrain);
+Actor* GetCellsActor(Point *position);
+void SetCellsActor(Point *position, Actor *actor);
+gboolean IsTerrainTraversable(Point *position);
 
 #endif // DUNGEON_CELL_H

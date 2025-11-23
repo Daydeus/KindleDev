@@ -2,6 +2,7 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <glib-2.0/glib.h>
 #include <cstdlib>
+#include "global.h"
 #include "dungeonCell.h"
 #include "actor.h"
 
@@ -28,12 +29,11 @@ DungeonCell cells[DUNGEON_HEIGHT][DUNGEON_WIDTH] = {};
 
 // ------------------------------------------------------------------------------------------------
 // Returns true if the given position is not within the dungeon.
-gboolean IsOutsideDungeon(gint positionX, gint positionY)
+gboolean IsOutsideDungeon(Point *position)
 {
     Point mapOrigin = {0, 0};
-    Point position = {positionX, positionY};
 
-    if (IsWithinRectangle(&position, &mapOrigin, DUNGEON_WIDTH, DUNGEON_HEIGHT))
+    if (IsWithinRectangle(position, &mapOrigin, DUNGEON_WIDTH, DUNGEON_HEIGHT))
         return FALSE;
     else
         return TRUE;
@@ -41,61 +41,61 @@ gboolean IsOutsideDungeon(gint positionX, gint positionY)
 
 // ------------------------------------------------------------------------------------------------
 // Gets the dungeonCell at the given position.
-DungeonCell* GetCellAtPosition(gint positionX, gint positionY)
+DungeonCell* GetCellAtPosition(Point *position)
 {
-    if (!IsOutsideDungeon(positionX, positionY))
-        return &cells[positionY][positionX];
+    if (!IsOutsideDungeon(position))
+        return &cells[position->y][position->x];
     else
         return NULL;
 }
 
 // ------------------------------------------------------------------------------------------------
 // Gets the terrain of the dungeonCell at the given position.
-Terrain GetCellTerrain(gint positionX, gint positionY)
+Terrain GetCellTerrain(Point *position)
 {
-    if (!IsOutsideDungeon(positionX, positionY))
-        return cells[positionY][positionX].terrain;
+    if (!IsOutsideDungeon(position))
+        return cells[position->y][position->x].terrain;
     else
         return TERRAIN_NULL;
 }
 
 // ------------------------------------------------------------------------------------------------
 // Sets the terrain of the dungeonCell at the given position.
-void SetCellTerrain(gint positionX, gint positionY, Terrain terrain)
+void SetCellTerrain(Point *position, Terrain terrain)
 {
-    if (!IsOutsideDungeon(positionX, positionY))
-        cells[positionY][positionX].terrain = terrain;
+    if (!IsOutsideDungeon(position))
+        cells[position->y][position->x].terrain = terrain;
 }
 
 // ------------------------------------------------------------------------------------------------
 // Gets the pointer of the actor at the given dungeonCell position.
-Actor* GetCellsActor(gint positionX, gint positionY)
+Actor* GetCellsActor(Point *position)
 {
-    if (!IsOutsideDungeon(positionX, positionY))
-        return cells[positionY][positionX].actor;
+    if (!IsOutsideDungeon(position))
+        return cells[position->y][position->x].actor;
     else
         return NULL;
 }
 
 // ------------------------------------------------------------------------------------------------
 // Sets the pointer for the actor at the given dungeonCell position.
-void SetCellsActor(gint positionX, gint positionY, Actor *actor)
+void SetCellsActor(Point *position, Actor *actor)
 {
-    if (!IsOutsideDungeon(positionX, positionY))
-        cells[positionY][positionX].actor = actor;
+    if (!IsOutsideDungeon(position))
+        cells[position->y][position->x].actor = actor;
 }
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the given cell's terrain is traversable.
-gboolean IsTerrainTraversable(gint positionX, gint positionY)
+gboolean IsTerrainTraversable(Point *position)
 {
-    if (IsOutsideDungeon(positionX, positionY))
+    if (IsOutsideDungeon(position))
     {
         return FALSE;
     }
     else
     {
-        Terrain terrain = GetCellTerrain(positionX, positionY);
+        Terrain terrain = GetCellTerrain(position);
 
         if (terrain == TERRAIN_FLOOR)
             return TRUE;

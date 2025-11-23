@@ -18,8 +18,8 @@
 typedef struct
 {
     Point start;
-    guint width;
-    guint height;
+    gint width;
+    gint height;
 } Room;
 
 // ------------------------------------------------------------------------------------------------
@@ -36,11 +36,13 @@ typedef struct
 // Set the terrain of all dungeon cells to TERRAIN_WALL.
 static void InitDungeon(void)
 {
-    for (guint y = 0; y < DUNGEON_HEIGHT; y++)
+    for (gint y = 0; y < DUNGEON_HEIGHT; y++)
     {
-        for (guint x = 0; x < DUNGEON_WIDTH; x++)
+        for (gint x = 0; x < DUNGEON_WIDTH; x++)
         {
-            SetCellTerrain(x, y, TERRAIN_WALL);
+            Point position = {x, y};
+
+            SetCellTerrain(&position, TERRAIN_WALL);
         }
     }
 }
@@ -49,30 +51,36 @@ static void InitDungeon(void)
 // Place a rectangle of TERRAIN_FLOOR in the dungeon based on the given room's dimensions.
 static void PlaceRoom(Room *room)
 {
-    for (guint y = room->start.y; y < room->start.y + room->height; y++)
+    for (gint y = room->start.y; y < room->start.y + room->height; y++)
     {
-        for (guint x = room->start.x; x < room->start.x + room->width; x++)
+        for (gint x = room->start.x; x < room->start.x + room->width; x++)
         {
-            if (!IsOutsideDungeon(x, y))
-                SetCellTerrain(x, y, TERRAIN_FLOOR);
+            Point position = {x, y};
+
+            if (!IsOutsideDungeon(&position))
+                SetCellTerrain(&position, TERRAIN_FLOOR);
         }
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 // Move from the start to the end position and change each dungeon cell's terrain to TERRAIN_FLOOR.
-static void CreateCorridor(guint startX, guint startY, guint endX, guint endY)
+static void CreateCorridor(gint startX, gint startY, gint endX, gint endY)
 {
-    for (guint y = startY; y != endY; y += (endY > startY ? 1 : -1))
+    for (gint y = startY; y != endY; y += (endY > startY ? 1 : -1))
     {
-        if (!IsOutsideDungeon(startX, y))
-            SetCellTerrain(startX, y, TERRAIN_FLOOR);
+        Point position = {startX, y};
+
+        if (!IsOutsideDungeon(&position))
+            SetCellTerrain(&position, TERRAIN_FLOOR);
     }
 
-    for (guint x = startX; x != endX; x += (endX > startX ? 1 : -1))
+    for (gint x = startX; x != endX; x += (endX > startX ? 1 : -1))
     {
-        if (!IsOutsideDungeon(x, endY))
-            SetCellTerrain(x, endY, TERRAIN_FLOOR);
+        Point position = {x, endY};
+
+        if (!IsOutsideDungeon(&position))
+            SetCellTerrain(&position, TERRAIN_FLOOR);
     }
 }
 
@@ -102,10 +110,10 @@ void GenerateDungeon(void)
     for (guint i = 0; i < roomCount - 1; i++)
     {
         // Navigate from the center of one room to another.
-        guint startX = rooms[i].start.x + (rooms[i].width / 2);
-        guint startY = rooms[i].start.y + (rooms[i].height / 2);
-        guint endX = rooms[i + 1].start.x + (rooms[i + 1].width / 2);
-        guint endY = rooms[i + 1].start.y + (rooms[i + 1].height / 2);
+        gint startX = rooms[i].start.x + (rooms[i].width / 2);
+        gint startY = rooms[i].start.y + (rooms[i].height / 2);
+        gint endX = rooms[i + 1].start.x + (rooms[i + 1].width / 2);
+        gint endY = rooms[i + 1].start.y + (rooms[i + 1].height / 2);
 
         CreateCorridor(startX, startY, endX, endY);
     }

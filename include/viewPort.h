@@ -3,6 +3,7 @@
 
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
+#include "global.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -83,11 +84,11 @@ extern Point selectedCell;
 
 void InitViewPort(void);
 Point* GetViewPosition(void);
-void SetViewPosition(gint positionX, gint positionY);
+void SetViewPosition(Point *position);
 void MoveViewPosition(Direction direction, guint distance);
-void CenterViewPortOn(gint positionX, gint positionY);
+void CenterViewPortOn(Point *position);
 Point* GetSelectedCell(void);
-void SetSelectedCell(gint positionX, gint positionY);
+void SetSelectedCell(Point *position);
 void LoadTiles(void);
 void ScaleTileForZoom(void);
 void FreeTiles(void);

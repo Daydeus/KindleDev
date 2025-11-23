@@ -207,7 +207,7 @@ gboolean on_playerControlsBox_click(GtkWidget *widget, GdkEventButton *event, gp
     if (dirArrowClicked != DIR_NONE)
     {
         ActionWalk(player, dirArrowClicked);
-        CenterViewPortOn(player->position.x, player->position.y);
+        CenterViewPortOn(&player->position);
         gtk_widget_queue_draw(GTK_WIDGET(viewPort));
     }
 
@@ -220,7 +220,7 @@ gboolean on_playerControlsBox_click(GtkWidget *widget, GdkEventButton *event, gp
         zoomLevel = WrapValue(++zoomLevel, ZOOM_LEVEL_OFF, ZOOM_LEVEL_PEAK);
         SetViewPortZoomLevel((ZoomLevel)zoomLevel);
         ScaleTileForZoom();
-        CenterViewPortOn(player->position.x, player->position.y);
+        CenterViewPortOn(&player->position);
 
         gtk_widget_queue_draw(GTK_WIDGET(viewPort));
         gtk_widget_queue_draw(GTK_WIDGET(playerControlsBox));
