@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     gtk_main();
 
     // Exiting program.
-    FreeTiles();
+    FreeDungeonTiles();
     FreeIcons();
 
     return 0;

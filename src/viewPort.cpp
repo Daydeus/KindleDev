@@ -42,7 +42,7 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-GdkPixbuf *tiles[TILE_COUNT] = {NULL};
+GdkPixbuf *dungeonTiles[TILE_COUNT] = {NULL};
 GtkDrawingArea *viewPort = NULL;
 ZoomLevel zoomLevel = {ZOOM_LEVEL_OFF};
 Point viewPosition = {0}; // The dungeonCell position of the viewPort origin.
@@ -52,11 +52,11 @@ Point selectedCell = {0}; // The current player-selected dungeonCell in the view
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-static Tile GetWallTile(Point *position);
+static DungeonTile GetWallTile(Point *position);
 static GdkPixbuf* GetTileForTerrain(Point *position);
 static GdkPixbuf* GetTileForCell(Point *position);
-static GdkPixbuf* GetPixbufFromTile(Tile tile);
-static const guint8* GetTileImageData(Tile tile);
+static GdkPixbuf* GetPixbufFromTile(DungeonTile tile);
+static const guint8* GetTileImageData(DungeonTile tile);
 static guint GetTileSizeForZoomLevel(ZoomLevel level);
 static gboolean on_viewPort_click_press(GtkWidget *widget, GdkEventButton *event, gpointer userData);
 static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *event, gpointer userData);
@@ -65,7 +65,7 @@ static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *eve
 // Load GdkPixbuf tiles and initialize the dungeon viewPort.
 void InitViewPort(void)
 {
-    LoadTiles();
+    LoadDungeonTiles();
 
     // Initialize the viewPort.
     viewPort = GTK_DRAWING_AREA(gtk_drawing_area_new());
@@ -135,7 +135,7 @@ void SetSelectedCell(Point *position)
 
 // ------------------------------------------------------------------------------------------------
 // Returns the array of image data required for gdk_pixbuf_new_from_inline.
-static const guint8* GetTileImageData(Tile tile)
+static const guint8* GetTileImageData(DungeonTile tile)
 {
     switch (tile)
     {
@@ -186,7 +186,7 @@ static const guint8* GetTileImageData(Tile tile)
 
 // ------------------------------------------------------------------------------------------------
 // Returns the tile image for a TERRAIN_WALL cell based on the surrounding cells.
-static Tile GetWallTile(Point *position)
+static DungeonTile GetWallTile(Point *position)
 {
     guint tile = TILE_NULL;
     Terrain neighbors[DIR_COUNT] = {TERRAIN_NULL};
@@ -231,7 +231,7 @@ static Tile GetWallTile(Point *position)
         tile |= MASK_NORTH_WEST;
     }
 
-    return (Tile)tile;
+    return (DungeonTile)tile;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -239,7 +239,7 @@ static Tile GetWallTile(Point *position)
 static GdkPixbuf* GetTileForActor(Actor *actor)
 {
     ActorSpecies species = actor->species;
-    Tile tile;
+    DungeonTile tile;
 
     switch (species)
     {
@@ -258,7 +258,7 @@ static GdkPixbuf* GetTileForActor(Actor *actor)
 static GdkPixbuf* GetTileForTerrain(Point *position)
 {
     Terrain terrain = GetCellTerrain(position);
-    Tile tile;
+    DungeonTile tile;
 
     switch (terrain)
     {
@@ -277,19 +277,19 @@ static GdkPixbuf* GetTileForTerrain(Point *position)
 
 // ------------------------------------------------------------------------------------------------
 // Returns a GdkPixbuf based on the given idex to the tiles array.
-static GdkPixbuf* GetPixbufFromTile(Tile tile)
+static GdkPixbuf* GetPixbufFromTile(DungeonTile tile)
 {
-    return tiles[tile];
+    return dungeonTiles[tile];
 }
 
 // ------------------------------------------------------------------------------------------------
 // Read image data into the GdkPixbufs tiles array.
-void LoadTiles(void)
+void LoadDungeonTiles(void)
 {
     GError * error = NULL;
     for (guint i = 0; i < TILE_COUNT; i++)
     {
-        tiles[i] = gdk_pixbuf_new_from_inline(-1, GetTileImageData((Tile)i), FALSE, &error);
+        dungeonTiles[i] = gdk_pixbuf_new_from_inline(-1, GetTileImageData((DungeonTile)i), FALSE, &error);
     }
 }
 
@@ -300,18 +300,18 @@ void ScaleTileForZoom(void)
     guint tileSize = GetTileSizeForZoomLevel(GetViewPortZoomLevel());
     for (guint i = 0; i < TILE_COUNT; i++)
     {
-        tiles[i] = gdk_pixbuf_scale_simple(tiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
+        dungeonTiles[i] = gdk_pixbuf_scale_simple(dungeonTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 // Free the GdkPixbufs for the tiles array.
-void FreeTiles(void)
+void FreeDungeonTiles(void)
 {
     // Free memory used by GdkPixbufs.
     for (guint i = 0; i < TILE_COUNT; i++)
     {
-        g_object_unref(tiles[i]);
+        g_object_unref(dungeonTiles[i]);
     }
 }
 
@@ -393,14 +393,14 @@ gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userDa
                 // If position contains an actor, draw it over the terrain.
                 if (GetCellsActor(&cell) != NULL)
                 {
-                    gdk_cairo_set_source_pixbuf(context, tiles[TILE_AT], pixel.x, pixel.y);
+                    gdk_cairo_set_source_pixbuf(context, dungeonTiles[TILE_AT], pixel.x, pixel.y);
                     cairo_paint(context);
                 }
 
                 // If position is also the selected cell, draw the cursor over everything else.
                 if (selectedCell->x == cell.x && selectedCell->y == cell.y)
                 {
-                    gdk_cairo_set_source_pixbuf(context, tiles[TILE_CELL_SELECTED], pixel.x, pixel.y);
+                    gdk_cairo_set_source_pixbuf(context, dungeonTiles[TILE_CELL_SELECTED], pixel.x, pixel.y);
                     cairo_paint(context);
                 }
             }

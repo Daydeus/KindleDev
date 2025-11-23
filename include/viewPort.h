@@ -26,7 +26,7 @@
 // ------------------------------------------------------------------------------------------------
 
 // Indices for tiles in the GdkPixbuf tiles array.
-enum Tile
+enum DungeonTile
 {
     TILE_NULL,
     TILE_WALL_INNER_CORNER_NORTHEAST,
@@ -72,7 +72,7 @@ enum ZoomLevel
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern GdkPixbuf *tiles[TILE_COUNT];
+extern GdkPixbuf *dungeonTiles[TILE_COUNT];
 extern GtkDrawingArea *viewPort;
 extern ZoomLevel zoomLevel;
 extern Point viewPosition;
@@ -89,9 +89,9 @@ void MoveViewPosition(Direction direction, guint distance);
 void CenterViewPortOn(Point *position);
 Point* GetSelectedCell(void);
 void SetSelectedCell(Point *position);
-void LoadTiles(void);
+void LoadDungeonTiles(void);
 void ScaleTileForZoom(void);
-void FreeTiles(void);
+void FreeDungeonTiles(void);
 ZoomLevel GetViewPortZoomLevel(void);
 void SetViewPortZoomLevel(ZoomLevel level);
 gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userData);
