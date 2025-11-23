@@ -217,11 +217,11 @@ gboolean on_playerControlsBox_click(GtkWidget *widget, GdkEventButton *event, gp
     {
         guint zoomLevel = GetViewPortZoomLevel();
 
-        zoomLevel = (zoomLevel == ZOOM_LEVEL_PEAK) ? ZOOM_LEVEL_OFF : zoomLevel + 1;
-
+        zoomLevel = WrapValue(++zoomLevel, ZOOM_LEVEL_OFF, ZOOM_LEVEL_PEAK);
         SetViewPortZoomLevel((ZoomLevel)zoomLevel);
         ScaleTileForZoom();
         CenterViewPortOn(player->position.x, player->position.y);
+
         gtk_widget_queue_draw(GTK_WIDGET(viewPort));
         gtk_widget_queue_draw(GTK_WIDGET(playerControlsBox));
     }

@@ -67,8 +67,34 @@ Direction GetOppositeDirection(Direction direction)
     }
 }
 
+//-------------------------------------------------------------------------------------------------
+// Returns the given value if within the given range (inclusive). Otherwise, returns the closest
+// boundary of the given range.
+gint ClampValue(gint value, gint minimum, gint maximum)
+{
+    if (value < minimum)
+        return minimum;
+    else if (value > maximum)
+        return maximum;
+    else
+        return value;
+}
+
+//-------------------------------------------------------------------------------------------------
+// Returns the given value if within the given range (inclusive). Otherwise, wraps the value around
+// the range by the difference between the closest bound.
+gint WrapValue(gint value, gint minimum, gint maximum)
+{
+    if (value < minimum)
+        return (maximum - (minimum - value)) + 1;
+    else if (value > maximum)
+        return (minimum + (value - maximum)) - 1;
+    else
+        return value;
+}
+
 // ------------------------------------------------------------------------------------------------
-// Returns if the given position is with the given rectangle.
+// Returns TRUE if the given position is with the given rectangle.
 gboolean IsWithinRectangle(Point *position, Point *origin, gint width, gint height)
 {
     if (position->x > origin->x && position->x < origin->x + width
@@ -89,16 +115,17 @@ void SetWidgetBgColor(GtkWidget *widget, enum Color colorName)
     {
     case COLOR_BLACK:
         string = "#000000";
-    break;
+        break;
     case COLOR_GREY_DARK:
         string = "#444444";
-    break;
+        break;
     case COLOR_GREY_LIGHT:
         string = "#bbbbbb";
-    break;
+        break;
     case COLOR_WHITE:
+    default:
         string = "#ffffff";
-    break;
+        break;
     }
 
     if (gdk_color_parse(string, &color))
