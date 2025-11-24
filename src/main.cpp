@@ -7,7 +7,7 @@
 #include "actor.h"
 #include "dungeonCell.h"
 #include "dungeonGeneration.h"
-#include "playerController.h"
+#include "menuBox.h"
 #include "viewPort.h"
 
 // ------------------------------------------------------------------------------------------------
@@ -50,8 +50,8 @@ int main(int argc, char *argv[])
     gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(alignMain));
     gtk_container_add(GTK_CONTAINER(alignMain), GTK_WIDGET(tableMain));
     gtk_table_attach(tableMain, GTK_WIDGET(viewPort), 0, 1, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-    gtk_table_attach(tableMain, GTK_WIDGET(playerControlsBox), 0, 1, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-    gtk_table_set_row_spacing (GTK_TABLE(tableMain), 0, ICON_SIZE);
+    gtk_table_attach(tableMain, GTK_WIDGET(menuBox), 0, 1, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+    gtk_table_set_row_spacing (GTK_TABLE(tableMain), 0, TILE_SIZE_16);
 
     // Connect widget signals to callbacks.
     g_signal_connect(applicationMain, "destroy", G_CALLBACK(gtk_main_quit), NULL);

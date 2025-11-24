@@ -11,12 +11,13 @@
 
 #ifdef KINDLE_BUILD
 #define ICON_SIZE 64
+#define MENU_BOX_WIDTH  VIEWPORT_WIDTH_PIXELS
+#define MENU_BOX_HEIGHT 720
 #else
 #define ICON_SIZE 32
+#define MENU_BOX_WIDTH  VIEWPORT_WIDTH_PIXELS
+#define MENU_BOX_HEIGHT VIEWPORT_HEIGHT_PIXELS
 #endif
-
-#define CONTROLS_BOX_WIDTH  VIEWPORT_WIDTH_PIXELS
-#define CONTROLS_BOX_HEIGHT VIEWPORT_HEIGHT_PIXELS
 
 #define ARROWS_ORIGIN_X 0
 #define ARROWS_ORIGIN_Y 0
@@ -55,7 +56,7 @@ enum Icon
 // ------------------------------------------------------------------------------------------------
 
 extern GdkPixbuf *icons[ICON_COUNT];
-extern GtkDrawingArea *playerControlsBox;
+extern GtkDrawingArea *menuBox;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -64,7 +65,7 @@ extern GtkDrawingArea *playerControlsBox;
 void InitControlsBox(void);
 void LoadIcons(void);
 void FreeIcons(void);
-gboolean on_playerControlsBox_update(GtkWidget *widget, cairo_t *context, gpointer userData);
-gboolean on_playerControlsBox_click(GtkWidget *widget, GdkEventButton *event, gpointer userData);
+gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userData);
+gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer userData);
 
 #endif // PLAYER_CONTROLLER

@@ -2,7 +2,7 @@
 #include <glib-2.0/glib.h>
 #include "global.h"
 #include "actor.h"
-#include "playerController.h"
+#include "menuBox.h"
 #include "viewPort.h"
 #include "data/icons/icon_arrow_north.h"
 #include "data/icons/icon_arrow_northEast.h"
@@ -32,7 +32,7 @@
 // ------------------------------------------------------------------------------------------------
 
 GdkPixbuf *icons[ICON_COUNT] = {NULL};
-GtkDrawingArea *playerControlsBox = NULL;
+GtkDrawingArea *menuBox = NULL;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -47,15 +47,15 @@ void InitControlsBox(void)
 {
     LoadIcons();
 
-    // Initialize playerControlsBox.
-    playerControlsBox = GTK_DRAWING_AREA(gtk_drawing_area_new());
-    gtk_widget_set_size_request(GTK_WIDGET(playerControlsBox), CONTROLS_BOX_WIDTH, CONTROLS_BOX_HEIGHT);
-    SetWidgetBgColor(GTK_WIDGET(playerControlsBox), COLOR_WHITE);
+    // Initialize menuBox.
+    menuBox = GTK_DRAWING_AREA(gtk_drawing_area_new());
+    gtk_widget_set_size_request(GTK_WIDGET(menuBox), MENU_BOX_WIDTH, MENU_BOX_HEIGHT);
+    SetWidgetBgColor(GTK_WIDGET(menuBox), COLOR_GREY_LIGHT);
 
     // Set up signals.
-    g_signal_connect(playerControlsBox, "expose_event", G_CALLBACK(on_playerControlsBox_update), NULL);
-    g_signal_connect(playerControlsBox, "button_press_event", G_CALLBACK(on_playerControlsBox_click), NULL);
-    gtk_widget_set_events(GTK_WIDGET(playerControlsBox), GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK);
+    g_signal_connect(menuBox, "expose_event", G_CALLBACK(on_menuBox_update), NULL);
+    g_signal_connect(menuBox, "button_press_event", G_CALLBACK(on_menuBox_click), NULL);
+    gtk_widget_set_events(GTK_WIDGET(menuBox), GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ void FreeIcons(void)
 
 // ------------------------------------------------------------------------------------------------
 // Callback function to update the tiles shown on the viewPort.
-gboolean on_playerControlsBox_update(GtkWidget *widget, cairo_t *context, gpointer userData)
+gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userData)
 {
     // Get the GdkWindow from the widget
     GdkWindow *window = gtk_widget_get_window(widget);
@@ -192,7 +192,7 @@ gboolean on_playerControlsBox_update(GtkWidget *widget, cairo_t *context, gpoint
 
 // ------------------------------------------------------------------------------------------------
 // Callback function to track input on the viewPort.
-gboolean on_playerControlsBox_click(GtkWidget *widget, GdkEventButton *event, gpointer userData)
+gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer userData)
 {
     Point clicked = {0};
     Point iconOrigin = {0};
@@ -223,7 +223,7 @@ gboolean on_playerControlsBox_click(GtkWidget *widget, GdkEventButton *event, gp
         CenterViewPortOn(&player->position);
 
         gtk_widget_queue_draw(GTK_WIDGET(viewPort));
-        gtk_widget_queue_draw(GTK_WIDGET(playerControlsBox));
+        gtk_widget_queue_draw(GTK_WIDGET(menuBox));
     }
 
     // Exit the gtk main loop if the exit icon is clicked.
