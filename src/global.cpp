@@ -16,8 +16,8 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-const gint8 hMovement[DIR_COUNT] = { 0,  1, 1, 1, 0, -1, -1, -1};
-const gint8 vMovement[DIR_COUNT] = {-1, -1, 0, 1, 1,  1,  0, -1};
+const gint8 hMovement[DIR_ALL_COUNT] = { 0, 1, 0, -1,  1, 1, -1, -1};
+const gint8 vMovement[DIR_ALL_COUNT] = {-1, 0, 1,  0, -1, 1,  1, -1};
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -48,18 +48,18 @@ Direction GetOppositeDirection(Direction direction)
     {
     case DIR_NORTH:
         return DIR_SOUTH;
-    case DIR_NORTH_EAST:
-        return DIR_SOUTH_WEST;
     case DIR_EAST:
         return DIR_WEST;
-    case DIR_SOUTH_EAST:
-        return DIR_NORTH_WEST;
     case DIR_SOUTH:
         return DIR_NORTH;
-    case DIR_SOUTH_WEST:
-        return DIR_NORTH_EAST;
     case DIR_WEST:
         return DIR_EAST;
+    case DIR_NORTH_EAST:
+        return DIR_SOUTH_WEST;
+    case DIR_SOUTH_EAST:
+        return DIR_NORTH_WEST;
+    case DIR_SOUTH_WEST:
+        return DIR_NORTH_EAST;
     case DIR_NORTH_WEST:
         return DIR_SOUTH_EAST;
     default:

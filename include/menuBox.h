@@ -19,15 +19,14 @@
 #define MENU_BOX_HEIGHT VIEWPORT_HEIGHT_PIXELS
 #endif
 
-#define ARROWS_ORIGIN_X 0
-#define ARROWS_ORIGIN_Y 0
-#define ARROWS_WIDTH   ICON_SIZE * 3
-#define ARROWS_HEIGHT  ARROWS_WIDTH
+#define ARROWS_CENTER_X   128
+#define ARROWS_CENTER_Y   128
+#define ARROWS_TILE_INDEX 0
 
 #define ZOOM_ORIGIN_X 400
-#define ZOOM_ORIGIN_Y 0
+#define ZOOM_ORIGIN_Y 128
 
-#define EXIT_ORIGIN_X 400
+#define EXIT_ORIGIN_X 500
 #define EXIT_ORIGIN_Y 128
 
 // ------------------------------------------------------------------------------------------------
@@ -37,13 +36,9 @@
 enum Icon
 {
     ICON_ARROW_NORTH,
-    ICON_ARROW_NORTH_EAST,
     ICON_ARROW_EAST,
-    ICON_ARROW_SOUTH_EAST,
     ICON_ARROW_SOUTH,
-    ICON_ARROW_SOUTH_WEST,
     ICON_ARROW_WEST,
-    ICON_ARROW_NORTH_WEST,
     ICON_SETTING_OFF,
     ICON_SETTING_MID,
     ICON_SETTING_ON,
@@ -55,7 +50,7 @@ enum Icon
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern GdkPixbuf *icons[ICON_COUNT];
+extern GdkPixbuf *menuBoxTiles[ICON_COUNT];
 extern GtkDrawingArea *menuBox;
 
 // ------------------------------------------------------------------------------------------------
@@ -63,8 +58,8 @@ extern GtkDrawingArea *menuBox;
 // ------------------------------------------------------------------------------------------------
 
 void InitControlsBox(void);
-void LoadIcons(void);
-void FreeIcons(void);
+void LoadMenuBoxTiles(void);
+void FreeMenuBoxTiles(void);
 gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userData);
 gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer userData);
 

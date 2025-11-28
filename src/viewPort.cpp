@@ -132,10 +132,10 @@ static const guint8* GetTilesetImageData(DungeonTileset tileset)
 static DungeonTile GetWallTile(Point *position)
 {
     guint tile = TILE_NULL;
-    Terrain neighbors[DIR_COUNT] = {TERRAIN_NULL};
+    Terrain neighbors[DIR_ALL_COUNT] = {TERRAIN_NULL};
 
     // Get terrain for each neighboring cell.
-    for (guint i = 0; i < DIR_COUNT; i++)
+    for (guint i = 0; i < DIR_ALL_COUNT; i++)
     {
         Point cellNeighbor = {position->x + hMovement[i], position->y + vMovement[i]};
 

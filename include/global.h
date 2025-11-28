@@ -28,15 +28,16 @@ enum Color
 enum Direction
 {
     DIR_NORTH,
-    DIR_NORTH_EAST,
     DIR_EAST,
-    DIR_SOUTH_EAST,
     DIR_SOUTH,
-    DIR_SOUTH_WEST,
     DIR_WEST,
+    DIR_CARDINAL_COUNT,
+    DIR_NORTH_EAST = DIR_CARDINAL_COUNT,
+    DIR_SOUTH_EAST,
+    DIR_SOUTH_WEST,
     DIR_NORTH_WEST,
-    DIR_COUNT,
-    DIR_NONE = DIR_COUNT
+    DIR_ALL_COUNT,
+    DIR_NONE = DIR_ALL_COUNT
 };
 
 typedef struct
@@ -49,8 +50,8 @@ typedef struct
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern const gint8 hMovement[DIR_COUNT];
-extern const gint8 vMovement[DIR_COUNT];
+extern const gint8 hMovement[DIR_ALL_COUNT];
+extern const gint8 vMovement[DIR_ALL_COUNT];
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations

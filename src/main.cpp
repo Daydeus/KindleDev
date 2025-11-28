@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 
     // Exiting program.
     FreeDungeonTiles();
-    FreeIcons();
+    FreeMenuBoxTiles();
 
     return 0;
 }
