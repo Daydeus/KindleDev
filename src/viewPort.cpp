@@ -8,25 +8,7 @@
 #include "actor.h"
 #include "dungeonCell.h"
 #include "viewPort.h"
-#include "data/tiles/tile_at.h"
-#include "data/tiles/tile_cell_selected.h"
-#include "data/tiles/tile_floor.h"
-#include "data/tiles/tile_null.h"
-#include "data/tiles/tile_wall_cave_dualCorners_northWestToSouthEast.h"
-#include "data/tiles/tile_wall_cave_dualCorners_southWestToNorthEast.h"
-#include "data/tiles/tile_wall_cave_facing_east.h"
-#include "data/tiles/tile_wall_cave_facing_north.h"
-#include "data/tiles/tile_wall_cave_facing_south.h"
-#include "data/tiles/tile_wall_cave_facing_west.h"
-#include "data/tiles/tile_wall_cave_innerCorner_northEast.h"
-#include "data/tiles/tile_wall_cave_innerCorner_northWest.h"
-#include "data/tiles/tile_wall_cave_innerCorner_southEast.h"
-#include "data/tiles/tile_wall_cave_innerCorner_southWest.h"
-#include "data/tiles/tile_wall_cave_outerCorner_northEast.h"
-#include "data/tiles/tile_wall_cave_outerCorner_northWest.h"
-#include "data/tiles/tile_wall_cave_outerCorner_southEast.h"
-#include "data/tiles/tile_wall_cave_outerCorner_southWest.h"
-#include "data/tiles/tile_wall_cave_standalone.h"
+#include "data/tilesetDungeonCave.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -54,9 +36,8 @@ Point selectedCell = {0}; // The current player-selected dungeonCell in the view
 
 static DungeonTile GetWallTile(Point *position);
 static GdkPixbuf* GetTileForTerrain(Point *position);
-static GdkPixbuf* GetTileForCell(Point *position);
 static GdkPixbuf* GetPixbufFromTile(DungeonTile tile);
-static const guint8* GetTileImageData(DungeonTile tile);
+static const guint8* GetTilesetImageData(DungeonTileset tileset);
 static guint GetTileSizeForZoomLevel(ZoomLevel level);
 static gboolean on_viewPort_click_press(GtkWidget *widget, GdkEventButton *event, gpointer userData);
 static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *event, gpointer userData);
@@ -65,7 +46,7 @@ static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *eve
 // Load GdkPixbuf tiles and initialize the dungeon viewPort.
 void InitViewPort(void)
 {
-    LoadDungeonTiles();
+    LoadDungeonTiles(TILESET_CAVE);
 
     // Initialize the viewPort.
     viewPort = GTK_DRAWING_AREA(gtk_drawing_area_new());
@@ -135,53 +116,15 @@ void SetSelectedCell(Point *position)
 
 // ------------------------------------------------------------------------------------------------
 // Returns the array of image data required for gdk_pixbuf_new_from_inline.
-static const guint8* GetTileImageData(DungeonTile tile)
+static const guint8* GetTilesetImageData(DungeonTileset tileset)
 {
-    switch (tile)
+    switch (tileset)
     {
-    case TILE_NULL:
-        return tile_null;
-    case TILE_WALL_DUAL_CORNERS_NORTHWEST_SOUTHEAST:
-        return tile_wall_cave_dualCorners_northWestToSouthEast;
-    case TILE_WALL_DUAL_CORNERS_SOUTHWEST_NORTHEAST:
-        return tile_wall_cave_dualCorners_southWestToNorthEast;
-    case TILE_WALL_FACING_EAST:
-        return tile_wall_cave_facing_east;
-    case TILE_WALL_FACING_NORTH:
-        return tile_wall_cave_facing_north;
-    case TILE_WALL_FACING_SOUTH:
-        return tile_wall_cave_facing_south;
-    case TILE_WALL_FACING_WEST:
-        return tile_wall_cave_facing_west;
-    case TILE_WALL_INNER_CORNER_NORTHEAST:
-        return tile_wall_cave_innerCorner_northEast;
-    case TILE_WALL_INNER_CORNER_NORTHWEST:
-        return tile_wall_cave_innerCorner_northWest;
-    case TILE_WALL_INNER_CORNER_SOUTHEAST:
-        return tile_wall_cave_innerCorner_southEast;
-    case TILE_WALL_INNER_CORNER_SOUTHWEST:
-        return tile_wall_cave_innerCorner_southWest;
-    case TILE_WALL_OUTER_CORNER_NORTHEAST:
-        return tile_wall_cave_outerCorner_northEast;
-    case TILE_WALL_OUTER_CORNER_NORTHWEST:
-        return tile_wall_cave_outerCorner_northWest;
-    case TILE_WALL_OUTER_CORNER_SOUTHEAST:
-        return tile_wall_cave_outerCorner_southEast;
-    case TILE_WALL_OUTER_CORNER_SOUTHWEST:
-        return tile_wall_cave_outerCorner_southWest;
-    case TILE_WALL_STANDALONE:
-        return tile_wall_cave_standalone;
-    case TILE_FLOOR:
-        return tile_floor;
-    case TILE_AT:
-        return tile_at;
-    case TILE_CELL_SELECTED:
-        return tile_cell_selected;
-    case TILE_COUNT:
+    case TILESET_CAVE:
+        return tilesetDungeonCave;
+    default:
         return NULL;
     }
-
-    return NULL;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -283,14 +226,23 @@ static GdkPixbuf* GetPixbufFromTile(DungeonTile tile)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Read image data into the GdkPixbufs tiles array.
-void LoadDungeonTiles(void)
+// Read image data for the given tileset into the GdkPixbufs tiles array.
+void LoadDungeonTiles(DungeonTileset tileset)
 {
+    GdkPixbuf *source = NULL;
     GError * error = NULL;
+
+    source = gdk_pixbuf_new_from_inline(-1, GetTilesetImageData(tileset), FALSE, &error);
+
     for (guint i = 0; i < TILE_COUNT; i++)
     {
-        dungeonTiles[i] = gdk_pixbuf_new_from_inline(-1, GetTileImageData((DungeonTile)i), FALSE, &error);
+        guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_16;
+        guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
+
+        dungeonTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
     }
+
+    g_object_unref(source);
 }
 
 // ------------------------------------------------------------------------------------------------

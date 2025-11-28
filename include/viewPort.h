@@ -21,6 +21,8 @@
 #define TILE_SIZE_32 32
 #define TILE_SIZE_64 64
 
+#define TILESET_WIDTH 8
+
 // ------------------------------------------------------------------------------------------------
 // Data Types
 // ------------------------------------------------------------------------------------------------
@@ -48,6 +50,12 @@ enum DungeonTile
     TILE_AT,
     TILE_CELL_SELECTED,
     TILE_COUNT
+};
+
+enum DungeonTileset
+{
+    TILESET_CAVE,
+    TILESET_COUNT
 };
 
 enum TileMask
@@ -89,7 +97,7 @@ void MoveViewPosition(Direction direction, guint distance);
 void CenterViewPortOn(Point *position);
 Point* GetSelectedCell(void);
 void SetSelectedCell(Point *position);
-void LoadDungeonTiles(void);
+void LoadDungeonTiles(DungeonTileset tileset);
 void ScaleTileForZoom(void);
 void FreeDungeonTiles(void);
 ZoomLevel GetViewPortZoomLevel(void);

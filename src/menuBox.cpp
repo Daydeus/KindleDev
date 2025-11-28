@@ -4,18 +4,7 @@
 #include "actor.h"
 #include "menuBox.h"
 #include "viewPort.h"
-#include "data/icons/icon_arrow_north.h"
-#include "data/icons/icon_arrow_northEast.h"
-#include "data/icons/icon_arrow_east.h"
-#include "data/icons/icon_arrow_southEast.h"
-#include "data/icons/icon_arrow_south.h"
-#include "data/icons/icon_arrow_southWest.h"
-#include "data/icons/icon_arrow_west.h"
-#include "data/icons/icon_arrow_northWest.h"
-#include "data/icons/icon_setting_off.h"
-#include "data/icons/icon_setting_mid.h"
-#include "data/icons/icon_setting_on.h"
-#include "data/icons/icon_setting_exit.h"
+#include "data/tilesetMenuBoxSettings.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -39,7 +28,6 @@ GtkDrawingArea *menuBox = NULL;
 // ------------------------------------------------------------------------------------------------
 
 static Direction WasMovementArrowClicked(Point *position);
-static const guint8* GetIconImageData(Icon icon);
 
 // ------------------------------------------------------------------------------------------------
 // Load GdkPixbuf icons and initialize the controls box for the player.
@@ -78,50 +66,24 @@ static Direction WasMovementArrowClicked(Point *position)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the array of image data required for gdk_pixbuf_new_from_inline.
-static const guint8* GetIconImageData(Icon icon)
-{
-    switch (icon)
-    {
-    case ICON_ARROW_NORTH:
-        return icon_arrow_north;
-    case ICON_ARROW_NORTH_EAST:
-        return icon_arrow_northEast;
-    case ICON_ARROW_EAST:
-        return icon_arrow_east;
-    case ICON_ARROW_SOUTH_EAST:
-        return icon_arrow_southEast;
-    case ICON_ARROW_SOUTH:
-        return icon_arrow_south;
-    case ICON_ARROW_SOUTH_WEST:
-        return icon_arrow_southWest;
-    case ICON_ARROW_WEST:
-        return icon_arrow_west;
-    case ICON_ARROW_NORTH_WEST:
-        return icon_arrow_northWest;
-    case ICON_SETTING_OFF:
-        return icon_setting_off;
-    case ICON_SETTING_MID:
-        return icon_setting_mid;
-    case ICON_SETTING_ON:
-        return icon_setting_on;
-    case ICON_SETTING_EXIT:
-        return icon_setting_exit;
-    default:
-        return NULL;
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
 // Read image data into the GdkPixbufs icons array.
 void LoadIcons(void)
 {
+    GdkPixbuf *source = NULL;
     GError * error = NULL;
+
+    source = gdk_pixbuf_new_from_inline(-1, tilesetMenuBoxSettings, FALSE, &error);
+
     for (guint i = 0; i < ICON_COUNT; i++)
     {
-        icons[i] = gdk_pixbuf_new_from_inline(-1, GetIconImageData((Icon)i), FALSE, &error);
+        guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_16;
+        guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
+
+        icons[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
         icons[i] = gdk_pixbuf_scale_simple(icons[i], ICON_SIZE, ICON_SIZE, GDK_INTERP_NEAREST);
     }
+
+    g_object_unref(source);
 }
 
 // ------------------------------------------------------------------------------------------------
