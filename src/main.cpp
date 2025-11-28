@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <time.h>
 #include "global.h"
+#include "tile.h"
 #include "actor.h"
 #include "dungeonCell.h"
 #include "dungeonGeneration.h"
@@ -41,14 +42,15 @@ int main(int argc, char *argv[])
 
     // Initialize non-global Gtk widgets.
     GtkWindow *applicationMain = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-    InitViewPort();
-    InitControlsBox();
     GtkAlignment *alignMain = GTK_ALIGNMENT(gtk_alignment_new(0.5, 0, 0 ,0));
     GtkTable *tableMain = GTK_TABLE(gtk_table_new(5, 1, FALSE));
-
-    // Add widgets to containers.
     gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(alignMain));
     gtk_container_add(GTK_CONTAINER(alignMain), GTK_WIDGET(tableMain));
+
+    // Set up the viewPort and menuBox.
+    LoadBorderTiles();
+    InitViewPort();
+    InitMenuBox();
     gtk_table_attach(tableMain, GTK_WIDGET(viewPort), 0, 1, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
     gtk_table_attach(tableMain, GTK_WIDGET(menuBox), 0, 1, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
     gtk_table_set_row_spacing (GTK_TABLE(tableMain), 0, TILE_SIZE_16);
@@ -71,6 +73,7 @@ int main(int argc, char *argv[])
     gtk_main();
 
     // Exiting program.
+    FreeBorderTiles();
     FreeDungeonTiles();
     FreeMenuBoxTiles();
 

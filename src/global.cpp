@@ -103,33 +103,3 @@ gboolean IsWithinRectangle(Point *position, Point *origin, gint width, gint heig
     else
         return FALSE;
 }
-
-// ------------------------------------------------------------------------------------------------
-// Sets the widget's background color.
-void SetWidgetBgColor(GtkWidget *widget, enum Color colorName)
-{
-    const gchar* string;
-    GdkColor color;
-
-    switch (colorName)
-    {
-    case COLOR_BLACK:
-        string = "#000000";
-        break;
-    case COLOR_GREY_DARK:
-        string = "#444444";
-        break;
-    case COLOR_GREY_LIGHT:
-        string = "#bbbbbb";
-        break;
-    case COLOR_WHITE:
-    default:
-        string = "#ffffff";
-        break;
-    }
-
-    if (gdk_color_parse(string, &color))
-    {
-        gtk_widget_modify_bg(widget, GTK_STATE_NORMAL, &color);
-    }
-}

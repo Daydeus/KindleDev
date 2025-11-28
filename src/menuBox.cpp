@@ -1,10 +1,9 @@
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
 #include "global.h"
+#include "tile.h"
 #include "actor.h"
 #include "menuBox.h"
-#include "viewPort.h"
-#include "data/tilesetMenuBoxSettings.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -20,20 +19,19 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-GdkPixbuf *menuBoxTiles[TILE_COUNT_MB] = {NULL};
 GtkDrawingArea *menuBox = NULL;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-static void DrawMenuBoxBorders(cairo_t *context);
 static void DrawMovementArrows(cairo_t *context);
+static void DrawMenuBoxBorders(cairo_t *context);
 static Direction WasMovementArrowClicked(Point *position);
 
 // ------------------------------------------------------------------------------------------------
 // Load GdkPixbuf tiles and initialize the menuBbox for the player.
-void InitControlsBox(void)
+void InitMenuBox(void)
 {
     LoadMenuBoxTiles();
 
@@ -58,34 +56,38 @@ static void DrawMenuBoxBorders(cairo_t *context)
     #define EDGE_S (MENU_BOX_HEIGHT - TILE_SIZE_MB)
     #define EDGE_W 0
 
+    guint tileVariant = 0;
+
     // Draw the vertical borders.
-    for (gint i = TILE_SIZE_MB; i < MENU_BOX_WIDTH - TILE_SIZE_MB; i += TILE_SIZE_MB)
+    for (guint i = TILE_SIZE_MB; i < MENU_BOX_WIDTH - TILE_SIZE_MB; i += TILE_SIZE_MB)
     {
-        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_BORDER_NORTH], i, EDGE_N);
+        tileVariant = (i / TILE_SIZE_MB) % 3;
+        gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_NORTH_1 + tileVariant], i, EDGE_N);
         cairo_paint(context);
 
-        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_BORDER_SOUTH], i, EDGE_S);
+        gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_SOUTH_1 + tileVariant], i, EDGE_S);
         cairo_paint(context);
     }
 
     // Draw the horizontal borders.
-    for (gint i = TILE_SIZE_MB; i < MENU_BOX_HEIGHT - TILE_SIZE_MB; i += TILE_SIZE_MB)
+    for (guint i = TILE_SIZE_MB; i < MENU_BOX_HEIGHT - TILE_SIZE_MB; i += TILE_SIZE_MB)
     {
-        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_BORDER_EAST], EDGE_E, i);
+        tileVariant = (i / TILE_SIZE_MB) % 3;
+        gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_EAST_1 + tileVariant], EDGE_E, i);
         cairo_paint(context);
 
-        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_BORDER_WEST], EDGE_W, i);
+        gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_WEST_1 + tileVariant], EDGE_W, i);
         cairo_paint(context);
     }
 
     // Draw the corners.
-    gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_BORDER_CORNER_NORTH_EAST], EDGE_E, EDGE_N);
+    gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_CORNER_NORTH_EAST], EDGE_E, EDGE_N);
     cairo_paint(context);
-    gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_BORDER_CORNER_SOUTH_EAST], EDGE_E, EDGE_S);
+    gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_CORNER_SOUTH_EAST], EDGE_E, EDGE_S);
     cairo_paint(context);
-    gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_BORDER_CORNER_SOUTH_WEST], EDGE_W, EDGE_S);
+    gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_CORNER_SOUTH_WEST], EDGE_W, EDGE_S);
     cairo_paint(context);
-    gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_BORDER_CORNER_NORTH_WEST], EDGE_W, EDGE_N);
+    gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_CORNER_NORTH_WEST], EDGE_W, EDGE_N);
     cairo_paint(context);
 
     #undef EDGE_N
@@ -105,7 +107,7 @@ static void DrawMovementArrows(cairo_t *context)
         pixelPos.x += hMovement[i] * TILE_SIZE_MB;
         pixelPos.y += vMovement[i] * TILE_SIZE_MB;
 
-        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[ARROWS_TILE_INDEX + i], pixelPos.x, pixelPos.y);
+        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_ARROW_NORTH + i], pixelPos.x, pixelPos.y);
         cairo_paint(context);
     }
 }
@@ -127,39 +129,6 @@ static Direction WasMovementArrowClicked(Point *position)
     }
 
     return DIR_ALL_COUNT;
-}
-
-// ------------------------------------------------------------------------------------------------
-// Read image data into the GdkPixbufs menuBoxTiles array.
-void LoadMenuBoxTiles(void)
-{
-    GdkPixbuf *source = NULL;
-    GError * error = NULL;
-
-    source = gdk_pixbuf_new_from_inline(-1, tilesetMenuBoxSettings, FALSE, &error);
-
-    for (guint i = 0; i < TILE_COUNT_MB; i++)
-    {
-        guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_16;
-        guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
-
-        menuBoxTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
-        menuBoxTiles[i] = gdk_pixbuf_scale_simple(menuBoxTiles[i], TILE_SIZE_MB, TILE_SIZE_MB,
-            GDK_INTERP_NEAREST);
-    }
-
-    g_object_unref(source);
-}
-
-// ------------------------------------------------------------------------------------------------
-// Free the GdkPixbufs for the menuBoxTiles array.
-void FreeMenuBoxTiles(void)
-{
-    // Free memory used by GdkPixbufs.
-    for (guint i = 0; i < TILE_COUNT_MB; i++)
-    {
-        g_object_unref(menuBoxTiles[i]);
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
