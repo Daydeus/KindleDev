@@ -49,7 +49,7 @@ enum DungeonTile
     TILE_FLOOR,
     TILE_AT,
     TILE_CELL_SELECTED,
-    TILE_COUNT
+    TILE_COUNT_VP
 };
 
 enum DungeonTileset
@@ -80,7 +80,7 @@ enum ZoomLevel
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern GdkPixbuf *dungeonTiles[TILE_COUNT];
+extern GdkPixbuf *dungeonTiles[TILE_COUNT_VP];
 extern GtkDrawingArea *viewPort;
 extern ZoomLevel zoomLevel;
 extern Point viewPosition;

@@ -24,7 +24,7 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-GdkPixbuf *dungeonTiles[TILE_COUNT] = {NULL};
+GdkPixbuf *dungeonTiles[TILE_COUNT_VP] = {NULL};
 GtkDrawingArea *viewPort = NULL;
 ZoomLevel zoomLevel = {ZOOM_LEVEL_OFF};
 Point viewPosition = {0}; // The dungeonCell position of the viewPort origin.
@@ -234,7 +234,7 @@ void LoadDungeonTiles(DungeonTileset tileset)
 
     source = gdk_pixbuf_new_from_inline(-1, GetTilesetImageData(tileset), FALSE, &error);
 
-    for (guint i = 0; i < TILE_COUNT; i++)
+    for (guint i = 0; i < TILE_COUNT_VP; i++)
     {
         guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_16;
         guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
@@ -250,7 +250,7 @@ void LoadDungeonTiles(DungeonTileset tileset)
 void ScaleTileForZoom(void)
 {
     guint tileSize = GetTileSizeForZoomLevel(GetViewPortZoomLevel());
-    for (guint i = 0; i < TILE_COUNT; i++)
+    for (guint i = 0; i < TILE_COUNT_VP; i++)
     {
         dungeonTiles[i] = gdk_pixbuf_scale_simple(dungeonTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
     }
@@ -261,7 +261,7 @@ void ScaleTileForZoom(void)
 void FreeDungeonTiles(void)
 {
     // Free memory used by GdkPixbufs.
-    for (guint i = 0; i < TILE_COUNT; i++)
+    for (guint i = 0; i < TILE_COUNT_VP; i++)
     {
         g_object_unref(dungeonTiles[i]);
     }

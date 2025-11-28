@@ -20,7 +20,7 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-GdkPixbuf *menuBoxTiles[ICON_COUNT] = {NULL};
+GdkPixbuf *menuBoxTiles[TILE_COUNT_MB] = {NULL};
 GtkDrawingArea *menuBox = NULL;
 
 // ------------------------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ static void DrawMovementArrows(cairo_t *context);
 static Direction WasMovementArrowClicked(Point *position);
 
 // ------------------------------------------------------------------------------------------------
-// Load GdkPixbuf icons and initialize the controls box for the player.
+// Load GdkPixbuf tiles and initialize the menuBbox for the player.
 void InitControlsBox(void)
 {
     LoadMenuBoxTiles();
@@ -55,8 +55,8 @@ static void DrawMovementArrows(cairo_t *context)
     for (gint i = 0; i < DIR_CARDINAL_COUNT; i++)
     {
         Point pixelPos = {ARROWS_CENTER_X, ARROWS_CENTER_Y};
-        pixelPos.x += hMovement[i] * ICON_SIZE;
-        pixelPos.y += vMovement[i] * ICON_SIZE;
+        pixelPos.x += hMovement[i] * TILE_SIZE_MB;
+        pixelPos.y += vMovement[i] * TILE_SIZE_MB;
 
         gdk_cairo_set_source_pixbuf(context, menuBoxTiles[ARROWS_TILE_INDEX + i], pixelPos.x, pixelPos.y);
         cairo_paint(context);
@@ -64,7 +64,7 @@ static void DrawMovementArrows(cairo_t *context)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the movement direction associated with an arrow icon if one was clicked. Otherwise, it
+// Returns the movement direction associated with an arrow tile if one was clicked. Otherwise, it
 // returns DIR_ALL_COUNT;
 static Direction WasMovementArrowClicked(Point *position)
 {
@@ -72,10 +72,10 @@ static Direction WasMovementArrowClicked(Point *position)
     for (gint i = 0; i < DIR_CARDINAL_COUNT; i++)
     {
         Point arrowTile = {ARROWS_CENTER_X, ARROWS_CENTER_Y};
-        arrowTile.x += hMovement[i] * ICON_SIZE;
-        arrowTile.y += vMovement[i] * ICON_SIZE;
+        arrowTile.x += hMovement[i] * TILE_SIZE_MB;
+        arrowTile.y += vMovement[i] * TILE_SIZE_MB;
 
-        if (IsWithinRectangle(position, &arrowTile, ICON_SIZE, ICON_SIZE))
+        if (IsWithinRectangle(position, &arrowTile, TILE_SIZE_MB, TILE_SIZE_MB))
             return (Direction)i;
     }
 
@@ -83,7 +83,7 @@ static Direction WasMovementArrowClicked(Point *position)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Read image data into the GdkPixbufs icons array.
+// Read image data into the GdkPixbufs menuBoxTiles array.
 void LoadMenuBoxTiles(void)
 {
     GdkPixbuf *source = NULL;
@@ -91,24 +91,25 @@ void LoadMenuBoxTiles(void)
 
     source = gdk_pixbuf_new_from_inline(-1, tilesetMenuBoxSettings, FALSE, &error);
 
-    for (guint i = 0; i < ICON_COUNT; i++)
+    for (guint i = 0; i < TILE_COUNT_MB; i++)
     {
         guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_16;
         guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
 
         menuBoxTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
-        menuBoxTiles[i] = gdk_pixbuf_scale_simple(menuBoxTiles[i], ICON_SIZE, ICON_SIZE, GDK_INTERP_NEAREST);
+        menuBoxTiles[i] = gdk_pixbuf_scale_simple(menuBoxTiles[i], TILE_SIZE_MB, TILE_SIZE_MB,
+            GDK_INTERP_NEAREST);
     }
 
     g_object_unref(source);
 }
 
 // ------------------------------------------------------------------------------------------------
-// Free the GdkPixbufs for the icons array.
+// Free the GdkPixbufs for the menuBoxTiles array.
 void FreeMenuBoxTiles(void)
 {
     // Free memory used by GdkPixbufs.
-    for (guint i = 0; i < ICON_COUNT; i++)
+    for (guint i = 0; i < TILE_COUNT_MB; i++)
     {
         g_object_unref(menuBoxTiles[i]);
     }
@@ -126,31 +127,31 @@ gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userDat
         // Create a Cairo context from the GdkWindow
         cairo_t *context = gdk_cairo_create(window);
 
-        Icon iconToDraw = ICON_SETTING_OFF;
+        MenuBoxTile tileToDraw = TILE_UI_SWITCH_OFF;
 
-        // Draw the arrow movement icons.
+        // Draw the arrow movement tiles.
         DrawMovementArrows(context);
 
-        // Draw the ZoomLevel icon.
+        // Draw the ZoomLevel tile.
         switch (GetViewPortZoomLevel())
         {
         case ZOOM_LEVEL_OFF:
-            iconToDraw = ICON_SETTING_OFF;
+            tileToDraw = TILE_UI_SWITCH_OFF;
             break;
         case ZOOM_LEVEL_MID:
-            iconToDraw = ICON_SETTING_MID;
+            tileToDraw = TILE_UI_SWITCH_MID;
             break;
         case ZOOM_LEVEL_PEAK:
-            iconToDraw = ICON_SETTING_ON;
+            tileToDraw = TILE_UI_SWITCH_ON;
             break;
         default:
-            iconToDraw = ICON_SETTING_OFF;
+            tileToDraw = TILE_UI_SWITCH_OFF;
         }
-        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[iconToDraw], ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y);
+        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[tileToDraw], ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y);
         cairo_paint(context);
 
-        // Draw the Exit icon.
-        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[ICON_SETTING_EXIT], EXIT_ORIGIN_X, EXIT_ORIGIN_Y);
+        // Draw the Exit tile.
+        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_SETTING_EXIT], EXIT_ORIGIN_X, EXIT_ORIGIN_Y);
         cairo_paint(context);
 
 
@@ -165,7 +166,7 @@ gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userDat
 gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer userData)
 {
     Point clicked = {0};
-    Point iconOrigin = {0};
+    Point tileOrigin = {0};
     Actor *player = GetActor(0);
 
     // Get pixbuf tile that was clicked.
@@ -182,8 +183,8 @@ gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer use
     }
 
     // Update viewPort's zoom if the zoomIcon was clicked.
-    iconOrigin = {ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y};
-    if (IsWithinRectangle(&clicked, &iconOrigin, ICON_SIZE, ICON_SIZE))
+    tileOrigin = {ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y};
+    if (IsWithinRectangle(&clicked, &tileOrigin, TILE_SIZE_MB, TILE_SIZE_MB))
     {
         guint zoomLevel = GetViewPortZoomLevel();
 
@@ -196,9 +197,9 @@ gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer use
         gtk_widget_queue_draw(GTK_WIDGET(menuBox));
     }
 
-    // Exit the gtk main loop if the exit icon is clicked.
-    iconOrigin = {EXIT_ORIGIN_X, EXIT_ORIGIN_Y};
-    if (IsWithinRectangle(&clicked, &iconOrigin, ICON_SIZE, ICON_SIZE))
+    // Exit the gtk main loop if the exit tile is clicked.
+    tileOrigin = {EXIT_ORIGIN_X, EXIT_ORIGIN_Y};
+    if (IsWithinRectangle(&clicked, &tileOrigin, TILE_SIZE_MB, TILE_SIZE_MB))
     {
         gtk_main_quit();
     }

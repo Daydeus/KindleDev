@@ -10,11 +10,11 @@
 // ------------------------------------------------------------------------------------------------
 
 #ifdef KINDLE_BUILD
-#define ICON_SIZE 64
+#define TILE_SIZE_MB 64
 #define MENU_BOX_WIDTH  VIEWPORT_WIDTH_PIXELS
 #define MENU_BOX_HEIGHT 720
 #else
-#define ICON_SIZE 32
+#define TILE_SIZE_MB 32
 #define MENU_BOX_WIDTH  VIEWPORT_WIDTH_PIXELS
 #define MENU_BOX_HEIGHT VIEWPORT_HEIGHT_PIXELS
 #endif
@@ -33,24 +33,24 @@
 // Data Types
 // ------------------------------------------------------------------------------------------------
 
-enum Icon
+enum MenuBoxTile
 {
-    ICON_ARROW_NORTH,
-    ICON_ARROW_EAST,
-    ICON_ARROW_SOUTH,
-    ICON_ARROW_WEST,
-    ICON_SETTING_OFF,
-    ICON_SETTING_MID,
-    ICON_SETTING_ON,
-    ICON_SETTING_EXIT,
-    ICON_COUNT
+    TILE_ARROW_NORTH,
+    TILE_ARROW_EAST,
+    TILE_ARROW_SOUTH,
+    TILE_ARROW_WEST,
+    TILE_UI_SWITCH_OFF,
+    TILE_UI_SWITCH_MID,
+    TILE_UI_SWITCH_ON,
+    TILE_SETTING_EXIT,
+    TILE_COUNT_MB
 };
 
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern GdkPixbuf *menuBoxTiles[ICON_COUNT];
+extern GdkPixbuf *menuBoxTiles[TILE_COUNT_MB];
 extern GtkDrawingArea *menuBox;
 
 // ------------------------------------------------------------------------------------------------
