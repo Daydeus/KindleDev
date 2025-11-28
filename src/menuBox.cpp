@@ -27,6 +27,7 @@ GtkDrawingArea *menuBox = NULL;
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
+static void DrawMenuBoxBorders(cairo_t *context);
 static void DrawMovementArrows(cairo_t *context);
 static Direction WasMovementArrowClicked(Point *position);
 
@@ -45,6 +46,52 @@ void InitControlsBox(void)
     g_signal_connect(menuBox, "expose_event", G_CALLBACK(on_menuBox_update), NULL);
     g_signal_connect(menuBox, "button_press_event", G_CALLBACK(on_menuBox_click), NULL);
     gtk_widget_set_events(GTK_WIDGET(menuBox), GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Draw the border for the MenuBox.
+static void DrawMenuBoxBorders(cairo_t *context)
+{
+    // MenuBox edges for the North, East, South, and West directions.
+    #define EDGE_N 0
+    #define EDGE_E (MENU_BOX_WIDTH - TILE_SIZE_MB)
+    #define EDGE_S (MENU_BOX_HEIGHT - TILE_SIZE_MB)
+    #define EDGE_W 0
+
+    // Draw the vertical borders.
+    for (gint i = TILE_SIZE_MB; i < MENU_BOX_WIDTH - TILE_SIZE_MB; i += TILE_SIZE_MB)
+    {
+        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_BORDER_NORTH], i, EDGE_N);
+        cairo_paint(context);
+
+        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_BORDER_SOUTH], i, EDGE_S);
+        cairo_paint(context);
+    }
+
+    // Draw the horizontal borders.
+    for (gint i = TILE_SIZE_MB; i < MENU_BOX_HEIGHT - TILE_SIZE_MB; i += TILE_SIZE_MB)
+    {
+        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_BORDER_EAST], EDGE_E, i);
+        cairo_paint(context);
+
+        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_BORDER_WEST], EDGE_W, i);
+        cairo_paint(context);
+    }
+
+    // Draw the corners.
+    gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_BORDER_CORNER_NORTH_EAST], EDGE_E, EDGE_N);
+    cairo_paint(context);
+    gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_BORDER_CORNER_SOUTH_EAST], EDGE_E, EDGE_S);
+    cairo_paint(context);
+    gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_BORDER_CORNER_SOUTH_WEST], EDGE_W, EDGE_S);
+    cairo_paint(context);
+    gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_BORDER_CORNER_NORTH_WEST], EDGE_W, EDGE_N);
+    cairo_paint(context);
+
+    #undef EDGE_N
+    #undef EDGE_E
+    #undef EDGE_S
+    #undef EDGE_W
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -127,12 +174,12 @@ gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userDat
         // Create a Cairo context from the GdkWindow
         cairo_t *context = gdk_cairo_create(window);
 
-        MenuBoxTile tileToDraw = TILE_UI_SWITCH_OFF;
+        DrawMenuBoxBorders(context);
 
-        // Draw the arrow movement tiles.
         DrawMovementArrows(context);
 
         // Draw the ZoomLevel tile.
+        MenuBoxTile tileToDraw = TILE_UI_SWITCH_OFF;
         switch (GetViewPortZoomLevel())
         {
         case ZOOM_LEVEL_OFF:
