@@ -36,6 +36,7 @@ extern GtkDrawingArea *viewPort;
 extern Point viewPosition;
 extern Point selectedCell;
 extern ViewPortMode viewPortMode;
+extern gboolean zoomIsOn;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -48,6 +49,8 @@ void MoveViewPosition(Direction direction, guint distance);
 void CenterViewPortOn(Point *position);
 Point* GetSelectedCell(void);
 void SetSelectedCell(Point *position);
+gboolean GetViewPortZoom(void);
+void SetViewPortZoom(gboolean zoomIsOn);
 ViewPortMode GetViewPortMode(void);
 void SetViewPortMode(ViewPortMode mode);
 

@@ -25,7 +25,6 @@
 GdkPixbuf *borderTiles[TILE_COUNT_BORDER] = {NULL};
 GdkPixbuf *dungeonTiles[TILE_COUNT_VP] = {NULL};
 GdkPixbuf *menuBoxTiles[TILE_COUNT_MB] = {NULL};
-ZoomLevel zoomLevel = {ZOOM_LEVEL_MID};
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -213,49 +212,30 @@ GdkPixbuf* GetTileForTerrain(Point *position)
 
 // ------------------------------------------------------------------------------------------------
 // Get whether zoom is active on the viewPort.
-guint GetTileSizeForZoomLevel(ZoomLevel level)
+guint GetTileSizeForZoom(gboolean zoomIsOn)
 {
-    switch(level)
-    {
-    case ZOOM_LEVEL_OFF:
-        return TILE_SIZE_16;
-    case ZOOM_LEVEL_MID:
-        return TILE_SIZE_32;
-    case ZOOM_LEVEL_PEAK:
+    #ifdef KINDLE_BUILD
+    if (zoomIsOn)
         return TILE_SIZE_64;
-    default:
+    else
+        return TILE_SIZE_32;
+    #else
+    if (zoomIsOn)
+        return TILE_SIZE_32;
+    else
         return TILE_SIZE_16;
-    }
+    #endif
 }
 
 // ------------------------------------------------------------------------------------------------
 // Scale the GdkPixbuf tiles based on the viewPort's zoomLevel.
-void ScaleTileForZoom(void)
+void ScaleTileForZoom(gboolean zoomIsOn)
 {
-    guint tileSize = GetTileSizeForZoomLevel(GetViewPortZoomLevel());
+    guint tileSize = GetTileSizeForZoom(zoomIsOn);
     for (guint i = 0; i < TILE_COUNT_VP; i++)
     {
         dungeonTiles[i] = gdk_pixbuf_scale_simple(dungeonTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
     }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Get whether zoom is active on the viewPort.
-ZoomLevel GetViewPortZoomLevel(void)
-{
-    return zoomLevel;
-}
-
-// ------------------------------------------------------------------------------------------------
-// Set whether zoom is active on the viewPort.
-void SetViewPortZoomLevel(ZoomLevel level)
-{
-    if (level < ZOOM_LEVEL_OFF)
-        zoomLevel = ZOOM_LEVEL_OFF;
-    else if (level > ZOOM_LEVEL_PEAK)
-        zoomLevel = ZOOM_LEVEL_PEAK;
-    else
-        zoomLevel = level;
 }
 
 // ------------------------------------------------------------------------------------------------

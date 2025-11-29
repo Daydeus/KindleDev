@@ -147,23 +147,11 @@ gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userDat
 
         DrawMovementArrows(context);
 
-        // Draw the ZoomLevel tile.
-        MenuBoxTile tileToDraw = TILE_UI_SWITCH_OFF;
-        switch (GetViewPortZoomLevel())
-        {
-        case ZOOM_LEVEL_OFF:
-            tileToDraw = TILE_UI_SWITCH_OFF;
-            break;
-        case ZOOM_LEVEL_MID:
-            tileToDraw = TILE_UI_SWITCH_MID;
-            break;
-        case ZOOM_LEVEL_PEAK:
-            tileToDraw = TILE_UI_SWITCH_ON;
-            break;
-        default:
-            tileToDraw = TILE_UI_SWITCH_OFF;
-        }
-        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[tileToDraw], ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y);
+        // Draw the UI switch tile indicating that viewPort zoom is active.
+        if (GetViewPortZoom())
+            gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_UI_SWITCH_ON], ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y);
+        else
+            gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_UI_SWITCH_ON], ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y);
         cairo_paint(context);
 
         // Draw the Exit tile.
@@ -215,11 +203,11 @@ gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer use
     tileOrigin = {ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y};
     if (IsWithinRectangle(&clicked, &tileOrigin, TILE_SIZE_MB, TILE_SIZE_MB))
     {
-        guint zoomLevel = GetViewPortZoomLevel();
+        gboolean zoomIsOn = GetViewPortZoom();
 
-        zoomLevel = WrapValue(++zoomLevel, ZOOM_LEVEL_OFF, ZOOM_LEVEL_PEAK);
-        SetViewPortZoomLevel((ZoomLevel)zoomLevel);
-        ScaleTileForZoom();
+        zoomIsOn = !zoomIsOn;
+        SetViewPortZoom(zoomIsOn);
+        ScaleTileForZoom(zoomIsOn);
 
         if (GetViewPortMode() == MODE_CHARACTER)
             CenterViewPortOn(&player->position);

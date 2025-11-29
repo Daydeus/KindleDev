@@ -113,15 +113,6 @@ enum TileMask
     MASK_COUNT
 };
 
-// Zoom Levels for the viewPort.
-enum ZoomLevel
-{
-    ZOOM_LEVEL_OFF,
-    ZOOM_LEVEL_MID,
-    ZOOM_LEVEL_PEAK,
-    ZOOM_LEVEL_COUNT
-};
-
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
@@ -129,7 +120,6 @@ enum ZoomLevel
 extern GdkPixbuf *borderTiles[TILE_COUNT_BORDER];
 extern GdkPixbuf *dungeonTiles[TILE_COUNT_VP];
 extern GdkPixbuf *menuBoxTiles[TILE_COUNT_MB];
-extern ZoomLevel zoomLevel;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -141,10 +131,8 @@ void LoadDungeonTiles(DungeonTileset tileset);
 void FreeDungeonTiles(void);
 GdkPixbuf* GetTileForActor(guint actorIndex);
 GdkPixbuf* GetTileForTerrain(Point *position);
-guint GetTileSizeForZoomLevel(ZoomLevel level);
-void ScaleTileForZoom(void);
-ZoomLevel GetViewPortZoomLevel(void);
-void SetViewPortZoomLevel(ZoomLevel level);
+guint GetTileSizeForZoom(gboolean zoomIsOn);
+void ScaleTileForZoom(gboolean zoomIsOn);
 void LoadMenuBoxTiles(void);
 void FreeMenuBoxTiles(void);
 void SetWidgetBgColor(GtkWidget *widget, enum Color colorName);

@@ -27,6 +27,7 @@
 GtkDrawingArea *viewPort = NULL;
 Point viewPosition = {0}; // The dungeonCell position of the viewPort origin.
 Point selectedCell = {0}; // The current player-selected dungeonCell in the viewPort.
+gboolean zoomIsOn = TRUE;
 ViewPortMode viewPortMode = MODE_CHARACTER;
 
 // ------------------------------------------------------------------------------------------------
@@ -45,7 +46,7 @@ static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *eve
 void InitViewPort(void)
 {
     LoadDungeonTiles(TILESET_CAVE);
-    ScaleTileForZoom();
+    ScaleTileForZoom(GetViewPortZoom());
 
     // Initialize the viewPort.
     viewPort = GTK_DRAWING_AREA(gtk_drawing_area_new());
@@ -90,7 +91,7 @@ void MoveViewPosition(Direction direction, guint distance)
 // Sets the dungeonCell position of the viewPort origin such that the given position is centered.
 void CenterViewPortOn(Point *position)
 {
-    guint tileSize = GetTileSizeForZoomLevel(GetViewPortZoomLevel());
+    guint tileSize = GetTileSizeForZoom(GetViewPortZoom());
     gint viewPortWidth = VIEWPORT_WIDTH / tileSize;
     gint viewPortHeight = VIEWPORT_HEIGHT / tileSize;
     // TODO: Simplify by making above variables into viewPortWidthHalf and viewPortHeightHalf
@@ -114,6 +115,20 @@ void SetSelectedCell(Point *position)
     position->y = ClampValue(position->y, 0, DUNGEON_HEIGHT);
 
     selectedCell = *position;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Get whether zoom is active on the viewPort.
+gboolean GetViewPortZoom(void)
+{
+    return zoomIsOn;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Set whether zoom is active on the viewPort.
+void SetViewPortZoom(gboolean boolean)
+{
+    zoomIsOn = boolean;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -192,8 +207,8 @@ static gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer
         // Create a Cairo context from the GdkWindow
         cairo_t *context = gdk_cairo_create(window);
 
-        ZoomLevel zoomLevel = GetViewPortZoomLevel();
-        gint tileSize = GetTileSizeForZoomLevel(zoomLevel);
+        gboolean zoomIsOn = GetViewPortZoom();
+        gint tileSize = GetTileSizeForZoom(zoomIsOn);
         Point *viewPosition = GetViewPosition();
         Point *selectedCell = GetSelectedCell();
 
@@ -204,13 +219,19 @@ static gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer
                 // The pixel position within the viewPort to be changed.
                 Point pixel = {tileSize * x, tileSize * y};
 
-                // Zoom levels other than ZOOM_LEVEL_PEAK have an even number of tiles to draw,
-                // so we draw them offset by half a tile to keep the player centered.
-                if (zoomLevel != ZOOM_LEVEL_PEAK)
+                #ifdef KINDLE_BUILD
+                // On the kindle build, there are an even number of tiles to draw when zoom is
+                // off so we draw them offset by half a tile to keep the player centered.
+                if (!zoomIsOn)
                 {
                     pixel.x -= tileSize / 2;
                     pixel.y -= tileSize / 2;
                 }
+                #else
+                // On the PC build, there are an even number of tiles at both zoom levels.
+                pixel.x -= tileSize / 2;
+                pixel.y -= tileSize / 2;
+                #endif
 
                 // The dungeon cell to be drawn in the viewPort.
                 Point cell = {viewPosition->x + x, viewPosition->y + y};
@@ -278,18 +299,18 @@ static void DoViewPortInputCharacter(Point *inputPos)
 static void DoViewPortInputSelector(Point *inputPos)
 {
     GestureType gesture = GetGestureType();
-    ZoomLevel zoom = GetViewPortZoomLevel();
-    gint tileSize = GetTileSizeForZoomLevel(zoom);
+    gboolean zoomIsOn = GetViewPortZoom();
+    gint tileSize = GetTileSizeForZoom(zoomIsOn);
     Point *viewPosition = GetViewPosition();
     Point clickedTile = {0};
     Point newSelectedCell = {0};
 
     if (gesture == GESTURE_SINGLE_TAP)
     {
-        // Zoom levels other than ZOOM_LEVEL_PEAK have an even number of tiles to draw,
-        // so we draw them offset by half a tile to keep the player centered.
-        if (zoom == ZOOM_LEVEL_PEAK)
+        #ifdef KINDLE_BUILD
+        if (zoomIsOn)
         {
+            // On the kindlehf build, the viewPort displays and odd number of tiles when zoomed.
             clickedTile.x = inputPos->x / tileSize;
             clickedTile.y = inputPos->y / tileSize;
         }
@@ -298,6 +319,10 @@ static void DoViewPortInputSelector(Point *inputPos)
             clickedTile.x = (inputPos->x + tileSize / 2) / tileSize;
             clickedTile.y = (inputPos->y + tileSize / 2) / tileSize;
         }
+        #else
+        clickedTile.x = (inputPos->x + tileSize / 2) / tileSize;
+        clickedTile.y = (inputPos->y + tileSize / 2) / tileSize;
+        #endif
 
         // Get the dungeon cell of the clicked tile.
         newSelectedCell.x = viewPosition->x + clickedTile.x;
