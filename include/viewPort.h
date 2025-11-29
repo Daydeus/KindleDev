@@ -21,6 +21,12 @@
 // Data Types
 // ------------------------------------------------------------------------------------------------
 
+enum ViewPortMode
+{
+    MODE_CHARACTER,
+    MODE_SELECTOR,
+    MODE_COUNT
+};
 
 // ------------------------------------------------------------------------------------------------
 // Global Variables
@@ -29,6 +35,7 @@
 extern GtkDrawingArea *viewPort;
 extern Point viewPosition;
 extern Point selectedCell;
+extern ViewPortMode viewPortMode;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -41,6 +48,7 @@ void MoveViewPosition(Direction direction, guint distance);
 void CenterViewPortOn(Point *position);
 Point* GetSelectedCell(void);
 void SetSelectedCell(Point *position);
-gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userData);
+ViewPortMode GetViewPortMode(void);
+void SetViewPortMode(ViewPortMode mode);
 
 #endif // VIEWPORT_H

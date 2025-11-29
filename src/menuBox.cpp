@@ -193,8 +193,21 @@ gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer use
     Direction dirArrowClicked = WasMovementArrowClicked(&clicked);
     if (dirArrowClicked != DIR_NONE)
     {
-        ActionWalk(player, dirArrowClicked);
-        CenterViewPortOn(&player->position);
+        if (GetViewPortMode() == MODE_CHARACTER)
+        {
+            ActionWalk(player, dirArrowClicked);
+            CenterViewPortOn(&player->position);
+        }
+        else
+        {
+            Point *newSelected = GetSelectedCell();
+
+            newSelected->x += hMovement[dirArrowClicked];
+            newSelected->y += vMovement[dirArrowClicked];
+
+            SetSelectedCell(newSelected);
+            CenterViewPortOn(GetSelectedCell());
+        }
         gtk_widget_queue_draw(GTK_WIDGET(viewPort));
     }
 
@@ -207,7 +220,11 @@ gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer use
         zoomLevel = WrapValue(++zoomLevel, ZOOM_LEVEL_OFF, ZOOM_LEVEL_PEAK);
         SetViewPortZoomLevel((ZoomLevel)zoomLevel);
         ScaleTileForZoom();
-        CenterViewPortOn(&player->position);
+
+        if (GetViewPortMode() == MODE_CHARACTER)
+            CenterViewPortOn(&player->position);
+        else
+            CenterViewPortOn(GetSelectedCell());
 
         gtk_widget_queue_draw(GTK_WIDGET(viewPort));
         gtk_widget_queue_draw(GTK_WIDGET(menuBox));
