@@ -93,10 +93,9 @@ void MoveViewPosition(Direction direction, guint distance)
 void CenterViewPortOn(Point *position)
 {
     guint tileSize = GetTileSizeForZoom(GetViewPortZoom());
-    gint viewPortWidth = VIEWPORT_WIDTH / tileSize;
-    gint viewPortHeight = VIEWPORT_HEIGHT / tileSize;
-    // TODO: Simplify by making above variables into viewPortWidthHalf and viewPortHeightHalf
-    Point newPosition = {position->x - viewPortWidth / 2, position->y - viewPortHeight / 2};
+    gint viewPortHalfWidth = VIEWPORT_WIDTH / tileSize / 2;
+    gint viewPortHalfHeight = VIEWPORT_HEIGHT / tileSize / 2;
+    Point newPosition = {position->x - viewPortHalfWidth, position->y - viewPortHalfHeight};
 
     SetViewPosition(&newPosition);
 }
