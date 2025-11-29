@@ -7,6 +7,7 @@
 #include "touchGesture.h"
 #include "actor.h"
 #include "dungeonCell.h"
+#include "menuBox.h"
 #include "tile.h"
 #include "viewPort.h"
 
@@ -290,6 +291,18 @@ static void DoViewPortInputCharacter(Point *inputPos)
             SetViewPortMode(MODE_SELECTOR);
             SetSelectedCell(&player->position);
         }
+        else if (swipeDirection == DIR_SOUTH_WEST)
+        {
+            gboolean zoomIsOn = GetViewPortZoom();
+
+            zoomIsOn = !zoomIsOn;
+            SetViewPortZoom(zoomIsOn);
+            ScaleTileForZoom(zoomIsOn);
+            CenterViewPortOn(&player->position);
+
+            gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+            gtk_widget_queue_draw(GTK_WIDGET(menuBox));
+        }
     }
 }
 
@@ -355,6 +368,18 @@ static void DoViewPortInputSelector(Point *inputPos)
 
             SetViewPortMode(MODE_CHARACTER);
             CenterViewPortOn(&player->position);
+        }
+        else if (swipeDirection == DIR_SOUTH_WEST)
+        {
+            gboolean zoomIsOn = GetViewPortZoom();
+
+            zoomIsOn = !zoomIsOn;
+            SetViewPortZoom(zoomIsOn);
+            ScaleTileForZoom(zoomIsOn);
+            CenterViewPortOn(GetSelectedCell());
+
+            gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+            gtk_widget_queue_draw(GTK_WIDGET(menuBox));
         }
     }
 }

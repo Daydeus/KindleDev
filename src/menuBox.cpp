@@ -151,7 +151,7 @@ gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userDat
         if (GetViewPortZoom())
             gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_UI_SWITCH_ON], ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y);
         else
-            gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_UI_SWITCH_ON], ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y);
+            gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_UI_SWITCH_OFF], ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y);
         cairo_paint(context);
 
         // Draw the Exit tile.
