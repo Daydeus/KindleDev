@@ -68,6 +68,16 @@ Direction GetOppositeDirection(Direction direction)
 }
 
 //-------------------------------------------------------------------------------------------------
+// Returns TRUE if the gven value is even and FALSE if it is odd.
+gboolean IsValueEven(gint value)
+{
+    if (value % 2 == 0)
+        return TRUE;
+    else
+        return FALSE;
+}
+
+//-------------------------------------------------------------------------------------------------
 // Returns the given value if within the given range (inclusive). Otherwise, returns the closest
 // boundary of the given range.
 gint ClampValue(gint value, gint minimum, gint maximum)

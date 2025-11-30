@@ -49,6 +49,7 @@ extern const gint8 vMovement[DIR_ALL_COUNT];
 
 gboolean IsCardinalDirection(Direction direction);
 Direction GetOppositeDirection(Direction direction);
+gboolean IsValueEven(gint value);
 gint ClampValue(gint value, gint minimum, gint maximum);
 gint WrapValue(gint value, gint minimum, gint maximum);
 gboolean IsWithinRectangle(Point *position, Point *origin, gint width, gint height);

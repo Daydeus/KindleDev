@@ -219,19 +219,12 @@ static gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer
                 // The pixel position within the viewPort to be changed.
                 Point pixel = {tileSize * x, tileSize * y};
 
-                #ifdef KINDLE_BUILD
-                // On the kindle build, there are an even number of tiles to draw when zoom is
-                // off so we draw them offset by half a tile to keep the player centered.
-                if (!zoomIsOn)
-                {
+                // When the viewPort's length has an even number of tiles, the tiles are drawn
+                // offset by half a tile to keep the player centered on-screen.
+                if (IsValueEven(VIEWPORT_WIDTH / tileSize))
                     pixel.x -= tileSize / 2;
+                if (IsValueEven(VIEWPORT_HEIGHT / tileSize))
                     pixel.y -= tileSize / 2;
-                }
-                #else
-                // On the PC build, there are an even number of tiles at both zoom levels.
-                pixel.x -= tileSize / 2;
-                pixel.y -= tileSize / 2;
-                #endif
 
                 // The dungeon cell to be drawn in the viewPort.
                 Point cell = {viewPosition->x + x, viewPosition->y + y};
@@ -317,24 +310,18 @@ static void DoViewPortInputSelector(Point *inputPos)
     Point clickedTile = {0};
     Point newSelectedCell = {0};
 
+    // When the viewPort's length has an even number of tiles, the tiles are drawn offset by half
+    // a tile to keep the player centered on-screen.
     if (gesture == GESTURE_SINGLE_TAP)
     {
-        #ifdef KINDLE_BUILD
-        if (zoomIsOn)
-        {
-            // On the kindlehf build, the viewPort displays and odd number of tiles when zoomed.
-            clickedTile.x = inputPos->x / tileSize;
-            clickedTile.y = inputPos->y / tileSize;
-        }
-        else
-        {
+        if (IsValueEven(VIEWPORT_WIDTH / tileSize))
             clickedTile.x = (inputPos->x + tileSize / 2) / tileSize;
+        else
+            clickedTile.x = inputPos->x / tileSize;
+        if (IsValueEven(VIEWPORT_HEIGHT / tileSize))
             clickedTile.y = (inputPos->y + tileSize / 2) / tileSize;
-        }
-        #else
-        clickedTile.x = (inputPos->x + tileSize / 2) / tileSize;
-        clickedTile.y = (inputPos->y + tileSize / 2) / tileSize;
-        #endif
+        else
+            clickedTile.y = inputPos->y / tileSize;
 
         // Get the dungeon cell of the clicked tile.
         newSelectedCell.x = viewPosition->x + clickedTile.x;
