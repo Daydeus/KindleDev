@@ -33,7 +33,12 @@ enum Color
     COLOR_GREY_DARK,
     COLOR_GREY_LIGHT,
     COLOR_WHITE,
-    COLOR_COUNT
+    COLOR_COUNT_SOLID,
+    COLOR_DITHER_1 = COLOR_COUNT_SOLID,
+    COLOR_DITHER_2,
+    COLOR_DITHER_3,
+    COLOR_DITHER_4,
+    COLOR_COUNT_ALL
 };
 
 // Indices for GdkPixbufs in the dungeonTiles array.
@@ -117,6 +122,7 @@ enum TileMask
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
+extern GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL];
 extern GdkPixbuf *borderTiles[TILE_COUNT_BORDER];
 extern GdkPixbuf *dungeonTiles[TILE_COUNT_VP];
 extern GdkPixbuf *menuBoxTiles[TILE_COUNT_MB];
@@ -125,6 +131,8 @@ extern GdkPixbuf *menuBoxTiles[TILE_COUNT_MB];
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
+void LoadColorFillTiles(void);
+void FreeColorFillTiles(void);
 void LoadBorderTiles(void);
 void FreeBorderTiles(void);
 void LoadDungeonTiles(DungeonTileset tileset);
@@ -136,5 +144,6 @@ void ScaleTileForZoom(gboolean zoomIsOn);
 void LoadMenuBoxTiles(void);
 void FreeMenuBoxTiles(void);
 void SetWidgetBgColor(GtkWidget *widget, enum Color colorName);
+void FillColorRectangle(cairo_t *context, Point *origin, gint width, gint height, enum Color color);
 
 #endif // TILE_H

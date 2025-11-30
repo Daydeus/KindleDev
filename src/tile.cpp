@@ -4,6 +4,7 @@
 #include "actor.h"
 #include "dungeonCell.h"
 #include "tile.h"
+#include "data/tilesetColorFill.h"
 #include "data/tilesetBorder.h"
 #include "data/tilesetDungeonCave.h"
 #include "data/tilesetMenuBoxSettings.h"
@@ -22,6 +23,7 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
+GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL] = {NULL};
 GdkPixbuf *borderTiles[TILE_COUNT_BORDER] = {NULL};
 GdkPixbuf *dungeonTiles[TILE_COUNT_VP] = {NULL};
 GdkPixbuf *menuBoxTiles[TILE_COUNT_MB] = {NULL};
@@ -33,6 +35,37 @@ GdkPixbuf *menuBoxTiles[TILE_COUNT_MB] = {NULL};
 static const guint8* GetTilesetImageData(DungeonTileset tileset);
 static GdkPixbuf* GetPixbufFromTile(DungeonTile tile);
 static DungeonTile GetWallTile(Point *position);
+
+// ------------------------------------------------------------------------------------------------
+// Read image data into the GdkPixbufs colorFillTiles array.
+void LoadColorFillTiles(void)
+{
+    GdkPixbuf *source = NULL;
+    GError * error = NULL;
+
+    source = gdk_pixbuf_new_from_inline(-1, tilesetColorFill, FALSE, &error);
+
+    for (guint i = 0; i < COLOR_COUNT_ALL; i++)
+    {
+        guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_16;
+        guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
+
+        colorFillTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
+    }
+
+    g_object_unref(source);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Free the GdkPixbufs for the colorFillTiles array.
+void FreeColorFillTiles(void)
+{
+    // Free memory used by GdkPixbufs.
+    for (guint i = 0; i < COLOR_COUNT_ALL; i++)
+    {
+        g_object_unref(colorFillTiles[i]);
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 // Read image data into the GdkPixbufs borderTiles array.
@@ -298,5 +331,19 @@ void SetWidgetBgColor(GtkWidget *widget, enum Color colorName)
     if (gdk_color_parse(string, &color))
     {
         gtk_widget_modify_bg(widget, GTK_STATE_NORMAL, &color);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Draws a rectangle with the given dimensions in the given color.
+void FillColorRectangle(cairo_t *context, Point *origin, gint width, gint height, enum Color color)
+{
+    for (gint y = origin->y; y < origin->y + height; y += TILE_SIZE_16)
+    {
+        for (gint x = origin->x; x < origin->x + width; x += TILE_SIZE_16)
+        {
+            gdk_cairo_set_source_pixbuf(context, colorFillTiles[color], x, y);
+            cairo_paint(context);
+        }
     }
 }

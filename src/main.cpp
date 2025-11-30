@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
     LoadBorderTiles();
     InitViewPort();
     InitMenuBox();
+    LoadColorFillTiles();
     gtk_table_attach(tableMain, GTK_WIDGET(viewPort), 0, 1, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
     gtk_table_attach(tableMain, GTK_WIDGET(menuBox), 0, 1, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
     gtk_table_set_row_spacing (GTK_TABLE(tableMain), 0, TILE_SIZE_16);
@@ -73,6 +74,7 @@ int main(int argc, char *argv[])
     gtk_main();
 
     // Exiting program.
+    FreeColorFillTiles();
     FreeBorderTiles();
     FreeDungeonTiles();
     FreeMenuBoxTiles();
