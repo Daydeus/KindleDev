@@ -35,6 +35,7 @@ ViewPortMode viewPortMode = MODE_CHARACTER;
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
+static void DrawDungeon(cairo_t *context);
 static void DrawViewPortBorders(cairo_t *context);
 static gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userData);
 static void DoViewPortInputCharacter(Point *inputPos);
@@ -146,6 +147,54 @@ void SetViewPortMode(ViewPortMode mode)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Draw the tiles of the visible dungeonCells and actors.
+static void DrawDungeon(cairo_t *context)
+{
+    gboolean zoomIsOn = GetViewPortZoom();
+    gint tileSize = GetTileSizeForZoom(zoomIsOn);
+    Point *viewPosition = GetViewPosition();
+    Point *selectedCell = GetSelectedCell();
+
+    for (gint y = 0; y <= VIEWPORT_HEIGHT / tileSize; y++)
+    {
+        for (gint x = 0; x <= VIEWPORT_WIDTH / tileSize; x++)
+        {
+            // The pixel position within the viewPort to be changed.
+            Point pixel = {tileSize * x, tileSize * y};
+
+            // When the viewPort's length has an even number of tiles, the tiles are drawn
+            // offset by half a tile to keep the player centered on-screen.
+            if (IsValueEven(VIEWPORT_WIDTH / tileSize))
+                pixel.x -= tileSize / 2;
+            if (IsValueEven(VIEWPORT_HEIGHT / tileSize))
+                pixel.y -= tileSize / 2;
+
+            // The dungeon cell to be drawn in the viewPort.
+            Point cell = {viewPosition->x + x, viewPosition->y + y};
+
+            // Draws the terrain for the cell.
+            gdk_cairo_set_source_pixbuf(context, GetTileForTerrain(&cell), pixel.x, pixel.y);
+            cairo_paint(context);
+
+            // If position contains an actor, draw it over the terrain.
+            if (GetCellsActor(&cell) != NULL)
+            {
+                gdk_cairo_set_source_pixbuf(context, dungeonTiles[TILE_AT], pixel.x, pixel.y);
+                cairo_paint(context);
+            }
+
+            // If viewPortMode is MODE_SELECTOR and the position is also the selected cell, draw
+            // the cursor over everything else.
+            if (GetViewPortMode() == MODE_SELECTOR && selectedCell->x == cell.x && selectedCell->y == cell.y)
+            {
+                gdk_cairo_set_source_pixbuf(context, dungeonTiles[TILE_CELL_SELECTED], pixel.x, pixel.y);
+                cairo_paint(context);
+            }
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 // Draw the border for the MenuBox.
 static void DrawViewPortBorders(cairo_t *context)
 {
@@ -207,49 +256,7 @@ static gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer
         // Create a Cairo context from the GdkWindow
         cairo_t *context = gdk_cairo_create(window);
 
-        gboolean zoomIsOn = GetViewPortZoom();
-        gint tileSize = GetTileSizeForZoom(zoomIsOn);
-        Point *viewPosition = GetViewPosition();
-        Point *selectedCell = GetSelectedCell();
-
-        for (gint y = 0; y <= VIEWPORT_HEIGHT / tileSize; y++)
-        {
-            for (gint x = 0; x <= VIEWPORT_WIDTH / tileSize; x++)
-            {
-                // The pixel position within the viewPort to be changed.
-                Point pixel = {tileSize * x, tileSize * y};
-
-                // When the viewPort's length has an even number of tiles, the tiles are drawn
-                // offset by half a tile to keep the player centered on-screen.
-                if (IsValueEven(VIEWPORT_WIDTH / tileSize))
-                    pixel.x -= tileSize / 2;
-                if (IsValueEven(VIEWPORT_HEIGHT / tileSize))
-                    pixel.y -= tileSize / 2;
-
-                // The dungeon cell to be drawn in the viewPort.
-                Point cell = {viewPosition->x + x, viewPosition->y + y};
-
-                // Draws the terrain for the cell.
-                gdk_cairo_set_source_pixbuf(context, GetTileForTerrain(&cell), pixel.x, pixel.y);
-                cairo_paint(context);
-
-                // If position contains an actor, draw it over the terrain.
-                if (GetCellsActor(&cell) != NULL)
-                {
-                    gdk_cairo_set_source_pixbuf(context, dungeonTiles[TILE_AT], pixel.x, pixel.y);
-                    cairo_paint(context);
-                }
-
-                // If viewPortMode is MODE_SELECTOR and the position is also the selected cell, draw
-                // the cursor over everything else.
-                if (GetViewPortMode() == MODE_SELECTOR && selectedCell->x == cell.x && selectedCell->y == cell.y)
-                {
-                    gdk_cairo_set_source_pixbuf(context, dungeonTiles[TILE_CELL_SELECTED], pixel.x, pixel.y);
-                    cairo_paint(context);
-                }
-            }
-        }
-
+        DrawDungeon(context);
         DrawViewPortBorders(context);
 
         // Clean up the Cairo context
