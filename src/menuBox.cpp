@@ -20,6 +20,7 @@
 // ------------------------------------------------------------------------------------------------
 
 GtkDrawingArea *menuBox = NULL;
+MenuState menuState = STATE_SETTINGS;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -27,7 +28,10 @@ GtkDrawingArea *menuBox = NULL;
 
 static void DrawMovementArrows(cairo_t *context);
 static void DrawMenuBoxBorders(cairo_t *context);
+static void DoMenuStateClicked(Point* position);
 static Direction WasMovementArrowClicked(Point *position);
+static void DrawMenuStateSettings(cairo_t *context);
+static void DoMenuStateSettingsInput(Point *inputPos);
 
 // ------------------------------------------------------------------------------------------------
 // Load GdkPixbuf tiles and initialize the menuBbox for the player.
@@ -47,6 +51,20 @@ void InitMenuBox(void)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Gets the current menuState.
+MenuState GetMenuState(void)
+{
+    return menuState;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets the current menuState.
+void SetMenuState(MenuState state)
+{
+    menuState = state;
+}
+
+// ------------------------------------------------------------------------------------------------
 // Draw the border for the MenuBox.
 static void DrawMenuBoxBorders(cairo_t *context)
 {
@@ -58,8 +76,8 @@ static void DrawMenuBoxBorders(cairo_t *context)
 
     guint tileVariant = 0;
 
-    // Draw the vertical borders.
-    for (guint i = TILE_SIZE_MB; i < MENU_BOX_WIDTH - TILE_SIZE_MB; i += TILE_SIZE_MB)
+    // Draw the borders across the top and bottom edges of the menuBox.
+    for (guint i = TILE_SIZE_MB; i < MENU_BOX_WIDTH - TILE_SIZE_MB * 2; i += TILE_SIZE_MB)
     {
         tileVariant = (i / TILE_SIZE_MB) % 3;
         gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_NORTH_1 + tileVariant], i, EDGE_N);
@@ -69,22 +87,27 @@ static void DrawMenuBoxBorders(cairo_t *context)
         cairo_paint(context);
     }
 
-    // Draw the horizontal borders.
+    // Draw the borders down the left edge of the menuBox.
     for (guint i = TILE_SIZE_MB; i < MENU_BOX_HEIGHT - TILE_SIZE_MB; i += TILE_SIZE_MB)
     {
         tileVariant = (i / TILE_SIZE_MB) % 3;
-        gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_EAST_1 + tileVariant], EDGE_E, i);
-        cairo_paint(context);
-
         gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_WEST_1 + tileVariant], EDGE_W, i);
         cairo_paint(context);
     }
 
-    // Draw the corners.
-    gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_CORNER_NORTH_EAST], EDGE_E, EDGE_N);
-    cairo_paint(context);
-    gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_CORNER_SOUTH_EAST], EDGE_E, EDGE_S);
-    cairo_paint(context);
+    // Draw the menuState icon borders on the right edge of the menuBox.
+    for (guint i = 0; i < MENU_BOX_HEIGHT; i += TILE_SIZE_MB)
+    {
+        BorderTile tileLeft = IsValueEven(i / TILE_SIZE_MB) ? TILE_BORDER_CORNER_NORTH_WEST : TILE_BORDER_CORNER_SOUTH_WEST;
+        BorderTile tileRight = IsValueEven(i / TILE_SIZE_MB) ? TILE_BORDER_CORNER_NORTH_EAST : TILE_BORDER_CORNER_SOUTH_EAST;
+
+        gdk_cairo_set_source_pixbuf(context, borderTiles[tileLeft], EDGE_E - TILE_SIZE_MB, i);
+        cairo_paint(context);
+        gdk_cairo_set_source_pixbuf(context, borderTiles[tileRight], EDGE_E, i);
+        cairo_paint(context);
+    }
+
+    // Draw the remaining corners.
     gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_CORNER_SOUTH_WEST], EDGE_W, EDGE_S);
     cairo_paint(context);
     gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_CORNER_NORTH_WEST], EDGE_W, EDGE_N);
@@ -94,6 +117,30 @@ static void DrawMenuBoxBorders(cairo_t *context)
     #undef EDGE_E
     #undef EDGE_S
     #undef EDGE_W
+}
+
+// ------------------------------------------------------------------------------------------------
+// Draw the icons for the menuBox's menuState.
+static void DrawMenuStateIcons(cairo_t *context)
+{
+    // Draw the menuState icons centered in the border boxes drawn by DrawMenuBoxBorders().
+    Point pixel = {MENU_BOX_WIDTH - TILE_SIZE_MB * 3 / 2, TILE_SIZE_MB / 2};
+
+    for (guint i = 0; i < STATE_COUNT; i++)
+    {
+        guint tileToDraw = i;
+
+        // Icons are ordered in tileset for looping; they just need the appropriate offset applied.
+        if (i == GetMenuState())
+            tileToDraw += TILE_BORDER_ICON_ON_OFFSET;
+        else
+            tileToDraw += TILE_BORDER_ICON_OFF_OFFSET;
+
+        gdk_cairo_set_source_pixbuf(context, borderTiles[tileToDraw], pixel.x, pixel.y);
+        cairo_paint(context);
+
+        pixel.y += TILE_SIZE_MB * 2;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -109,6 +156,31 @@ static void DrawMovementArrows(cairo_t *context)
 
         gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_ARROW_NORTH + i], pixelPos.x, pixelPos.y);
         cairo_paint(context);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Uses the given position to determine which menuBox state icon was selected. If the menuBox state
+// was differenct thatn the current state, changes the state and queues a redraw for the menuBox.
+static void DoMenuStateClicked(Point* position)
+{
+    guint stateIndex = 0;
+
+    // The menuState indicators are two tiles wide and span the whole vertical length of the menuBox
+    // on the right side.
+    for (gint i = 0; i < MENU_BOX_HEIGHT; i += TILE_SIZE_MB * 2)
+    {
+        Point menuStateIcon = {MENU_BOX_WIDTH - TILE_SIZE_MB * 2, i};
+
+        if (IsWithinRectangle(position, &menuStateIcon, TILE_SIZE_MB * 2, TILE_SIZE_MB * 2))
+        {
+            if (stateIndex != GetMenuState())
+            {
+                SetMenuState(MenuState(stateIndex));
+                gtk_widget_queue_draw(GTK_WIDGET(menuBox));
+            }
+        }
+        stateIndex++;
     }
 }
 
@@ -132,6 +204,24 @@ static Direction WasMovementArrowClicked(Point *position)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Draws the contents of the menuBox when menuState is set to STATE_SETTINGS.
+static void DrawMenuStateSettings(cairo_t *context)
+{
+    DrawMovementArrows(context);
+
+    // Draw the UI switch tile indicating that viewPort zoom is active.
+    if (GetViewPortZoom())
+        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_UI_SWITCH_ON], ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y);
+    else
+        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_UI_SWITCH_OFF], ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y);
+    cairo_paint(context);
+
+    // Draw the Exit tile.
+    gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_SETTING_EXIT], EXIT_ORIGIN_X, EXIT_ORIGIN_Y);
+    cairo_paint(context);
+}
+
+// ------------------------------------------------------------------------------------------------
 // Callback function to update the tiles shown on the viewPort.
 gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userData)
 {
@@ -144,20 +234,24 @@ gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userDat
         cairo_t *context = gdk_cairo_create(window);
 
         DrawMenuBoxBorders(context);
+        DrawMenuStateIcons(context);
 
-        DrawMovementArrows(context);
-
-        // Draw the UI switch tile indicating that viewPort zoom is active.
-        if (GetViewPortZoom())
-            gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_UI_SWITCH_ON], ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y);
-        else
-            gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_UI_SWITCH_OFF], ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y);
-        cairo_paint(context);
-
-        // Draw the Exit tile.
-        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_SETTING_EXIT], EXIT_ORIGIN_X, EXIT_ORIGIN_Y);
-        cairo_paint(context);
-
+        switch (GetMenuState())
+        {
+        case STATE_INSPECT:
+            break;
+        case STATE_CHARACTER:
+            break;
+        case STATE_INVENTORY:
+            break;
+        case STATE_LOGBOOK:
+            break;
+        case STATE_SETTINGS:
+            DrawMenuStateSettings(context);
+            break;
+        default:
+            break;
+        }
 
         // Clean up the Cairo context
         cairo_destroy(context);
@@ -166,19 +260,14 @@ gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userDat
 }
 
 // ------------------------------------------------------------------------------------------------
-// Callback function to track input on the viewPort.
-gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer userData)
+// Process input for the menuBox when in menuState STATE_SETTINGS.
+static void DoMenuStateSettingsInput(Point *inputPos)
 {
-    Point clicked = {0};
     Point tileOrigin = {0};
     Actor *player = GetActor(0);
 
-    // Get pixbuf tile that was clicked.
-    clicked.x = (gint)(event->x);
-    clicked.y = (gint)(event->y);
-
     // Move player actor and update viewPort if arrowIcon was clicked.
-    Direction dirArrowClicked = WasMovementArrowClicked(&clicked);
+    Direction dirArrowClicked = WasMovementArrowClicked(inputPos);
     if (dirArrowClicked != DIR_NONE)
     {
         if (GetViewPortMode() == MODE_CHARACTER)
@@ -201,7 +290,7 @@ gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer use
 
     // Update viewPort's zoom if the zoomIcon was clicked.
     tileOrigin = {ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y};
-    if (IsWithinRectangle(&clicked, &tileOrigin, TILE_SIZE_MB, TILE_SIZE_MB))
+    if (IsWithinRectangle(inputPos, &tileOrigin, TILE_SIZE_MB, TILE_SIZE_MB))
     {
         gboolean zoomIsOn = GetViewPortZoom();
 
@@ -220,9 +309,44 @@ gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer use
 
     // Exit the gtk main loop if the exit tile is clicked.
     tileOrigin = {EXIT_ORIGIN_X, EXIT_ORIGIN_Y};
-    if (IsWithinRectangle(&clicked, &tileOrigin, TILE_SIZE_MB, TILE_SIZE_MB))
+    if (IsWithinRectangle(inputPos, &tileOrigin, TILE_SIZE_MB, TILE_SIZE_MB))
     {
         gtk_main_quit();
+    }
+
+}
+
+// ------------------------------------------------------------------------------------------------
+// Callback function to track input on the viewPort.
+gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer userData)
+{
+    // Get pixbuf tile that was clicked.
+    Point clicked = {(gint)(event->x), (gint)(event->y)};
+    Point tileOrigin = {MENU_BOX_WIDTH - TILE_SIZE_MB * 2, 0};
+
+    // Check if a menuBox state icon was clicked.
+    if (IsWithinRectangle(&clicked, &tileOrigin, TILE_SIZE_MB * 2, MENU_BOX_HEIGHT))
+    {
+        DoMenuStateClicked(&clicked);
+    }
+    else
+    {
+        switch (GetMenuState())
+        {
+        case STATE_INSPECT:
+            break;
+        case STATE_CHARACTER:
+            break;
+        case STATE_INVENTORY:
+            break;
+        case STATE_LOGBOOK:
+            break;
+        case STATE_SETTINGS:
+            DoMenuStateSettingsInput(&clicked);
+            break;
+        default:
+            break;
+        }
     }
 
     return TRUE;

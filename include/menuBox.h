@@ -11,10 +11,10 @@
 
 #ifdef KINDLE_BUILD
 #define MENU_BOX_WIDTH  VIEWPORT_WIDTH
-#define MENU_BOX_HEIGHT 704
+#define MENU_BOX_HEIGHT 640
 #else
 #define MENU_BOX_WIDTH  VIEWPORT_WIDTH
-#define MENU_BOX_HEIGHT 352
+#define MENU_BOX_HEIGHT 320
 #endif
 
 #define ARROWS_CENTER_X   128
@@ -30,18 +30,30 @@
 // Data Types
 // ------------------------------------------------------------------------------------------------
 
+enum MenuState
+{
+    STATE_INSPECT,
+    STATE_CHARACTER,
+    STATE_INVENTORY,
+    STATE_LOGBOOK,
+    STATE_SETTINGS,
+    STATE_COUNT
+};
 
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
 extern GtkDrawingArea *menuBox;
+extern MenuState menuState;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
 void InitMenuBox(void);
+MenuState GetMenuState(void);
+void SetMenuState(MenuState state);
 gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userData);
 gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer userData);
 
