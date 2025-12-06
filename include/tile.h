@@ -15,11 +15,11 @@
 #define TILESET_WIDTH 8
 
 #ifdef KINDLE_BUILD
-#define TILE_SIZE_MB 64
-#define TILE_SIZE_BORDER 64
+#define TILE_SIZE_MB     TILE_SIZE_64
+#define TILE_SIZE_BORDER TILE_SIZE_64
 #else
-#define TILE_SIZE_MB 32
-#define TILE_SIZE_BORDER 32
+#define TILE_SIZE_MB     TILE_SIZE_32
+#define TILE_SIZE_BORDER TILE_SIZE_32
 #endif
 
 // ------------------------------------------------------------------------------------------------

@@ -13,8 +13,8 @@
 #define VIEWPORT_WIDTH  1216
 #define VIEWPORT_HEIGHT 832
 #else
-#define VIEWPORT_WIDTH  704
-#define VIEWPORT_HEIGHT 448
+#define VIEWPORT_WIDTH  608
+#define VIEWPORT_HEIGHT 416
 #endif
 
 // ------------------------------------------------------------------------------------------------

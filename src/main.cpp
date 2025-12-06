@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     LoadColorFillTiles();
     gtk_table_attach(tableMain, GTK_WIDGET(viewPort), 0, 1, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
     gtk_table_attach(tableMain, GTK_WIDGET(menuBox), 0, 1, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-    gtk_table_set_row_spacing (GTK_TABLE(tableMain), 0, TILE_SIZE_16);
+    gtk_table_set_row_spacing (GTK_TABLE(tableMain), 0, TILE_SIZE_32);
 
     // Connect widget signals to callbacks.
     g_signal_connect(applicationMain, "destroy", G_CALLBACK(gtk_main_quit), NULL);
