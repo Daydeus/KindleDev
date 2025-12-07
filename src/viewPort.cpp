@@ -270,27 +270,15 @@ static gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer
 // player character and input will only affect the player.
 static void DoViewPortInputCharacter(Point *inputPos)
 {
+    Actor *player = GetActor(0);
     GestureType gesture = GetGestureType();
 
-    if (gesture == GESTURE_SWIPE)
+    if (gesture == GESTURE_SINGLE_TAP)
     {
-        Direction swipeDirection = GetSwipeDirection();
-        Actor *player = GetActor(0);
+        Point screenSection = {VIEWPORT_WIDTH / 3, VIEWPORT_HEIGHT / 3};
 
-        if (IsCardinalDirection(swipeDirection))
-        {
-            // Move in the opposite direction, as the player's position on screen is fixed;
-            // it is the map underneath them that is moving.
-            // TODO: global variable setting for not using the opposite direction of the swipe.
-            ActionWalk(player, GetOppositeDirection(swipeDirection));
-            CenterViewPortOn(&player->position);
-        }
-        else if (swipeDirection == DIR_NORTH_WEST)
-        {
-            SetViewPortMode(MODE_SELECTOR);
-            SetSelectedCell(&player->position);
-        }
-        else if (swipeDirection == DIR_SOUTH_WEST)
+        // Toggle zoom if center of viewPort is tapped.
+        if (IsWithinRectangle(inputPos, &screenSection, VIEWPORT_WIDTH / 3, VIEWPORT_HEIGHT / 3))
         {
             gboolean zoomIsOn = GetViewPortZoom();
 
@@ -300,7 +288,36 @@ static void DoViewPortInputCharacter(Point *inputPos)
             CenterViewPortOn(&player->position);
 
             gtk_widget_queue_draw(GTK_WIDGET(viewPort));
-            gtk_widget_queue_draw(GTK_WIDGET(menuBox));
+            if (GetMenuState() == STATE_SETTINGS)
+                gtk_widget_queue_draw(GTK_WIDGET(menuBox));
+        }
+        else
+        {
+            // Move player if the top, right, bottom, or left sides of viewPort are tapped.
+            for (guint i = 0; i < DIR_CARDINAL_COUNT; i++)
+            {
+                screenSection.x = VIEWPORT_WIDTH / 3 + hMovement[i] * VIEWPORT_WIDTH / 3;
+                screenSection.y = VIEWPORT_HEIGHT / 3 + vMovement[i] * VIEWPORT_HEIGHT / 3;
+
+                if (IsWithinRectangle(inputPos, &screenSection, VIEWPORT_WIDTH / 3, VIEWPORT_HEIGHT / 3))
+                {
+                    ActionWalk(player, (Direction)i);
+                    CenterViewPortOn(&player->position);
+                }
+            }
+        }
+    }
+    else if (gesture == GESTURE_SWIPE)
+    {
+        Direction swipeDirection = GetSwipeDirection();
+
+        if (IsCardinalDirection(swipeDirection))
+        {
+            // Move in the opposite direction, as the player's position on screen is fixed;
+            // it is the map underneath them that is moving.
+            // TODO: global variable setting for not using the opposite direction of the swipe.
+            ActionWalk(player, GetOppositeDirection(swipeDirection));
+            CenterViewPortOn(&player->position);
         }
     }
 }
