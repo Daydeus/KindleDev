@@ -1,51 +1,43 @@
-#ifndef MENU_BOX
-#define MENU_BOX
-
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
-#include "viewPort.h"
+#include "global.h"
+#include "tile.h"
+#include "menuBox.h"
+#include "menuBoxLayout.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#ifdef KINDLE_BUILD
-#define MENU_BOX_WIDTH  VIEWPORT_WIDTH
-#define MENU_BOX_HEIGHT 640
-#else
-#define MENU_BOX_WIDTH  VIEWPORT_WIDTH
-#define MENU_BOX_HEIGHT 320
-#endif
+// menuBox settingsItem positions.
+#define ZOOM_SWITCH_X (MENU_BOX_WIDTH - TILE_SIZE_MB * 7 / 2)
+#define ZOOM_SWITCH_Y (TILE_SIZE_MB * 2)
+#define EXIT_BUTTON_X (MENU_BOX_WIDTH - TILE_SIZE_MB * 7 / 2)
+#define EXIT_BUTTON_Y (MENU_BOX_HEIGHT - TILE_SIZE_MB * 2)
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
 // ------------------------------------------------------------------------------------------------
 
-enum MenuState
-{
-    STATE_INSPECT,
-    STATE_CHARACTER,
-    STATE_INVENTORY,
-    STATE_LOGBOOK,
-    STATE_SETTINGS,
-    STATE_COUNT
-};
 
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern GtkDrawingArea *menuBox;
-extern MenuState menuState;
+Rectangle settingsItems[SETTINGS_COUNT] =
+{   // origin.x       origin.y        width         height
+    { {ZOOM_SWITCH_X, ZOOM_SWITCH_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, // SETTINGS_ZOOM_SWITCH
+    { {EXIT_BUTTON_X, EXIT_BUTTON_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, // SETTINGS_EXIT_BUTTON
+};
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-void InitMenuBox(void);
-MenuState GetMenuState(void);
-void SetMenuState(MenuState state);
-gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userData);
-gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer userData);
 
-#endif // MENU_BOX
+// ------------------------------------------------------------------------------------------------
+// Gets the Layout for the given SettingsItem.
+Rectangle* GetSettingsItemLayout(SettingsUI item)
+{
+    return &settingsItems[item];
+}

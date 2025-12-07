@@ -3,6 +3,7 @@
 
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
+#include "menuBoxLayout.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -151,6 +152,7 @@ void LoadDungeonTiles(DungeonTileset tileset);
 void FreeDungeonTiles(void);
 GdkPixbuf* GetTileForActor(guint actorIndex);
 GdkPixbuf* GetTileForTerrain(Point *position);
+GdkPixbuf* GetTileForMenuBoxSettings(SettingsUI item);
 guint GetTileSizeForZoom(gboolean zoomIsOn);
 void ScaleTileForZoom(gboolean zoomIsOn);
 void LoadMenuBoxTiles(void);

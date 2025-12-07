@@ -1,51 +1,36 @@
-#ifndef MENU_BOX
-#define MENU_BOX
+#ifndef MENUBOX_LAYOUT
+#define MENUBOX_LAYOUT
 
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
-#include "viewPort.h"
+#include "global.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#ifdef KINDLE_BUILD
-#define MENU_BOX_WIDTH  VIEWPORT_WIDTH
-#define MENU_BOX_HEIGHT 640
-#else
-#define MENU_BOX_WIDTH  VIEWPORT_WIDTH
-#define MENU_BOX_HEIGHT 320
-#endif
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
 // ------------------------------------------------------------------------------------------------
 
-enum MenuState
+enum SettingsUI
 {
-    STATE_INSPECT,
-    STATE_CHARACTER,
-    STATE_INVENTORY,
-    STATE_LOGBOOK,
-    STATE_SETTINGS,
-    STATE_COUNT
+    SETTINGS_ZOOM_SWITCH,
+    SETTINGS_EXIT_BUTTON,
+    SETTINGS_COUNT
 };
 
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern GtkDrawingArea *menuBox;
-extern MenuState menuState;
+extern Rectangle settingsItems[SETTINGS_COUNT];
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-void InitMenuBox(void);
-MenuState GetMenuState(void);
-void SetMenuState(MenuState state);
-gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userData);
-gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer userData);
+Rectangle* GetSettingsItemLayout(SettingsUI item);
 
-#endif // MENU_BOX
+#endif // MENUBOX_LAYOUT

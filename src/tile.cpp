@@ -4,6 +4,8 @@
 #include "actor.h"
 #include "dungeonCell.h"
 #include "tile.h"
+#include "viewPort.h"
+#include "menuBoxLayout.h"
 #include "data/tilesetColorFill.h"
 #include "data/tilesetBorder.h"
 #include "data/tilesetDungeonCave.h"
@@ -241,6 +243,24 @@ GdkPixbuf* GetTileForTerrain(Point *position)
     }
 
     return GetPixbufFromTile(tile);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns the GdkPixbuf from the menuBoxTiles array based on the given setting.
+GdkPixbuf* GetTileForMenuBoxSettings(SettingsUI item)
+{
+    switch (item)
+    {
+    case SETTINGS_ZOOM_SWITCH:
+        if (GetViewPortZoom() == TRUE)
+            return menuBoxTiles[TILE_UI_SWITCH_ON];
+        else
+            return menuBoxTiles[TILE_UI_SWITCH_OFF];
+    case SETTINGS_EXIT_BUTTON:
+        return menuBoxTiles[TILE_SETTING_EXIT];
+    default:
+        return dungeonTiles[TILE_NULL];
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 #include "tile.h"
 #include "actor.h"
 #include "menuBox.h"
+#include "menuBoxLayout.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -26,12 +27,11 @@ MenuState menuState = STATE_SETTINGS;
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-static void DrawMovementArrows(cairo_t *context);
 static void DrawMenuBoxBorders(cairo_t *context);
 static void DoMenuStateClicked(Point* position);
-static Direction WasMovementArrowClicked(Point *position);
 static void DrawMenuStateSettings(cairo_t *context);
 static void DoMenuStateSettingsInput(Point *inputPos);
+static void DoMenuSettingsZoomClick(Point *inputPos);
 
 // ------------------------------------------------------------------------------------------------
 // Load GdkPixbuf tiles and initialize the menuBbox for the player.
@@ -144,22 +144,6 @@ static void DrawMenuStateIcons(cairo_t *context)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Draw the arrow tiles for controlling the player.
-static void DrawMovementArrows(cairo_t *context)
-{
-    // Loop through DIR_NORTH, DIR_EAST, DIR_SOUTH, and DIR_WEST.
-    for (gint i = 0; i < DIR_CARDINAL_COUNT; i++)
-    {
-        Point pixelPos = {ARROWS_CENTER_X, ARROWS_CENTER_Y};
-        pixelPos.x += hMovement[i] * TILE_SIZE_MB;
-        pixelPos.y += vMovement[i] * TILE_SIZE_MB;
-
-        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_ARROW_NORTH + i], pixelPos.x, pixelPos.y);
-        cairo_paint(context);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
 // Uses the given position to determine which menuBox state icon was selected. If the menuBox state
 // was differenct thatn the current state, changes the state and queues a redraw for the menuBox.
 static void DoMenuStateClicked(Point* position)
@@ -185,40 +169,16 @@ static void DoMenuStateClicked(Point* position)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the movement direction associated with an arrow tile if one was clicked. Otherwise, it
-// returns DIR_ALL_COUNT;
-static Direction WasMovementArrowClicked(Point *position)
-{
-    // Loop through DIR_NORTH, DIR_EAST, DIR_SOUTH, and DIR_WEST.
-    for (gint i = 0; i < DIR_CARDINAL_COUNT; i++)
-    {
-        Point arrowTile = {ARROWS_CENTER_X, ARROWS_CENTER_Y};
-        arrowTile.x += hMovement[i] * TILE_SIZE_MB;
-        arrowTile.y += vMovement[i] * TILE_SIZE_MB;
-
-        if (IsWithinRectangle(position, &arrowTile, TILE_SIZE_MB, TILE_SIZE_MB))
-            return (Direction)i;
-    }
-
-    return DIR_ALL_COUNT;
-}
-
-// ------------------------------------------------------------------------------------------------
 // Draws the contents of the menuBox when menuState is set to STATE_SETTINGS.
 static void DrawMenuStateSettings(cairo_t *context)
 {
-    DrawMovementArrows(context);
+    for (guint i = 0; i < SETTINGS_COUNT; i++)
+    {
+        Rectangle *settings = GetSettingsItemLayout((SettingsUI)i);
 
-    // Draw the UI switch tile indicating that viewPort zoom is active.
-    if (GetViewPortZoom())
-        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_UI_SWITCH_ON], ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y);
-    else
-        gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_UI_SWITCH_OFF], ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y);
-    cairo_paint(context);
-
-    // Draw the Exit tile.
-    gdk_cairo_set_source_pixbuf(context, menuBoxTiles[TILE_SETTING_EXIT], EXIT_ORIGIN_X, EXIT_ORIGIN_Y);
-    cairo_paint(context);
+        gdk_cairo_set_source_pixbuf(context, GetTileForMenuBoxSettings((SettingsUI)i), settings->origin.x, settings->origin.y);
+        cairo_paint(context);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -263,57 +223,48 @@ gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userDat
 // Process input for the menuBox when in menuState STATE_SETTINGS.
 static void DoMenuStateSettingsInput(Point *inputPos)
 {
-    Point tileOrigin = {0};
+    // Loop through every item in the layout for menuState settings.
+    for (guint i = 0; i < SETTINGS_COUNT; i++)
+    {
+        Rectangle *settings = GetSettingsItemLayout((SettingsUI)i);
+
+        // If the inputPos is within the rectangle of the current item being checked.
+        if (IsWithinRectangle(inputPos, &settings->origin, settings->width, settings->height))
+        {
+            switch (i)
+            {
+            case SETTINGS_ZOOM_SWITCH:
+                DoMenuSettingsZoomClick(inputPos);
+                break;
+            case SETTINGS_EXIT_BUTTON:
+                gtk_main_quit();
+                break;
+            default:
+                break;
+            }
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Update the viewPort zoom when the SETTINGS_ZOOM_SWITCH is clicked and queue viewPort and menuBox
+// redraws.
+static void DoMenuSettingsZoomClick(Point *inputPos)
+{
     Actor *player = GetActor(0);
+    gboolean zoomIsOn = GetViewPortZoom();
 
-    // Move player actor and update viewPort if arrowIcon was clicked.
-    Direction dirArrowClicked = WasMovementArrowClicked(inputPos);
-    if (dirArrowClicked != DIR_NONE)
-    {
-        if (GetViewPortMode() == MODE_CHARACTER)
-        {
-            ActionWalk(player, dirArrowClicked);
-            CenterViewPortOn(&player->position);
-        }
-        else
-        {
-            Point *newSelected = GetSelectedCell();
+    zoomIsOn = !zoomIsOn;
+    SetViewPortZoom(zoomIsOn);
+    ScaleTileForZoom(zoomIsOn);
 
-            newSelected->x += hMovement[dirArrowClicked];
-            newSelected->y += vMovement[dirArrowClicked];
+    if (GetViewPortMode() == MODE_CHARACTER)
+        CenterViewPortOn(&player->position);
+    else
+        CenterViewPortOn(GetSelectedCell());
 
-            SetSelectedCell(newSelected);
-            CenterViewPortOn(GetSelectedCell());
-        }
-        gtk_widget_queue_draw(GTK_WIDGET(viewPort));
-    }
-
-    // Update viewPort's zoom if the zoomIcon was clicked.
-    tileOrigin = {ZOOM_ORIGIN_X, ZOOM_ORIGIN_Y};
-    if (IsWithinRectangle(inputPos, &tileOrigin, TILE_SIZE_MB, TILE_SIZE_MB))
-    {
-        gboolean zoomIsOn = GetViewPortZoom();
-
-        zoomIsOn = !zoomIsOn;
-        SetViewPortZoom(zoomIsOn);
-        ScaleTileForZoom(zoomIsOn);
-
-        if (GetViewPortMode() == MODE_CHARACTER)
-            CenterViewPortOn(&player->position);
-        else
-            CenterViewPortOn(GetSelectedCell());
-
-        gtk_widget_queue_draw(GTK_WIDGET(viewPort));
-        gtk_widget_queue_draw(GTK_WIDGET(menuBox));
-    }
-
-    // Exit the gtk main loop if the exit tile is clicked.
-    tileOrigin = {EXIT_ORIGIN_X, EXIT_ORIGIN_Y};
-    if (IsWithinRectangle(inputPos, &tileOrigin, TILE_SIZE_MB, TILE_SIZE_MB))
-    {
-        gtk_main_quit();
-    }
-
+    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+    gtk_widget_queue_draw(GTK_WIDGET(menuBox));
 }
 
 // ------------------------------------------------------------------------------------------------
