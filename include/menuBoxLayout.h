@@ -17,20 +17,28 @@
 enum SettingsUI
 {
     SETTINGS_ZOOM_SWITCH,
-    SETTINGS_EXIT_BUTTON,
+    SETTINGS_ZOOM_TEXT,
+    SETTINGS_EXIT_TEXT,
     SETTINGS_COUNT
+};
+
+struct MenuLayout
+{
+    Rectangle layout;
+    guint isText :1;
 };
 
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern Rectangle settingsItems[SETTINGS_COUNT];
+extern MenuLayout settingsItems[SETTINGS_COUNT];
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-Rectangle* GetSettingsItemLayout(SettingsUI item);
+MenuLayout* GetSettingsLayoutItem(SettingsUI item);
+const char* GetSettingsLayoutText(SettingsUI item);
 
 #endif // MENUBOX_LAYOUT

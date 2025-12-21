@@ -172,13 +172,34 @@ static void DoMenuStateClicked(Point* position)
 // Draws the contents of the menuBox when menuState is set to STATE_SETTINGS.
 static void DrawMenuStateSettings(cairo_t *context)
 {
+    PangoLayout *layout = gtk_widget_create_pango_layout(GTK_WIDGET(menuBox), "");
+
+    // Set layout's attributes.
+    PangoAttrList *attr_list = pango_attr_list_new();
+    PangoAttribute *color = pango_attr_foreground_new(65535, 65535, 65535); // WHITE
+    pango_attr_list_insert(attr_list, color);
+    pango_layout_set_attributes(layout, attr_list);
+
+    // Loop through each piece of the layout and draw/print as necessary.
     for (guint i = 0; i < SETTINGS_COUNT; i++)
     {
-        Rectangle *settings = GetSettingsItemLayout((SettingsUI)i);
+        MenuLayout *settings = GetSettingsLayoutItem((SettingsUI)i);
 
-        gdk_cairo_set_source_pixbuf(context, GetTileForMenuBoxSettings((SettingsUI)i), settings->origin.x, settings->origin.y);
-        cairo_paint(context);
+        if (settings->isText)
+        {
+            pango_layout_set_text(layout, GetSettingsLayoutText((SettingsUI)i), -1);
+            cairo_move_to(context, settings->layout.origin.x, settings->layout.origin.y);
+            pango_cairo_show_layout(context, layout);
+        }
+        else
+        {
+            gdk_cairo_set_source_pixbuf(context, GetTileForMenuBoxSettings((SettingsUI)i),
+                settings->layout.origin.x, settings->layout.origin.y);
+            cairo_paint(context);
+        }
     }
+
+    g_object_unref(layout);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -226,17 +247,18 @@ static void DoMenuStateSettingsInput(Point *inputPos)
     // Loop through every item in the layout for menuState settings.
     for (guint i = 0; i < SETTINGS_COUNT; i++)
     {
-        Rectangle *settings = GetSettingsItemLayout((SettingsUI)i);
+        MenuLayout *settings = GetSettingsLayoutItem((SettingsUI)i);
 
         // If the inputPos is within the rectangle of the current item being checked.
-        if (IsWithinRectangle(inputPos, &settings->origin, settings->width, settings->height))
+        if (IsWithinRectangle(inputPos, &settings->layout.origin, settings->layout.width,
+            settings->layout.height))
         {
             switch (i)
             {
             case SETTINGS_ZOOM_SWITCH:
                 DoMenuSettingsZoomClick(inputPos);
                 break;
-            case SETTINGS_EXIT_BUTTON:
+            case SETTINGS_EXIT_TEXT:
                 gtk_main_quit();
                 break;
             default:

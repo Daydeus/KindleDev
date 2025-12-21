@@ -10,10 +10,12 @@
 // ------------------------------------------------------------------------------------------------
 
 // menuBox settingsItem positions.
-#define ZOOM_SWITCH_X (MENU_BOX_WIDTH - TILE_SIZE_MB * 7 / 2)
-#define ZOOM_SWITCH_Y (TILE_SIZE_MB * 2)
-#define EXIT_BUTTON_X (MENU_BOX_WIDTH - TILE_SIZE_MB * 7 / 2)
-#define EXIT_BUTTON_Y (MENU_BOX_HEIGHT - TILE_SIZE_MB * 2)
+#define ZOOM_SWITCH_X  TILE_SIZE_MB * 3/2
+#define ZOOM_SWITCH_Y  TILE_SIZE_MB * 3/2
+#define ZOOM_TEXT_X    ZOOM_SWITCH_X + (TILE_SIZE_MB * 3/2)
+#define ZOOM_TEXT_Y    ZOOM_SWITCH_Y
+#define EXIT_TEXT_X    MENU_BOX_WIDTH - TILE_SIZE_MB * 7/2
+#define EXIT_TEXT_Y    MENU_BOX_HEIGHT - TILE_SIZE_MB * 2
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -24,10 +26,11 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-Rectangle settingsItems[SETTINGS_COUNT] =
-{   // origin.x       origin.y        width         height
-    { {ZOOM_SWITCH_X, ZOOM_SWITCH_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, // SETTINGS_ZOOM_SWITCH
-    { {EXIT_BUTTON_X, EXIT_BUTTON_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, // SETTINGS_EXIT_BUTTON
+MenuLayout settingsItems[SETTINGS_COUNT] =
+{   //  origin.x       origin.y        width         height         isText
+    { {{ZOOM_SWITCH_X, ZOOM_SWITCH_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // SETTINGS_ZOOM_SWITCH
+    { {{ZOOM_TEXT_X,   ZOOM_TEXT_Y},   TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // SETTINGS_ZOOM_TEXT
+    { {{EXIT_TEXT_X,   EXIT_TEXT_Y},   TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // SETTINGS_EXIT_TEXT
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -37,7 +40,22 @@ Rectangle settingsItems[SETTINGS_COUNT] =
 
 // ------------------------------------------------------------------------------------------------
 // Gets the Layout for the given SettingsItem.
-Rectangle* GetSettingsItemLayout(SettingsUI item)
+MenuLayout* GetSettingsLayoutItem(SettingsUI item)
 {
     return &settingsItems[item];
+}
+
+// ------------------------------------------------------------------------------------------------
+// Gets the text for the given SettingsItem.
+const char* GetSettingsLayoutText(SettingsUI item)
+{
+    switch (item)
+    {
+    case SETTINGS_ZOOM_TEXT:
+        return "Zoom";
+    case SETTINGS_EXIT_TEXT:
+        return "Exit";
+    default:
+        return NULL;
+    }
 }
