@@ -27,8 +27,19 @@ Actor actors[MAX_ACTOR_COUNT] = {};
 
 
 // ------------------------------------------------------------------------------------------------
-// Initialize all actors.
+// Initialize non-position data for all actors.
 void InitActors(void)
+{
+    for (guint index = 0; index < MAX_ACTOR_COUNT; index++)
+    {
+        Actor *actor = GetActor(index);
+        SetActorSpecies(actor, SPECIES_PLAYER);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Place all actors on valid cells within the dungeon.
+void PlaceAllActors(void)
 {
     for (guint index = 0; index < MAX_ACTOR_COUNT; index++)
     {
@@ -42,7 +53,6 @@ void InitActors(void)
         }
 
         SetActorPosition(actor, &position);
-        SetActorSpecies(actor, SPECIES_PLAYER);
     }
 }
 

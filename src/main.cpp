@@ -65,8 +65,9 @@ int main(int argc, char *argv[])
     gtk_window_maximize(GTK_WINDOW(applicationMain));
 
     // Init game.
-    GenerateDungeon();
     InitActors();
+    GenerateDungeon();
+    PlaceAllActors();
     CenterViewPortOn(&actors[0].position);
 
     gtk_widget_show_all(GTK_WIDGET(applicationMain));

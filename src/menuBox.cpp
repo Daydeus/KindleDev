@@ -3,6 +3,7 @@
 #include "global.h"
 #include "tile.h"
 #include "actor.h"
+#include "dungeonGeneration.h"
 #include "menuBox.h"
 #include "menuBoxLayout.h"
 
@@ -32,6 +33,7 @@ static void DoMenuStateClicked(Point* position);
 static void DrawMenuStateSettings(cairo_t *context);
 static void DoMenuStateSettingsInput(Point *inputPos);
 static void DoMenuSettingsZoomClick(Point *inputPos);
+static void DoMenuSettingsRefreshClick(Point *inputPos);
 
 // ------------------------------------------------------------------------------------------------
 // Load GdkPixbuf tiles and initialize the menuBbox for the player.
@@ -258,6 +260,9 @@ static void DoMenuStateSettingsInput(Point *inputPos)
             case SETTINGS_ZOOM_SWITCH:
                 DoMenuSettingsZoomClick(inputPos);
                 break;
+            case SETTINGS_REFRESH_BUTTON:
+                DoMenuSettingsRefreshClick(inputPos);
+                break;
             case SETTINGS_EXIT_TEXT:
                 gtk_main_quit();
                 break;
@@ -287,6 +292,19 @@ static void DoMenuSettingsZoomClick(Point *inputPos)
 
     gtk_widget_queue_draw(GTK_WIDGET(viewPort));
     gtk_widget_queue_draw(GTK_WIDGET(menuBox));
+}
+
+// ------------------------------------------------------------------------------------------------
+// Regenerate the dungeon and move all actors to random TERRAIN_FLOOR positions.
+static void DoMenuSettingsRefreshClick(Point *inputPos)
+{
+    GenerateDungeon();
+    PlaceAllActors();
+
+    Actor *player = GetActor(0);
+    CenterViewPortOn(&player->position);
+
+    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
 }
 
 // ------------------------------------------------------------------------------------------------

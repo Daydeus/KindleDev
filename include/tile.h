@@ -77,6 +77,7 @@ enum MenuBoxTile
     TILE_UI_SWITCH_OFF,
     TILE_UI_SWITCH_MID,
     TILE_UI_SWITCH_ON,
+    TILE_REFRESH,
     TILE_COUNT_MB
 };
 

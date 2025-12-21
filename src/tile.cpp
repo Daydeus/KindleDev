@@ -256,6 +256,8 @@ GdkPixbuf* GetTileForMenuBoxSettings(SettingsUI item)
             return menuBoxTiles[TILE_UI_SWITCH_ON];
         else
             return menuBoxTiles[TILE_UI_SWITCH_OFF];
+    case SETTINGS_REFRESH_BUTTON:
+        return menuBoxTiles[TILE_REFRESH];
     default:
         return dungeonTiles[TILE_NULL];
     }

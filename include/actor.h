@@ -39,6 +39,7 @@ extern Actor actors[MAX_ACTOR_COUNT];
 // ------------------------------------------------------------------------------------------------
 
 void InitActors(void);
+void PlaceAllActors(void);
 Actor* GetActor(guint actorIndex);
 ActorSpecies GetActorSpecies(Actor *actor);
 void SetActorSpecies(Actor *actor, ActorSpecies species);
