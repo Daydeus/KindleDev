@@ -21,6 +21,7 @@ enum Terrain
 {
     TERRAIN_NULL,
     TERRAIN_FLOOR,
+    TERRAIN_STAIRS,
     TERRAIN_WALL,
     TERRAIN_COUNT
 };

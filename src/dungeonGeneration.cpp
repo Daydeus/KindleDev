@@ -85,6 +85,21 @@ static void CreateCorridor(gint startX, gint startY, gint endX, gint endY)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Place a single instance of TERRAIN_STAIRS within the dungeon.
+static void PlaceStairs(void)
+{
+    Point position = {0};
+
+    do
+    {
+        position = {rand() % DUNGEON_WIDTH, rand() % DUNGEON_HEIGHT};
+
+    } while (GetCellTerrain(&position) != TERRAIN_FLOOR);
+
+    SetCellTerrain(&position, TERRAIN_STAIRS);
+}
+
+// ------------------------------------------------------------------------------------------------
 // Replace all dungeon cell's terrain with TERRAIN_WALL and add rooms and corridors of TERRAIN_FLOOR.
 void GenerateDungeon(void)
 {
@@ -117,4 +132,6 @@ void GenerateDungeon(void)
 
         CreateCorridor(startX, startY, endX, endY);
     }
+
+    PlaceStairs();
 }

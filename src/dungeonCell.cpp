@@ -97,7 +97,7 @@ gboolean IsTerrainTraversable(Point *position)
     {
         Terrain terrain = GetCellTerrain(position);
 
-        if (terrain == TERRAIN_FLOOR)
+        if (terrain == TERRAIN_FLOOR || terrain == TERRAIN_STAIRS)
             return TRUE;
         else
             return FALSE;
