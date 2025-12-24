@@ -103,3 +103,23 @@ gboolean IsTerrainTraversable(Point *position)
             return FALSE;
     }
 }
+
+// ------------------------------------------------------------------------------------------------
+// Returns whether the given cell is occupied by an actor.
+gboolean IsCellOccupiedByActor(Point *position)
+{
+    if (IsOutsideDungeon(position))
+    {
+        return TRUE;
+    }
+    else
+    {
+        Actor *actor = GetCellsActor(position);
+
+        // Check if cell already contains an actor.
+        if (actor != NULL)
+            return TRUE;
+        else
+            return FALSE;
+    }
+}

@@ -250,6 +250,9 @@ GdkPixbuf* GetTileForActor(Actor *actor)
     case SPECIES_PLAYER:
         tile = TILE_PLAYER;
         break;
+    case SPECIES_SLIME:
+        tile = TILE_SLIME;
+        break;
     default:
         tile = TILE_PLAYER;
     }

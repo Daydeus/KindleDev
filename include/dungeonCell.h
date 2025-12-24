@@ -50,5 +50,6 @@ void SetCellTerrain(Point *position, Terrain terrain);
 Actor* GetCellsActor(Point *position);
 void SetCellsActor(Point *position, Actor *actor);
 gboolean IsTerrainTraversable(Point *position);
+gboolean IsCellOccupiedByActor(Point *position);
 
 #endif // DUNGEON_CELL_H

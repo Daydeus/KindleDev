@@ -33,7 +33,11 @@ void InitActors(void)
     for (guint index = 0; index < MAX_ACTOR_COUNT; index++)
     {
         Actor *actor = GetActor(index);
-        SetActorSpecies(actor, SPECIES_PLAYER);
+
+        if (index == 0)
+            SetActorSpecies(actor, SPECIES_PLAYER);
+        else
+            SetActorSpecies(actor, SPECIES_SLIME);
     }
 }
 
@@ -115,6 +119,10 @@ gboolean ActionWalk(Actor *actor, Direction direction)
         return FALSE;
     }
     if (!IsTerrainTraversable(&newPosition))
+    {
+        return FALSE;
+    }
+    if (IsCellOccupiedByActor(&newPosition))
     {
         return FALSE;
     }

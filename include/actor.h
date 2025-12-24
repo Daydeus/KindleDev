@@ -9,7 +9,7 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#define MAX_ACTOR_COUNT 1
+#define MAX_ACTOR_COUNT 2
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -19,6 +19,7 @@ enum ActorSpecies
 {
     SPECIES_NULL,
     SPECIES_PLAYER,
+    SPECIES_SLIME,
     SPECIES_COUNT
 };
 
