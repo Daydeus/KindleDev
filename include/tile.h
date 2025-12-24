@@ -4,6 +4,7 @@
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
 #include "menuBoxLayout.h"
+#include "actor.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -26,6 +27,48 @@
 // ------------------------------------------------------------------------------------------------
 // Data Types
 // ------------------------------------------------------------------------------------------------
+
+// Indices for GdkPixbufs in the actorTiles array.
+enum ActorTile
+{
+    TILE_PLAYER,
+    TILE_SLIME,
+    TILE_COUNT_ACTOR
+};
+
+// Indices for GdkPixbufs in the b array.
+enum BorderTile
+{
+    TILE_BORDER_NORTH_1,
+    TILE_BORDER_NORTH_2,
+    TILE_BORDER_NORTH_3,
+    TILE_BORDER_EAST_1,
+    TILE_BORDER_EAST_2,
+    TILE_BORDER_EAST_3,
+    TILE_BORDER_SOUTH_1,
+    TILE_BORDER_SOUTH_2,
+    TILE_BORDER_SOUTH_3,
+    TILE_BORDER_WEST_1,
+    TILE_BORDER_WEST_2,
+    TILE_BORDER_WEST_3,
+    TILE_BORDER_CORNER_NORTH_EAST,
+    TILE_BORDER_CORNER_SOUTH_EAST,
+    TILE_BORDER_CORNER_SOUTH_WEST,
+    TILE_BORDER_CORNER_NORTH_WEST,
+    TILE_BORDER_INSPECT_OFF,
+    TILE_BORDER_ICON_OFF_OFFSET = TILE_BORDER_INSPECT_OFF,
+    TILE_BORDER_CHARACTER_OFF,
+    TILE_BORDER_INVENTORY_OFF,
+    TILE_BORDER_LOGBOOK_OFF,
+    TILE_BORDER_SETTINGS_OFF,
+    TILE_BORDER_INSPECT_ON,
+    TILE_BORDER_ICON_ON_OFFSET = TILE_BORDER_INSPECT_ON,
+    TILE_BORDER_CHARACTER_ON,
+    TILE_BORDER_INVENTORY_ON,
+    TILE_BORDER_LOGBOOK_ON,
+    TILE_BORDER_SETTINGS_ON,
+    TILE_COUNT_BORDER
+};
 
 // Colors available for the application to use.
 enum Color
@@ -63,7 +106,6 @@ enum DungeonTile
     TILE_WALL_STANDALONE,
     TILE_FLOOR,
     TILE_STAIRS,
-    TILE_AT,
     TILE_CELL_SELECTED,
     TILE_COUNT_VP
 };
@@ -80,40 +122,6 @@ enum MenuBoxTile
     TILE_UI_SWITCH_ON,
     TILE_REFRESH,
     TILE_COUNT_MB
-};
-
-// Indices for GdkPixbufs in the b array.
-enum BorderTile
-{
-    TILE_BORDER_NORTH_1,
-    TILE_BORDER_NORTH_2,
-    TILE_BORDER_NORTH_3,
-    TILE_BORDER_EAST_1,
-    TILE_BORDER_EAST_2,
-    TILE_BORDER_EAST_3,
-    TILE_BORDER_SOUTH_1,
-    TILE_BORDER_SOUTH_2,
-    TILE_BORDER_SOUTH_3,
-    TILE_BORDER_WEST_1,
-    TILE_BORDER_WEST_2,
-    TILE_BORDER_WEST_3,
-    TILE_BORDER_CORNER_NORTH_EAST,
-    TILE_BORDER_CORNER_SOUTH_EAST,
-    TILE_BORDER_CORNER_SOUTH_WEST,
-    TILE_BORDER_CORNER_NORTH_WEST,
-    TILE_BORDER_INSPECT_OFF,
-    TILE_BORDER_ICON_OFF_OFFSET = TILE_BORDER_INSPECT_OFF,
-    TILE_BORDER_CHARACTER_OFF,
-    TILE_BORDER_INVENTORY_OFF,
-    TILE_BORDER_LOGBOOK_OFF,
-    TILE_BORDER_SETTINGS_OFF,
-    TILE_BORDER_INSPECT_ON,
-    TILE_BORDER_ICON_ON_OFFSET = TILE_BORDER_INSPECT_ON,
-    TILE_BORDER_CHARACTER_ON,
-    TILE_BORDER_INVENTORY_ON,
-    TILE_BORDER_LOGBOOK_ON,
-    TILE_BORDER_SETTINGS_ON,
-    TILE_COUNT_BORDER
 };
 
 enum DungeonTileset
@@ -136,8 +144,9 @@ enum TileMask
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL];
+extern GdkPixbuf *actorTiles[TILE_COUNT_ACTOR];
 extern GdkPixbuf *borderTiles[TILE_COUNT_BORDER];
+extern GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL];
 extern GdkPixbuf *dungeonTiles[TILE_COUNT_VP];
 extern GdkPixbuf *menuBoxTiles[TILE_COUNT_MB];
 
@@ -145,13 +154,15 @@ extern GdkPixbuf *menuBoxTiles[TILE_COUNT_MB];
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-void LoadColorFillTiles(void);
-void FreeColorFillTiles(void);
+void LoadActorTiles(void);
+void FreeActorTiles(void);
 void LoadBorderTiles(void);
 void FreeBorderTiles(void);
+void LoadColorFillTiles(void);
+void FreeColorFillTiles(void);
 void LoadDungeonTiles(DungeonTileset tileset);
 void FreeDungeonTiles(void);
-GdkPixbuf* GetTileForActor(guint actorIndex);
+GdkPixbuf* GetTileForActor(Actor *actor);
 GdkPixbuf* GetTileForTerrain(Point *position);
 GdkPixbuf* GetTileForMenuBoxSettings(SettingsUI item);
 guint GetTileSizeForZoom(gboolean zoomIsOn);

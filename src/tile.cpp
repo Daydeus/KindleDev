@@ -6,8 +6,9 @@
 #include "tile.h"
 #include "viewPort.h"
 #include "menuBoxLayout.h"
-#include "data/tilesetColorFill.h"
+#include "data/tilesetActor.h"
 #include "data/tilesetBorder.h"
+#include "data/tilesetColorFill.h"
 #include "data/tilesetDungeonCave.h"
 #include "data/tilesetMenuBoxSettings.h"
 
@@ -25,8 +26,9 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL] = {NULL};
+GdkPixbuf *actorTiles[TILE_COUNT_ACTOR] = {NULL};
 GdkPixbuf *borderTiles[TILE_COUNT_BORDER] = {NULL};
+GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL] = {NULL};
 GdkPixbuf *dungeonTiles[TILE_COUNT_VP] = {NULL};
 GdkPixbuf *menuBoxTiles[TILE_COUNT_MB] = {NULL};
 
@@ -39,33 +41,35 @@ static GdkPixbuf* GetPixbufFromTile(DungeonTile tile);
 static DungeonTile GetWallTile(Point *position);
 
 // ------------------------------------------------------------------------------------------------
-// Read image data into the GdkPixbufs colorFillTiles array.
-void LoadColorFillTiles(void)
+// Read image data into the GdkPixbufs actorTiles array.
+void LoadActorTiles(void)
 {
     GdkPixbuf *source = NULL;
     GError * error = NULL;
 
-    source = gdk_pixbuf_new_from_inline(-1, tilesetColorFill, FALSE, &error);
+    source = gdk_pixbuf_new_from_inline(-1, tilesetActor, FALSE, &error);
 
-    for (guint i = 0; i < COLOR_COUNT_ALL; i++)
+    for (guint i = 0; i < TILE_COUNT_ACTOR; i++)
     {
         guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_16;
         guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
 
-        colorFillTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
+        actorTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
+        actorTiles[i] = gdk_pixbuf_scale_simple(actorTiles[i], TILE_SIZE_BORDER, TILE_SIZE_BORDER,
+            GDK_INTERP_NEAREST);
     }
 
     g_object_unref(source);
 }
 
 // ------------------------------------------------------------------------------------------------
-// Free the GdkPixbufs for the colorFillTiles array.
-void FreeColorFillTiles(void)
+// Free the GdkPixbufs for the actorTiles array.
+void FreeActorTiles(void)
 {
     // Free memory used by GdkPixbufs.
-    for (guint i = 0; i < COLOR_COUNT_ALL; i++)
+    for (guint i = 0; i < TILE_COUNT_ACTOR; i++)
     {
-        g_object_unref(colorFillTiles[i]);
+        g_object_unref(actorTiles[i]);
     }
 }
 
@@ -99,6 +103,37 @@ void FreeBorderTiles(void)
     for (guint i = 0; i < TILE_COUNT_BORDER; i++)
     {
         g_object_unref(borderTiles[i]);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Read image data into the GdkPixbufs colorFillTiles array.
+void LoadColorFillTiles(void)
+{
+    GdkPixbuf *source = NULL;
+    GError * error = NULL;
+
+    source = gdk_pixbuf_new_from_inline(-1, tilesetColorFill, FALSE, &error);
+
+    for (guint i = 0; i < COLOR_COUNT_ALL; i++)
+    {
+        guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_16;
+        guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
+
+        colorFillTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
+    }
+
+    g_object_unref(source);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Free the GdkPixbufs for the colorFillTiles array.
+void FreeColorFillTiles(void)
+{
+    // Free memory used by GdkPixbufs.
+    for (guint i = 0; i < COLOR_COUNT_ALL; i++)
+    {
+        g_object_unref(colorFillTiles[i]);
     }
 }
 
@@ -205,22 +240,21 @@ static DungeonTile GetWallTile(Point *position)
 
 // ------------------------------------------------------------------------------------------------
 // Returns the GdkPixbuf from the tiles array for the given actor.
-GdkPixbuf* GetTileForActor(guint actorIndex)
+GdkPixbuf* GetTileForActor(Actor *actor)
 {
-    Actor *actor = GetActor(actorIndex);
     ActorSpecies species = actor->species;
-    DungeonTile tile;
+    ActorTile tile;
 
     switch (species)
     {
     case SPECIES_PLAYER:
-        tile = TILE_AT;
+        tile = TILE_PLAYER;
         break;
     default:
-        tile = TILE_NULL;
+        tile = TILE_PLAYER;
     }
 
-    return GetPixbufFromTile(tile);
+    return actorTiles[tile];
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -288,9 +322,17 @@ guint GetTileSizeForZoom(gboolean zoomIsOn)
 void ScaleTileForZoom(gboolean zoomIsOn)
 {
     guint tileSize = GetTileSizeForZoom(zoomIsOn);
+
+    // Scale tiles for dungeon.
     for (guint i = 0; i < TILE_COUNT_VP; i++)
     {
         dungeonTiles[i] = gdk_pixbuf_scale_simple(dungeonTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
+    }
+
+    // Scale tiles for actors.
+    for (guint i = 0; i < TILE_COUNT_ACTOR; i++)
+    {
+        actorTiles[i] = gdk_pixbuf_scale_simple(actorTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
     }
 }
 

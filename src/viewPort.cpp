@@ -48,6 +48,7 @@ static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *eve
 void InitViewPort(void)
 {
     LoadDungeonTiles(TILESET_CAVE);
+    LoadActorTiles();
     ScaleTileForZoom(GetViewPortZoom());
 
     // Initialize the viewPort.
@@ -177,9 +178,10 @@ static void DrawDungeon(cairo_t *context)
             cairo_paint(context);
 
             // If position contains an actor, draw it over the terrain.
-            if (GetCellsActor(&cell) != NULL)
+            Actor *actorToDraw = GetCellsActor(&cell);
+            if (actorToDraw != NULL)
             {
-                gdk_cairo_set_source_pixbuf(context, dungeonTiles[TILE_AT], pixel.x, pixel.y);
+                gdk_cairo_set_source_pixbuf(context, GetTileForActor(actorToDraw), pixel.x, pixel.y);
                 cairo_paint(context);
             }
 

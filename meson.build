@@ -34,8 +34,9 @@ sources = files(
     './src/main.cpp',
 
 ### C-Source files for tile graphics
-    './src/data/tilesetColorFill.cpp',
+    './src/data/tilesetActor.cpp',
     './src/data/tilesetBorder.cpp',
+    './src/data/tilesetColorFill.cpp',
     './src/data/tilesetDungeonCave.cpp',
     './src/data/tilesetMenuBoxSettings.cpp',
 )
