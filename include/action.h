@@ -1,50 +1,45 @@
-#ifndef ACTOR_H
-#define ACTOR_H
+#ifndef ACTION_H
+#define ACTION_H
 
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
 #include "global.h"
+#include "actor.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#define MAX_ACTOR_COUNT 2
+#define MAX_QUEUED_PLAYER_ACTIONS  1
+#define CURRENT_ACTION             0
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
 // ------------------------------------------------------------------------------------------------
 
-enum ActorSpecies
+enum Action
 {
-    SPECIES_NULL,
-    SPECIES_PLAYER,
-    SPECIES_SLIME,
-    SPECIES_COUNT
+    ACTION_NULL,
+    ACTION_WALK_NORTH,
+    ACTION_WALK_EAST,
+    ACTION_WALK_SOUTH,
+    ACTION_WALK_WEST,
+    ACTION_COUNT
 };
-
-typedef struct
-{
-    ActorSpecies species;
-    Point position;
-} Actor;
 
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern Actor actors[MAX_ACTOR_COUNT];
+extern Action playerActions[MAX_QUEUED_PLAYER_ACTIONS];
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-void InitActors(void);
-void PlaceAllActors(void);
-Actor* GetActor(guint actorIndex);
-ActorSpecies GetActorSpecies(Actor *actor);
-void SetActorSpecies(Actor *actor, ActorSpecies species);
-Point* GetActorPosition(Actor *actor);
-void SetActorPosition(Actor *actor, Point *position);
+Action GetQueuedPlayerAction(guint queueIndex);
+void SetQueuedPlayerAction(guint queueIndex, Action action);
+void ClearQueuedPlayerActions(void);
+gboolean DoAction(Actor *actor, Action action);
 
-#endif // ACTOR_H
+#endif // ACTION_H

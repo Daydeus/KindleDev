@@ -23,9 +23,11 @@ endif
 ####################
 sources = files(
     './src/global.cpp',
+    './src/action.cpp',
     './src/actor.cpp',
     './src/dungeonCell.cpp',
     './src/dungeonGeneration.cpp',
+    './src/dungeonMaster.cpp',
     './src/menuBox.cpp',
     './src/menuBoxLayout.cpp',
     './src/tile.cpp',

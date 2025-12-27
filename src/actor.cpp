@@ -102,35 +102,3 @@ void SetActorPosition(Actor *actor, Point* position)
 
     actor->position = *position;
 }
-
-// ------------------------------------------------------------------------------------------------
-// Attempts to move the given actor one space in the given direction.
-// Returns FALSE if the action fails.
-gboolean ActionWalk(Actor *actor, Direction direction)
-{
-    Point *oldPosition = GetActorPosition(actor);
-    Point newPosition;
-
-    newPosition.x = oldPosition->x + hMovement[direction];
-    newPosition.y = oldPosition->y + vMovement[direction];
-
-    if (IsOutsideDungeon(&newPosition))
-    {
-        return FALSE;
-    }
-    if (!IsTerrainTraversable(&newPosition))
-    {
-        return FALSE;
-    }
-    if (IsCellOccupiedByActor(&newPosition))
-    {
-        return FALSE;
-    }
-
-    SetCellsActor(oldPosition, NULL);
-
-    SetCellsActor(&newPosition, actor);
-    SetActorPosition(actor, &newPosition);
-
-    return TRUE;
-}

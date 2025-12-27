@@ -5,8 +5,10 @@
 #include <cstdlib>
 #include "global.h"
 #include "touchGesture.h"
+#include "action.h"
 #include "actor.h"
 #include "dungeonCell.h"
+#include "dungeonMaster.h"
 #include "menuBox.h"
 #include "tile.h"
 #include "viewPort.h"
@@ -303,7 +305,8 @@ static void DoViewPortInputCharacter(Point *inputPos)
 
                 if (IsWithinRectangle(inputPos, &screenSection, VIEWPORT_WIDTH / 3, VIEWPORT_HEIGHT / 3))
                 {
-                    ActionWalk(player, (Direction)i);
+                    SetQueuedPlayerAction(CURRENT_ACTION, (Action)(i + 1));
+                    ProcessTurns();
                     CenterViewPortOn(&player->position);
                 }
             }
@@ -311,14 +314,14 @@ static void DoViewPortInputCharacter(Point *inputPos)
     }
     else if (gesture == GESTURE_SWIPE)
     {
-        Direction swipeDirection = GetSwipeDirection();
+        // TODO: global variable setting for not using the opposite direction of the swipe.
+        // Move in the opposite direction, as the player's position on screen is fixed.
+        Direction swipeDirection = GetOppositeDirection(GetSwipeDirection());
 
         if (IsCardinalDirection(swipeDirection))
         {
-            // Move in the opposite direction, as the player's position on screen is fixed;
-            // it is the map underneath them that is moving.
-            // TODO: global variable setting for not using the opposite direction of the swipe.
-            ActionWalk(player, GetOppositeDirection(swipeDirection));
+            SetQueuedPlayerAction(CURRENT_ACTION, (Action)(swipeDirection + 1));
+            ProcessTurns();
             CenterViewPortOn(&player->position);
         }
     }
