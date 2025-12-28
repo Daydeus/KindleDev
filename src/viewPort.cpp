@@ -39,7 +39,7 @@ ViewPortMode viewPortMode = MODE_CHARACTER;
 
 static void DrawDungeon(cairo_t *context);
 static void DrawViewPortBorders(cairo_t *context);
-static gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userData);
+static gboolean on_viewPort_update(GtkWidget *widget, gpointer userData);
 static void DoViewPortInputCharacter(Point *inputPos);
 static void DoViewPortInputSelector(Point *inputPos);
 static gboolean on_viewPort_click_press(GtkWidget *widget, GdkEventButton *event, gpointer userData);
@@ -150,6 +150,22 @@ void SetViewPortMode(ViewPortMode mode)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Returns if the given position is visible in the viewPort.
+gboolean IsPositionOnScreen(Point *position)
+{
+    // Temporary function until Fog of War and sightId is implemented for cells.
+    // TODO: remove
+    gint tileSize = GetTileSizeForZoom(zoomIsOn);
+    gint viewPortWidth = VIEWPORT_WIDTH / tileSize;
+    gint viewPortHeight = VIEWPORT_HEIGHT / tileSize;
+
+    if (IsWithinRectangle(position, GetViewPosition(), viewPortWidth, viewPortHeight))
+        return TRUE;
+    else
+        return FALSE;
+}
+
+// ------------------------------------------------------------------------------------------------
 // Draw the tiles of the visible dungeonCells and actors.
 static void DrawDungeon(cairo_t *context)
 {
@@ -250,7 +266,7 @@ static void DrawViewPortBorders(cairo_t *context)
 
 // ------------------------------------------------------------------------------------------------
 // Callback function to update the tiles shown on the viewPort.
-static gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer userData)
+static gboolean on_viewPort_update(GtkWidget *widget, gpointer userData)
 {
     // Get the GdkWindow from the widget
     GdkWindow *window = gtk_widget_get_window(widget);
@@ -274,7 +290,7 @@ static gboolean on_viewPort_update(GtkWidget *widget, cairo_t *context, gpointer
 // player character and input will only affect the player.
 static void DoViewPortInputCharacter(Point *inputPos)
 {
-    Actor *player = GetActor(0);
+    Actor *player = GetActor(PLAYER_ACTOR_INDEX);
     GestureType gesture = GetGestureType();
 
     if (gesture == GESTURE_SINGLE_TAP)
@@ -306,7 +322,7 @@ static void DoViewPortInputCharacter(Point *inputPos)
                 if (IsWithinRectangle(inputPos, &screenSection, VIEWPORT_WIDTH / 3, VIEWPORT_HEIGHT / 3))
                 {
                     SetQueuedPlayerAction(CURRENT_ACTION, (Action)(i + 1));
-                    ProcessTurns();
+                    ProcessTurn();
                     CenterViewPortOn(&player->position);
                 }
             }
@@ -321,7 +337,7 @@ static void DoViewPortInputCharacter(Point *inputPos)
         if (IsCardinalDirection(swipeDirection))
         {
             SetQueuedPlayerAction(CURRENT_ACTION, (Action)(swipeDirection + 1));
-            ProcessTurns();
+            ProcessTurn();
             CenterViewPortOn(&player->position);
         }
     }
@@ -379,7 +395,7 @@ static void DoViewPortInputSelector(Point *inputPos)
         }
         else if (swipeDirection == DIR_NORTH_WEST)
         {
-            Actor *player = GetActor(0);
+            Actor *player = GetActor(PLAYER_ACTOR_INDEX);
 
             SetViewPortMode(MODE_CHARACTER);
             CenterViewPortOn(&player->position);
@@ -415,6 +431,9 @@ static gboolean on_viewPort_click_press(GtkWidget *widget, GdkEventButton *event
 // Callback function for when the click on the viewPort is released.
 static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *event, gpointer userData)
 {
+    if (GetInputBlockStatus() == INPUT_IS_BLOCKED)
+        return FALSE;
+
     Point inputPos = {(gint)event->x, (gint)event->y};
     SetGestureEndPos(&inputPos);
     SetGestureEndTime();
@@ -423,9 +442,6 @@ static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *eve
         DoViewPortInputCharacter(&inputPos);
     else
         DoViewPortInputSelector(&inputPos);
-
-    // Queue update to the viewPort.
-    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
 
     return FALSE;
 }

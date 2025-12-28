@@ -53,5 +53,6 @@ gboolean GetViewPortZoom(void);
 void SetViewPortZoom(gboolean zoomIsOn);
 ViewPortMode GetViewPortMode(void);
 void SetViewPortMode(ViewPortMode mode);
+gboolean IsPositionOnScreen(Point *position);
 
 #endif // VIEWPORT_H

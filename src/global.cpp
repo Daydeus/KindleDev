@@ -113,3 +113,13 @@ gboolean IsWithinRectangle(Point *position, Point *origin, gint width, gint heig
     else
         return FALSE;
 }
+
+// ------------------------------------------------------------------------------------------------
+// Allow gtk_main to iterate once so pending screen redraws can be completed.
+void WaitForScreenRedraw(void)
+{
+    while (gtk_events_pending())
+    {
+        gtk_main_iteration();
+    }
+}

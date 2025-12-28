@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     InitActors();
     GenerateDungeon();
     PlaceAllActors();
-    CenterViewPortOn(&actors[0].position);
+    CenterViewPortOn(&actors[PLAYER_ACTOR_INDEX].position);
 
     gtk_widget_show_all(GTK_WIDGET(applicationMain));
 

@@ -60,5 +60,6 @@ gboolean IsValueEven(gint value);
 gint ClampValue(gint value, gint minimum, gint maximum);
 gint WrapValue(gint value, gint minimum, gint maximum);
 gboolean IsWithinRectangle(Point *position, Point *origin, gint width, gint height);
+void WaitForScreenRedraw(void);
 
 #endif // GLOBAL_H

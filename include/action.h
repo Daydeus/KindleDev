@@ -10,6 +10,8 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
+#define INPUT_IS_BLOCKED           TRUE
+#define INPUT_IS_NOT_BLOCKED       FALSE
 #define MAX_QUEUED_PLAYER_ACTIONS  1
 #define CURRENT_ACTION             0
 
@@ -31,15 +33,19 @@ enum Action
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
+extern gboolean inputIsBlocked;
 extern Action playerActions[MAX_QUEUED_PLAYER_ACTIONS];
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-Action GetQueuedPlayerAction(guint queueIndex);
+gboolean GetInputBlockStatus(void);
+void SetInputBlockStatus(gboolean isBlocked);
+Action GetQueuedPlayerAction(void);
 void SetQueuedPlayerAction(guint queueIndex, Action action);
 void ClearQueuedPlayerActions(void);
+Action GetActionForAI(void);
 gboolean DoAction(Actor *actor, Action action);
 
 #endif // ACTION_H

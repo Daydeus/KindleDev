@@ -23,6 +23,6 @@
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-void ProcessTurns(void);
+void ProcessTurn(void);
 
 #endif // DUNGEON_MASTER_H

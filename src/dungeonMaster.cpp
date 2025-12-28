@@ -5,6 +5,7 @@
 #include "action.h"
 #include "actor.h"
 #include "dungeonMaster.h"
+#include "viewPort.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -25,36 +26,44 @@
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
+
 // ------------------------------------------------------------------------------------------------
 // Loop through all actors and have them perform an action for their turn.
-void ProcessTurns(void)
+void ProcessTurn(void)
 {
-    gboolean actionCompleted = FALSE;
+    SetInputBlockStatus(INPUT_IS_BLOCKED);
 
-    for (guint i = 0; i < MAX_ACTOR_COUNT; i++)
+    for (gint i = PLAYER_ACTOR_INDEX; i < MAX_ACTOR_COUNT; i++)
     {
         Actor *actor = GetActor(i);
+        Action action = ACTION_NULL;
+        gboolean actionCompleted = FALSE;
 
-        if (actor->species == SPECIES_PLAYER)
+        if (i == PLAYER_ACTOR_INDEX)
+            action = GetQueuedPlayerAction();
+        else
+            action = GetActionForAI();
+
+        actionCompleted = DoAction(actor, action);
+
+        if (i == PLAYER_ACTOR_INDEX)
         {
-            actionCompleted = DoAction(actor, playerActions[CURRENT_ACTION]);
-
-            // If player attempts action that cannot be completed, return without processing a turn.
             if (!actionCompleted)
             {
-                playerActions[CURRENT_ACTION] = ACTION_NULL;
+                SetInputBlockStatus(INPUT_IS_NOT_BLOCKED);
                 return;
             }
+            else
+                CenterViewPortOn(&actor->position);
         }
-        else
+
+        // Redraw viewPort mid-turn if actor is on-screen.
+        if (IsPositionOnScreen(&actor->position))
         {
-            // Randomly choose a direction for the non-player actor to move in.
-            do
-            {
-                actionCompleted = DoAction(actor, (Action)(rand() % DIR_CARDINAL_COUNT + 1));
-            } while (!actionCompleted);
+            gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+            WaitForScreenRedraw();
         }
     }
 
-    playerActions[CURRENT_ACTION] = ACTION_NULL;
+    SetInputBlockStatus(INPUT_IS_NOT_BLOCKED);
 }

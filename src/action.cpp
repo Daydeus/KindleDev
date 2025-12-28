@@ -21,6 +21,7 @@
 // ------------------------------------------------------------------------------------------------
 
 Action playerActions[MAX_QUEUED_PLAYER_ACTIONS] = {ACTION_NULL};
+gboolean inputIsBlocked = FALSE;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -28,12 +29,25 @@ Action playerActions[MAX_QUEUED_PLAYER_ACTIONS] = {ACTION_NULL};
 
 static gboolean ActionWalk(Actor *actor, Direction direction);
 
+// ------------------------------------------------------------------------------------------------
+// Gets whether the player input is currently blocked.
+gboolean GetInputBlockStatus(void)
+{
+    return inputIsBlocked;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets whether the player input is currently blocked.
+void SetInputBlockStatus(gboolean isBlocked)
+{
+    inputIsBlocked = isBlocked;
+}
 
 // ------------------------------------------------------------------------------------------------
 // Gets the player action at the given index in the queue.
-Action GetQueuedPlayerAction(guint queueIndex)
+Action GetQueuedPlayerAction(void)
 {
-    return playerActions[queueIndex];
+    return playerActions[CURRENT_ACTION];
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -51,6 +65,13 @@ void ClearQueuedPlayerActions(void)
     {
         playerActions[i] = ACTION_NULL;
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Gets the non-player actor's action.
+Action GetActionForAI(void)
+{
+    return (Action)(rand() % DIR_CARDINAL_COUNT + 1);
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -1,5 +1,4 @@
 #include <gtk-2.0/gtk/gtk.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
 #include <glib-2.0/glib.h>
 #include <cstdlib>
 #include "global.h"
