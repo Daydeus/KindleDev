@@ -1,14 +1,15 @@
+#include <cstdlib>
 #include <gtk-2.0/gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <glib-2.0/glib.h>
-#include <cstdlib>
 #include <time.h>
 #include "global.h"
-#include "tile.h"
 #include "actor.h"
 #include "dungeonCell.h"
 #include "dungeonGeneration.h"
 #include "menuBox.h"
+#include "pathfinding.h"
+#include "tile.h"
 #include "viewPort.h"
 
 // ------------------------------------------------------------------------------------------------

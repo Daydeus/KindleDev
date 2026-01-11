@@ -30,6 +30,7 @@ sources = files(
     './src/dungeonMaster.cpp',
     './src/menuBox.cpp',
     './src/menuBoxLayout.cpp',
+    './src/pathfinding.cpp',
     './src/tile.cpp',
     './src/touchGesture.cpp',
     './src/viewPort.cpp',
