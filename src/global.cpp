@@ -67,6 +67,35 @@ Direction GetOppositeDirection(Direction direction)
     }
 }
 
+// ------------------------------------------------------------------------------------------------
+// Returns a string for the unicode direction arrow.
+const char* GetDirectionSymbol(Direction direction)
+{
+    switch (direction)
+    {
+    case DIR_NORTH:
+        return "\u2191";
+    case DIR_EAST:
+        return "\u2192";
+    case DIR_SOUTH:
+        return "\u2193";
+    case DIR_WEST:
+        return "\u2190";
+    case DIR_NORTH_EAST:
+        return "\u2197";
+    case DIR_SOUTH_EAST:
+        return "\u2198";
+    case DIR_SOUTH_WEST:
+        return "\u2199";
+    case DIR_NORTH_WEST:
+        return "\u2196";
+    case DIR_NONE:
+        return ".";
+    default:
+        return "?";
+    }
+}
+
 //-------------------------------------------------------------------------------------------------
 // Returns TRUE if the gven value is even and FALSE if it is odd.
 gboolean IsValueEven(gint value)
@@ -107,8 +136,8 @@ gint WrapValue(gint value, gint minimum, gint maximum)
 // Returns TRUE if the given position is with the given rectangle.
 gboolean IsWithinRectangle(Point *position, Point *origin, gint width, gint height)
 {
-    if (position->x > origin->x && position->x < origin->x + width
-      && position->y > origin->y && position->y < origin->y + height)
+    if (position->x >= origin->x && position->x < origin->x + width
+      && position->y >= origin->y && position->y < origin->y + height)
         return TRUE;
     else
         return FALSE;
