@@ -205,7 +205,7 @@ static void DrawMenuStateSettings(cairo_t *context)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Callback function to update the tiles shown on the viewPort.
+// Callback function to update the tiles shown on the menuBox.
 gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userData)
 {
     // Get the GdkWindow from the widget
@@ -305,7 +305,7 @@ static void DoMenuSettingsRefreshClick(Point *inputPos)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Callback function to track input on the viewPort.
+// Callback function to track input on the menuBox.
 gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer userData)
 {
     // Get pixbuf tile that was clicked.

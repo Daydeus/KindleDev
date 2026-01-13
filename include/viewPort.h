@@ -21,12 +21,6 @@
 // Data Types
 // ------------------------------------------------------------------------------------------------
 
-enum ViewPortMode
-{
-    MODE_CHARACTER,
-    MODE_SELECTOR,
-    MODE_COUNT
-};
 
 // ------------------------------------------------------------------------------------------------
 // Global Variables
@@ -34,7 +28,6 @@ enum ViewPortMode
 
 extern GtkDrawingArea *viewPort;
 extern Point viewPosition;
-extern ViewPortMode viewPortMode;
 extern gboolean zoomIsOn;
 
 // ------------------------------------------------------------------------------------------------
@@ -48,8 +41,6 @@ void MoveViewPosition(Direction direction, guint distance);
 void CenterViewPortOn(Point *position);
 gboolean GetViewPortZoom(void);
 void SetViewPortZoom(gboolean zoomIsOn);
-ViewPortMode GetViewPortMode(void);
-void SetViewPortMode(ViewPortMode mode);
 gboolean IsPositionOnScreen(Point *position);
 
 #endif // VIEWPORT_H

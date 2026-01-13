@@ -30,7 +30,6 @@
 GtkDrawingArea *viewPort = NULL;
 Point viewPosition = {0}; // The dungeonCell position of the viewPort origin.
 gboolean zoomIsOn = TRUE;
-ViewPortMode viewPortMode = MODE_CHARACTER;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -114,20 +113,6 @@ gboolean GetViewPortZoom(void)
 void SetViewPortZoom(gboolean boolean)
 {
     zoomIsOn = boolean;
-}
-
-// ------------------------------------------------------------------------------------------------
-// Gets the viewPortMode (which determines if input is for the player or selectedCell).
-ViewPortMode GetViewPortMode(void)
-{
-    return viewPortMode;
-}
-
-// ------------------------------------------------------------------------------------------------
-// Sets the viewPortMode (which determines if input is for the player or selectedCell).
-void SetViewPortMode(ViewPortMode mode)
-{
-    viewPortMode = mode;
 }
 
 // ------------------------------------------------------------------------------------------------
