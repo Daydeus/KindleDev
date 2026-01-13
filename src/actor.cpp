@@ -4,6 +4,7 @@
 #include "global.h"
 #include "actor.h"
 #include "dungeonCell.h"
+#include "pathfinding.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -58,6 +59,8 @@ void PlaceAllActors(void)
 
         SetActorPosition(actor, &position);
     }
+    SetPathMapOrigin(GetActorPosition(GetActor(PLAYER_ACTOR_INDEX)));
+    BuildPathMap();
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -285,10 +285,7 @@ static void DoMenuSettingsZoomClick(Point *inputPos)
     SetViewPortZoom(zoomIsOn);
     ScaleTileForZoom(zoomIsOn);
 
-    if (GetViewPortMode() == MODE_CHARACTER)
-        CenterViewPortOn(&player->position);
-    else
-        CenterViewPortOn(GetSelectedCell());
+    CenterViewPortOn(&player->position);
 
     gtk_widget_queue_draw(GTK_WIDGET(viewPort));
     gtk_widget_queue_draw(GTK_WIDGET(menuBox));

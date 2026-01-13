@@ -5,6 +5,7 @@
 #include "actor.h"
 #include "action.h"
 #include "dungeonCell.h"
+#include "pathfinding.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -20,7 +21,6 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-Action playerActions[MAX_QUEUED_PLAYER_ACTIONS] = {ACTION_NULL};
 gboolean inputIsBlocked = FALSE;
 
 // ------------------------------------------------------------------------------------------------
@@ -41,30 +41,6 @@ gboolean GetInputBlockStatus(void)
 void SetInputBlockStatus(gboolean isBlocked)
 {
     inputIsBlocked = isBlocked;
-}
-
-// ------------------------------------------------------------------------------------------------
-// Gets the player action at the given index in the queue.
-Action GetQueuedPlayerAction(void)
-{
-    return playerActions[CURRENT_ACTION];
-}
-
-// ------------------------------------------------------------------------------------------------
-// Sets the player action at the given index in the queue.
-void SetQueuedPlayerAction(guint queueIndex, Action action)
-{
-    playerActions[queueIndex] = action;
-}
-
-// ------------------------------------------------------------------------------------------------
-// Sets all queued player actions to ACTION_NULL.
-void ClearQueuedPlayerActions(void)
-{
-    for (guint i = 0; i < MAX_QUEUED_PLAYER_ACTIONS; i++)
-    {
-        playerActions[i] = ACTION_NULL;
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -94,6 +70,18 @@ gboolean DoAction(Actor *actor, Action action)
         break;
     case ACTION_WALK_WEST:
         actionCompleted = ActionWalk(actor, DIR_WEST);
+        break;
+    case ACTION_WALK_NORTH_EAST:
+        actionCompleted = ActionWalk(actor, DIR_NORTH_EAST);
+        break;
+    case ACTION_WALK_SOUTH_EAST:
+        actionCompleted = ActionWalk(actor, DIR_SOUTH_EAST);
+        break;
+    case ACTION_WALK_SOUTH_WEST:
+        actionCompleted = ActionWalk(actor, DIR_SOUTH_WEST);
+        break;
+    case ACTION_WALK_NORTH_WEST:
+        actionCompleted = ActionWalk(actor, DIR_NORTH_WEST);
         break;
     default:
         actionCompleted = FALSE;
@@ -131,5 +119,35 @@ static gboolean ActionWalk(Actor *actor, Direction direction)
     SetCellsActor(&newPosition, actor);
     SetActorPosition(actor, &newPosition);
 
+    // If actor was the player, flag the pathMap as needing an update.
+    if (actor == GetActor(PLAYER_ACTOR_INDEX))
+        SetPathMapUpdateStatus(UPDATE_NEEDED);
+
     return TRUE;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Gets the action for the player to navigate to the selected cell.
+Action GetPlayerNavigation(void)
+{
+    Point *selectedCell = GetSelectedCell();
+    Point pathStep = {selectedCell->x, selectedCell->y};
+    gint direction = GetPathMapDir(selectedCell);
+    gint distance = GetPathMapDist(selectedCell);
+
+    // If we are one move from the selected cell, any walk action will put the player at the
+    // destination. So, unlock the selected cell so we don't attempt to navigate again.
+    if (distance == 1)
+        SetSelectedCellStatus(STATUS_UNLOCKED);
+
+    // Get the next step in the path to the selected cell.
+    for (gint i = distance; i > 0; i--)
+    {
+        direction = GetPathMapDir(&pathStep);
+
+        pathStep.x += hMovement[direction];
+        pathStep.y += vMovement[direction];
+    }
+
+    return (Action)(GetOppositeDirection((Direction)direction) + 1);
 }

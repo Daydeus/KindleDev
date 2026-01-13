@@ -26,18 +26,26 @@ enum Terrain
     TERRAIN_COUNT
 };
 
+enum CellSelectorStatus
+{
+    STATUS_UNLOCKED,
+    STATUS_LOCKED,
+    STATUS_COUNT
+};
+
 typedef struct
 {
     Terrain terrain;
     Actor *actor;
 } DungeonCell;
 
-
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
 extern DungeonCell cells[DUNGEON_HEIGHT][DUNGEON_WIDTH];
+extern Point selectedCell;
+extern CellSelectorStatus selectedCellLocked;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -51,5 +59,9 @@ Actor* GetCellsActor(Point *position);
 void SetCellsActor(Point *position, Actor *actor);
 gboolean IsTerrainTraversable(Point *position);
 gboolean IsCellOccupiedByActor(Point *position);
+Point* GetSelectedCell(void);
+void SetSelectedCell(Point *position);
+CellSelectorStatus GetSelectedCellStatus(void);
+void SetSelectedCellStatus(CellSelectorStatus status);
 
 #endif // DUNGEON_CELL_H

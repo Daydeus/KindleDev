@@ -28,6 +28,7 @@ struct Node
 
 Point pathMapOrigin = {0};
 Path pathMap[DUNGEON_HEIGHT][DUNGEON_WIDTH];
+gboolean pathMapNeedsUpdate = FALSE;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -84,6 +85,20 @@ guint GetPathMapDist(Point *position)
 static void SetPathMapDist(Point *position, guint distance)
 {
     pathMap[position->y][position->x].distance = distance;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns whether the pathMap needs to be updated (rebuilt).
+gboolean GetPathMapUpdateStatus(void)
+{
+    return pathMapNeedsUpdate;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets whether the pathMap needs to be updated (rebuilt).
+void SetPathMapUpdateStatus(PathMapStatus status)
+{
+    pathMapNeedsUpdate = status;
 }
 
 // ------------------------------------------------------------------------------------------------

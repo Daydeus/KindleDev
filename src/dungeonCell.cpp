@@ -20,6 +20,8 @@
 // ------------------------------------------------------------------------------------------------
 
 DungeonCell cells[DUNGEON_HEIGHT][DUNGEON_WIDTH] = {};
+Point selectedCell = {0};
+CellSelectorStatus selectedCellLocked = STATUS_UNLOCKED;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -121,4 +123,35 @@ gboolean IsCellOccupiedByActor(Point *position)
         else
             return FALSE;
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Gets the dungeonCell position of the currently selected cell in the viewPort.
+Point* GetSelectedCell(void)
+{
+    return &selectedCell;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets the currently selected dungeonCell in the viewPort to the given position.
+void SetSelectedCell(Point *position)
+{
+    position->x = ClampValue(position->x, 0, DUNGEON_WIDTH);
+    position->y = ClampValue(position->y, 0, DUNGEON_HEIGHT);
+
+    selectedCell = *position;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Gets whether input is locked for moving to the selected cell.
+CellSelectorStatus GetSelectedCellStatus(void)
+{
+    return selectedCellLocked;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets whether input is locked for moving to the selected cell.
+void SetSelectedCellStatus(CellSelectorStatus status)
+{
+    selectedCellLocked = status;
 }

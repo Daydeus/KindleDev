@@ -286,6 +286,28 @@ GdkPixbuf* GetTileForTerrain(Point *position)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Returns the GdkPixbuf from the tiles array for the cellSelector icon.
+GdkPixbuf* GetTileForCellSelector(void)
+{
+    CellSelectorStatus status = GetSelectedCellStatus();
+    DungeonTile tile;
+
+    switch (status)
+    {
+    case STATUS_UNLOCKED:
+        tile = TILE_CELL_SELECTOR_UNLOCKED;
+        break;
+    case STATUS_LOCKED:
+        tile = TILE_CELL_SELECTOR_LOCKED;
+        break;
+    default:
+        tile = TILE_CELL_SELECTOR_UNLOCKED;
+    }
+
+    return GetPixbufFromTile(tile);
+}
+
+// ------------------------------------------------------------------------------------------------
 // Returns the GdkPixbuf from the menuBoxTiles array based on the given setting.
 GdkPixbuf* GetTileForMenuBoxSettings(SettingsUI item)
 {

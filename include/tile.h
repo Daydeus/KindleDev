@@ -106,7 +106,8 @@ enum DungeonTile
     TILE_WALL_STANDALONE,
     TILE_FLOOR,
     TILE_STAIRS,
-    TILE_CELL_SELECTED,
+    TILE_CELL_SELECTOR_UNLOCKED,
+    TILE_CELL_SELECTOR_LOCKED,
     TILE_COUNT_VP
 };
 
@@ -164,6 +165,7 @@ void LoadDungeonTiles(DungeonTileset tileset);
 void FreeDungeonTiles(void);
 GdkPixbuf* GetTileForActor(Actor *actor);
 GdkPixbuf* GetTileForTerrain(Point *position);
+GdkPixbuf* GetTileForCellSelector(void);
 GdkPixbuf* GetTileForMenuBoxSettings(SettingsUI item);
 guint GetTileSizeForZoom(gboolean zoomIsOn);
 void ScaleTileForZoom(gboolean zoomIsOn);

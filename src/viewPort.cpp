@@ -29,7 +29,6 @@
 
 GtkDrawingArea *viewPort = NULL;
 Point viewPosition = {0}; // The dungeonCell position of the viewPort origin.
-Point selectedCell = {0}; // The current player-selected dungeonCell in the viewPort.
 gboolean zoomIsOn = TRUE;
 ViewPortMode viewPortMode = MODE_CHARACTER;
 
@@ -40,8 +39,7 @@ ViewPortMode viewPortMode = MODE_CHARACTER;
 static void DrawDungeon(cairo_t *context);
 static void DrawViewPortBorders(cairo_t *context);
 static gboolean on_viewPort_update(GtkWidget *widget, gpointer userData);
-static void DoViewPortInputCharacter(Point *inputPos);
-static void DoViewPortInputSelector(Point *inputPos);
+static void DoViewPortInput(Point *inputPos);
 static gboolean on_viewPort_click_press(GtkWidget *widget, GdkEventButton *event, gpointer userData);
 static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *event, gpointer userData);
 
@@ -102,23 +100,6 @@ void CenterViewPortOn(Point *position)
     Point newPosition = {position->x - viewPortHalfWidth, position->y - viewPortHalfHeight};
 
     SetViewPosition(&newPosition);
-}
-
-// ------------------------------------------------------------------------------------------------
-// Gets the dungeonCell position of the currently selected cell in the viewPort.
-Point* GetSelectedCell(void)
-{
-    return &selectedCell;
-}
-
-// ------------------------------------------------------------------------------------------------
-// Sets the currently selected dungeonCell in the viewPort to the given position.
-void SetSelectedCell(Point *position)
-{
-    position->x = ClampValue(position->x, 0, DUNGEON_WIDTH);
-    position->y = ClampValue(position->y, 0, DUNGEON_HEIGHT);
-
-    selectedCell = *position;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -203,11 +184,12 @@ static void DrawDungeon(cairo_t *context)
                 cairo_paint(context);
             }
 
-            // If viewPortMode is MODE_SELECTOR and the position is also the selected cell, draw
-            // the cursor over everything else.
-            if (GetViewPortMode() == MODE_SELECTOR && selectedCell->x == cell.x && selectedCell->y == cell.y)
+            // Draw the cell selector icon if it is not on the player's position.
+            Point *playerPos = GetActorPosition(GetActor(PLAYER_ACTOR_INDEX));
+            if (selectedCell->x == cell.x && selectedCell->y == cell.y
+                && !(selectedCell->x == playerPos->x && selectedCell->y == playerPos->y))
             {
-                gdk_cairo_set_source_pixbuf(context, dungeonTiles[TILE_CELL_SELECTED], pixel.x, pixel.y);
+                gdk_cairo_set_source_pixbuf(context, GetTileForCellSelector(), pixel.x, pixel.y);
                 cairo_paint(context);
             }
         }
@@ -286,22 +268,38 @@ static gboolean on_viewPort_update(GtkWidget *widget, gpointer userData)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Process input for the viewPort when it is in MODE_CHARACTER. The viewPort will be centered on the
-// player character and input will only affect the player.
-static void DoViewPortInputCharacter(Point *inputPos)
+// Process input for the viewPort. The viewPort will be centered on the player character.
+static void DoViewPortInput(Point *inputPos)
 {
-    Actor *player = GetActor(PLAYER_ACTOR_INDEX);
     GestureType gesture = GetGestureType();
+    gboolean zoomIsOn = GetViewPortZoom();
+    gint tileSize = GetTileSizeForZoom(zoomIsOn);
+    Actor *player = GetActor(PLAYER_ACTOR_INDEX);
 
     if (gesture == GESTURE_SINGLE_TAP)
     {
-        Point screenSection = {VIEWPORT_WIDTH / 3, VIEWPORT_HEIGHT / 3};
+        Point playerPosition = *GetActorPosition(player);
+        Point viewPosition = *GetViewPosition();
+        Point tappedTile = {inputPos->x / tileSize, inputPos->y / tileSize};
+        Point selectedCell = {0};
 
-        // Toggle zoom if center of viewPort is tapped.
-        if (IsWithinRectangle(inputPos, &screenSection, VIEWPORT_WIDTH / 3, VIEWPORT_HEIGHT / 3))
+        // When the viewPort's length in tiles is even, the tiles are drawn offset by half a
+        // tile to keep the player centered on-screen. This must be taken into account when
+        // determining which tile was tapped.
+        if (IsValueEven(VIEWPORT_WIDTH / tileSize))
+            tappedTile.x = (inputPos->x + tileSize / 2) / tileSize;
+        if (IsValueEven(VIEWPORT_HEIGHT / tileSize))
+            tappedTile.y = (inputPos->y + tileSize / 2) / tileSize;
+
+        // Get the dungeonCell of the clicked tile.
+        selectedCell.x = viewPosition.x + tappedTile.x;
+        selectedCell.y = viewPosition.y + tappedTile.y;
+
+        // If the player is tapped and zoom is on, turn zoom off.
+        // If the screen is tapped and zoom is off, turn zoom on.
+        if ((selectedCell.x == playerPosition.x && selectedCell.y == playerPosition.y && zoomIsOn)
+            || !zoomIsOn)
         {
-            gboolean zoomIsOn = GetViewPortZoom();
-
             zoomIsOn = !zoomIsOn;
             SetViewPortZoom(zoomIsOn);
             ScaleTileForZoom(zoomIsOn);
@@ -313,21 +311,26 @@ static void DoViewPortInputCharacter(Point *inputPos)
         }
         else
         {
-            // Move player if the top, right, bottom, or left sides of viewPort are tapped.
-            for (guint i = 0; i < DIR_CARDINAL_COUNT; i++)
-            {
-                screenSection.x = VIEWPORT_WIDTH / 3 + hMovement[i] * VIEWPORT_WIDTH / 3;
-                screenSection.y = VIEWPORT_HEIGHT / 3 + vMovement[i] * VIEWPORT_HEIGHT / 3;
+            Point currentTarget = *GetSelectedCell();
 
-                if (IsWithinRectangle(inputPos, &screenSection, VIEWPORT_WIDTH / 3, VIEWPORT_HEIGHT / 3))
-                {
-                    SetQueuedPlayerAction(CURRENT_ACTION, (Action)(i + 1));
-                    ProcessTurn();
-                    CenterViewPortOn(&player->position);
-                }
+            if (selectedCell.x == currentTarget.x && selectedCell.y == currentTarget.y
+                && IsTerrainTraversable(&selectedCell))
+            {
+                SetSelectedCellStatus(STATUS_LOCKED);
+                g_timeout_add(500, (GSourceFunc)ProcessTurn, NULL);
             }
+            else
+            {
+                if (GetSelectedCellStatus() == STATUS_UNLOCKED)
+                    SetSelectedCell(&selectedCell);
+
+                SetSelectedCellStatus(STATUS_UNLOCKED);
+            }
+
+            gtk_widget_queue_draw(GTK_WIDGET(viewPort));
         }
     }
+    /*
     else if (gesture == GESTURE_SWIPE)
     {
         // TODO: global variable setting for not using the opposite direction of the swipe.
@@ -340,79 +343,7 @@ static void DoViewPortInputCharacter(Point *inputPos)
             ProcessTurn();
             CenterViewPortOn(&player->position);
         }
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Process input for the viewPort when it is in MODE_SELECTOR. The viewPort will be centered on the
-// selectedCell and all movement will update it instead of the player.
-static void DoViewPortInputSelector(Point *inputPos)
-{
-    GestureType gesture = GetGestureType();
-    gboolean zoomIsOn = GetViewPortZoom();
-    gint tileSize = GetTileSizeForZoom(zoomIsOn);
-    Point *viewPosition = GetViewPosition();
-    Point clickedTile = {0};
-    Point newSelectedCell = {0};
-
-    // When the viewPort's length has an even number of tiles, the tiles are drawn offset by half
-    // a tile to keep the player centered on-screen.
-    if (gesture == GESTURE_SINGLE_TAP)
-    {
-        if (IsValueEven(VIEWPORT_WIDTH / tileSize))
-            clickedTile.x = (inputPos->x + tileSize / 2) / tileSize;
-        else
-            clickedTile.x = inputPos->x / tileSize;
-        if (IsValueEven(VIEWPORT_HEIGHT / tileSize))
-            clickedTile.y = (inputPos->y + tileSize / 2) / tileSize;
-        else
-            clickedTile.y = inputPos->y / tileSize;
-
-        // Get the dungeon cell of the clicked tile.
-        newSelectedCell.x = viewPosition->x + clickedTile.x;
-        newSelectedCell.y = viewPosition->y + clickedTile.y;
-
-        SetSelectedCell(&newSelectedCell);
-        CenterViewPortOn(&newSelectedCell);
-
-    }
-    else if (gesture == GESTURE_SWIPE)
-    {
-        Direction swipeDirection = GetSwipeDirection();
-
-        if (IsCardinalDirection(swipeDirection))
-        {
-            // Move in the opposite direction, as the player's position on screen is fixed;
-            // it is the map underneath them that is moving.
-            // TODO: global variable setting for not using the opposite direction of the swipe.
-            Point *oldSelectedCell = GetSelectedCell();
-
-            newSelectedCell.x = oldSelectedCell->x + hMovement[GetOppositeDirection(swipeDirection)];
-            newSelectedCell.y = oldSelectedCell->y + vMovement[GetOppositeDirection(swipeDirection)];
-
-            SetSelectedCell(&newSelectedCell);
-            CenterViewPortOn(&newSelectedCell);
-        }
-        else if (swipeDirection == DIR_NORTH_WEST)
-        {
-            Actor *player = GetActor(PLAYER_ACTOR_INDEX);
-
-            SetViewPortMode(MODE_CHARACTER);
-            CenterViewPortOn(&player->position);
-        }
-        else if (swipeDirection == DIR_SOUTH_WEST)
-        {
-            gboolean zoomIsOn = GetViewPortZoom();
-
-            zoomIsOn = !zoomIsOn;
-            SetViewPortZoom(zoomIsOn);
-            ScaleTileForZoom(zoomIsOn);
-            CenterViewPortOn(GetSelectedCell());
-
-            gtk_widget_queue_draw(GTK_WIDGET(viewPort));
-            gtk_widget_queue_draw(GTK_WIDGET(menuBox));
-        }
-    }
+    }*/
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -438,10 +369,7 @@ static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *eve
     SetGestureEndPos(&inputPos);
     SetGestureEndTime();
 
-    if (GetViewPortMode() == MODE_CHARACTER)
-        DoViewPortInputCharacter(&inputPos);
-    else
-        DoViewPortInputSelector(&inputPos);
+    DoViewPortInput(&inputPos);
 
     return FALSE;
 }

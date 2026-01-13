@@ -23,6 +23,6 @@
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-void ProcessTurn(void);
+gboolean ProcessTurn(gpointer data);
 
 #endif // DUNGEON_MASTER_H

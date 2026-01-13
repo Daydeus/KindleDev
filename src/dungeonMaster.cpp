@@ -5,6 +5,7 @@
 #include "action.h"
 #include "actor.h"
 #include "dungeonMaster.h"
+#include "pathfinding.h"
 #include "viewPort.h"
 
 // ------------------------------------------------------------------------------------------------
@@ -29,7 +30,8 @@
 
 // ------------------------------------------------------------------------------------------------
 // Loop through all actors and have them perform an action for their turn.
-void ProcessTurn(void)
+// If return value is true, ProcessTurn will be called again after a delay.
+gboolean ProcessTurn(gpointer data)
 {
     SetInputBlockStatus(INPUT_IS_BLOCKED);
 
@@ -39,31 +41,57 @@ void ProcessTurn(void)
         Action action = ACTION_NULL;
         gboolean actionCompleted = FALSE;
 
-        if (i == PLAYER_ACTOR_INDEX)
-            action = GetQueuedPlayerAction();
-        else
-            action = GetActionForAI();
-
-        actionCompleted = DoAction(actor, action);
-
+        // Get action the actor will perform.
         if (i == PLAYER_ACTOR_INDEX)
         {
+            if (GetSelectedCellStatus() == STATUS_LOCKED)
+                action = GetPlayerNavigation();
+        }
+        else
+        {
+            action = GetActionForAI();
+        }
+
+        // Attempt to complete action and store result.
+        actionCompleted = DoAction(actor, action);
+
+        // Player is always first to act.
+        if (i == PLAYER_ACTOR_INDEX)
+        {
+            // If the player's action failed, do not process the turn.
             if (!actionCompleted)
             {
                 SetInputBlockStatus(INPUT_IS_NOT_BLOCKED);
-                return;
+                return FALSE;
             }
             else
+            {
                 CenterViewPortOn(&actor->position);
+            }
         }
 
-        // Redraw viewPort mid-turn if actor is on-screen.
+        // If actor is on-screen, pause processing to redraw the viewPort mid-turn.
         if (IsPositionOnScreen(&actor->position))
         {
             gtk_widget_queue_draw(GTK_WIDGET(viewPort));
             WaitForScreenRedraw();
         }
+
+        // Rebuild pathMap with the player as origin if update is needed (player changed position, etc).
+        if (GetPathMapUpdateStatus() == UPDATE_NEEDED)
+        {
+            SetPathMapOrigin(GetActorPosition(GetActor(PLAYER_ACTOR_INDEX)));
+            BuildPathMap();
+            SetPathMapUpdateStatus(UPDATE_NOT_NEEDED);
+        }
     }
 
     SetInputBlockStatus(INPUT_IS_NOT_BLOCKED);
+
+    // Automatically call ProcessTurn again if player's next action is pre-determined (such as due to
+    // auto-player navigation).
+    if (GetSelectedCellStatus() == STATUS_LOCKED)
+        return TRUE;
+    else
+        return FALSE;
 }
