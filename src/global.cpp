@@ -97,6 +97,16 @@ const char* GetDirectionSymbol(Direction direction)
 }
 
 //-------------------------------------------------------------------------------------------------
+// Returns TRUE if the two given points have the same x and y values.
+gboolean IsSamePoint(Point *point1, Point *point2)
+{
+    if (point1->x == point2->x && point1->y == point2->y)
+        return TRUE;
+    else
+        return FALSE;
+}
+
+//-------------------------------------------------------------------------------------------------
 // Returns TRUE if the gven value is even and FALSE if it is odd.
 gboolean IsValueEven(gint value)
 {
