@@ -106,7 +106,7 @@ gboolean IsTerrainTraversable(Point *position)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns whether the given cell is occupied by an actor.
+// Returns TRUE if the given cell is occupied by an actor (or if the position is outside the dungeon).
 gboolean IsCellOccupiedByActor(Point *position)
 {
     if (IsOutsideDungeon(position))

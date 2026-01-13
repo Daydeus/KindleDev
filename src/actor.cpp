@@ -51,7 +51,7 @@ void PlaceAllActors(void)
         Actor *actor = GetActor(index);
         Point position = {0, 0};
 
-        while (GetCellTerrain(&position) != TERRAIN_FLOOR)
+        while (GetCellTerrain(&position) != TERRAIN_FLOOR || IsCellOccupiedByActor(&position))
         {
             position.x = rand() % DUNGEON_WIDTH;
             position.y = rand() % DUNGEON_HEIGHT;
