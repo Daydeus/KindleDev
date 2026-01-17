@@ -46,5 +46,6 @@ void SetInputBlockStatus(gboolean isBlocked);
 Action GetActionForAI(void);
 gboolean DoAction(Actor *actor, Action action);
 Action GetPlayerNavigation(void);
+Action GetWalkFromDirection(Direction direction);
 
 #endif // ACTION_H

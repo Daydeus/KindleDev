@@ -47,7 +47,9 @@ void SetInputBlockStatus(gboolean isBlocked)
 // Gets the non-player actor's action.
 Action GetActionForAI(void)
 {
-    return (Action)(rand() % DIR_CARDINAL_COUNT + 1);
+    gint direction = rand() % DIR_CARDINAL_COUNT + 1;
+
+    return GetWalkFromDirection((Direction)direction);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -149,5 +151,35 @@ Action GetPlayerNavigation(void)
         pathStep.y += vMovement[direction];
     }
 
-    return (Action)(GetOppositeDirection((Direction)direction) + 1);
+    // Reverse the direction to move from the path origin towards the selectedCell.
+    direction = GetOppositeDirection((Direction)direction);
+
+    return GetWalkFromDirection((Direction)direction);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Gets the Walk action associated with a given direction.
+Action GetWalkFromDirection(Direction direction)
+{
+    switch (direction)
+    {
+    case DIR_NORTH:
+        return ACTION_WALK_NORTH;
+    case DIR_EAST:
+        return ACTION_WALK_EAST;
+    case DIR_SOUTH:
+        return ACTION_WALK_SOUTH;
+    case DIR_WEST:
+        return ACTION_WALK_WEST;
+    case DIR_NORTH_EAST:
+        return ACTION_WALK_NORTH_EAST;
+    case DIR_SOUTH_EAST:
+        return ACTION_WALK_SOUTH_EAST;
+    case DIR_SOUTH_WEST:
+        return ACTION_WALK_SOUTH_WEST;
+    case DIR_NORTH_WEST:
+        return ACTION_WALK_NORTH_WEST;
+    default:
+        return ACTION_NULL;
+    }
 }
