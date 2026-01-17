@@ -276,6 +276,7 @@ GdkPixbuf* GetTileForTerrain(Point *position)
         tile = TILE_STAIRS;
         break;
     case TERRAIN_WALL:
+    case TERRAIN_NULL:
         tile = GetWallTile(position);
         break;
     default:
