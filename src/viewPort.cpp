@@ -295,9 +295,11 @@ static void DoViewPortInput(Point *inputPos)
         {
             Point *selectedCell = GetSelectedCell();
 
+            // If selectedCell is tapped again, auto-navigate player to the dungeoncell.
             if (IsSamePoint(&tappedCell, selectedCell) && IsTerrainTraversable(&tappedCell))
             {
                 SetSelectedCellStatus(STATUS_LOCKED);
+                SetActionForPlayer(ACTION_WALK_AUTO);
                 g_timeout_add(500, (GSourceFunc)ProcessTurn, NULL);
             }
             else
@@ -307,10 +309,29 @@ static void DoViewPortInput(Point *inputPos)
                     SetSelectedCell(&tappedCell);
                 else
                     SetSelectedCellStatus(STATUS_UNLOCKED);
+
+                SetActionForPlayer(ACTION_NULL);
             }
 
             gtk_widget_queue_draw(GTK_WIDGET(viewPort));
         }
+    }
+    else if (gesture == GESTURE_SWIPE)
+    {
+        if (GetSelectedCellStatus() == STATUS_UNLOCKED)
+        {
+            Direction swipeDirection = GetOppositeDirection(GetSwipeDirection());
+
+            SetActionForPlayer(GetWalkFromDirection(swipeDirection));
+            ProcessTurn(NULL);
+        }
+        else
+        {
+            SetSelectedCellStatus(STATUS_UNLOCKED);
+            SetActionForPlayer(ACTION_NULL);
+        }
+
+        gtk_widget_queue_draw(GTK_WIDGET(viewPort));
     }
 }
 

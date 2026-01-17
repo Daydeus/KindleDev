@@ -28,6 +28,7 @@ enum Action
     ACTION_WALK_SOUTH_EAST,
     ACTION_WALK_SOUTH_WEST,
     ACTION_WALK_NORTH_WEST,
+    ACTION_WALK_AUTO,
     ACTION_COUNT
 };
 
@@ -35,17 +36,19 @@ enum Action
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
+extern Action playerAction;
 extern gboolean inputIsBlocked;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
+Action GetActionForPlayer(void);
+void SetActionForPlayer(Action action);
 gboolean GetInputBlockStatus(void);
 void SetInputBlockStatus(gboolean isBlocked);
 Action GetActionForAI(void);
 gboolean DoAction(Actor *actor, Action action);
-Action GetPlayerNavigation(void);
 Action GetWalkFromDirection(Direction direction);
 
 #endif // ACTION_H

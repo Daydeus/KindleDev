@@ -43,14 +43,9 @@ gboolean ProcessTurn(gpointer data)
 
         // Get action the actor will perform.
         if (i == PLAYER_ACTOR_INDEX)
-        {
-            if (GetSelectedCellStatus() == STATUS_LOCKED)
-                action = GetPlayerNavigation();
-        }
+            action = GetActionForPlayer();
         else
-        {
             action = GetActionForAI();
-        }
 
         // Attempt to complete action and store result.
         actionCompleted = DoAction(actor, action);
@@ -62,6 +57,7 @@ gboolean ProcessTurn(gpointer data)
             if (!actionCompleted)
             {
                 SetInputBlockStatus(INPUT_IS_NOT_BLOCKED);
+                SetActionForPlayer(ACTION_NULL);
                 return FALSE;
             }
             else
@@ -88,10 +84,13 @@ gboolean ProcessTurn(gpointer data)
 
     SetInputBlockStatus(INPUT_IS_NOT_BLOCKED);
 
-    // Automatically call ProcessTurn again if player's next action is pre-determined (such as due to
-    // auto-player navigation).
-    if (GetSelectedCellStatus() == STATUS_LOCKED)
+    // If player is auto-navigating and has not arrived yet, call ProcessTurn again.
+    if (GetActionForPlayer() == ACTION_WALK_AUTO
+        && !IsSamePoint(GetActorPosition(GetActor(PLAYER_ACTOR_INDEX)), GetSelectedCell()))
+    {
         return TRUE;
-    else
-        return FALSE;
+    }
+
+    SetActionForPlayer(ACTION_NULL);
+    return FALSE;
 }

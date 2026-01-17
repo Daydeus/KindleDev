@@ -21,6 +21,7 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
+Action playerAction =  ACTION_NULL;
 gboolean inputIsBlocked = FALSE;
 
 // ------------------------------------------------------------------------------------------------
@@ -28,6 +29,21 @@ gboolean inputIsBlocked = FALSE;
 // ------------------------------------------------------------------------------------------------
 
 static gboolean ActionWalk(Actor *actor, Direction direction);
+static gboolean ActionWalkAuto(void);
+
+// ------------------------------------------------------------------------------------------------
+// Returns the next action to be performed by the player when ProcessTurn is called.
+Action GetActionForPlayer(void)
+{
+    return playerAction;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets the next action to be performed by the player when ProcessTurn is called.
+void SetActionForPlayer(Action action)
+{
+    playerAction = action;
+}
 
 // ------------------------------------------------------------------------------------------------
 // Gets whether the player input is currently blocked.
@@ -85,6 +101,9 @@ gboolean DoAction(Actor *actor, Action action)
     case ACTION_WALK_NORTH_WEST:
         actionCompleted = ActionWalk(actor, DIR_NORTH_WEST);
         break;
+    case ACTION_WALK_AUTO:
+        actionCompleted = ActionWalkAuto();
+        break;
     default:
         actionCompleted = FALSE;
     }
@@ -129,8 +148,9 @@ static gboolean ActionWalk(Actor *actor, Direction direction)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Gets the action for the player to navigate to the selected cell.
-Action GetPlayerNavigation(void)
+// Attempts to ACTION_WALK the player in the direction of the next cell on the path to the
+// selectedCell. Returns FALSE if the action fails.
+gboolean ActionWalkAuto(void)
 {
     Point *selectedCell = GetSelectedCell();
     Point pathStep = {selectedCell->x, selectedCell->y};
@@ -154,7 +174,7 @@ Action GetPlayerNavigation(void)
     // Reverse the direction to move from the path origin towards the selectedCell.
     direction = GetOppositeDirection((Direction)direction);
 
-    return GetWalkFromDirection((Direction)direction);
+    return ActionWalk(GetActor(PLAYER_ACTOR_INDEX), (Direction)direction);
 }
 
 // ------------------------------------------------------------------------------------------------
