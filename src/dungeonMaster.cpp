@@ -38,7 +38,7 @@ gboolean ProcessTurn(gpointer data)
     for (gint i = PLAYER_ACTOR_INDEX; i < MAX_ACTOR_COUNT; i++)
     {
         Actor *actor = GetActor(i);
-        Action action = ACTION_NULL;
+        Action action = ACTION_NONE;
         gboolean actionCompleted = FALSE;
 
         // Get action the actor will perform.
@@ -57,7 +57,7 @@ gboolean ProcessTurn(gpointer data)
             if (!actionCompleted)
             {
                 SetInputBlockStatus(INPUT_IS_NOT_BLOCKED);
-                SetActionForPlayer(ACTION_NULL);
+                SetActionForPlayer(ACTION_NONE);
                 return FALSE;
             }
             else
@@ -91,6 +91,6 @@ gboolean ProcessTurn(gpointer data)
         return TRUE;
     }
 
-    SetActionForPlayer(ACTION_NULL);
+    SetActionForPlayer(ACTION_NONE);
     return FALSE;
 }

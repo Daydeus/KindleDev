@@ -310,7 +310,7 @@ static void DoViewPortInput(Point *inputPos)
                 else
                     SetSelectedCellStatus(STATUS_UNLOCKED);
 
-                SetActionForPlayer(ACTION_NULL);
+                SetActionForPlayer(ACTION_NONE);
             }
 
             gtk_widget_queue_draw(GTK_WIDGET(viewPort));
@@ -328,7 +328,7 @@ static void DoViewPortInput(Point *inputPos)
         else
         {
             SetSelectedCellStatus(STATUS_UNLOCKED);
-            SetActionForPlayer(ACTION_NULL);
+            SetActionForPlayer(ACTION_NONE);
         }
 
         gtk_widget_queue_draw(GTK_WIDGET(viewPort));

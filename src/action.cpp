@@ -21,7 +21,7 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-Action playerAction =  ACTION_NULL;
+Action playerAction =  ACTION_NONE;
 gboolean inputIsBlocked = FALSE;
 
 // ------------------------------------------------------------------------------------------------
@@ -200,6 +200,6 @@ Action GetWalkFromDirection(Direction direction)
     case DIR_NORTH_WEST:
         return ACTION_WALK_NORTH_WEST;
     default:
-        return ACTION_NULL;
+        return ACTION_NONE;
     }
 }

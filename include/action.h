@@ -19,7 +19,7 @@
 
 enum Action
 {
-    ACTION_NULL,
+    ACTION_NONE,
     ACTION_WALK_NORTH,
     ACTION_WALK_EAST,
     ACTION_WALK_SOUTH,
