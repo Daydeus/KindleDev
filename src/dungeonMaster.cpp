@@ -45,7 +45,7 @@ gboolean ProcessTurn(gpointer data)
         if (i == PLAYER_ACTOR_INDEX)
             action = GetActionForPlayer();
         else
-            action = GetActionForAI();
+            action = GetActionForAI(actor);
 
         // Attempt to complete action and store result.
         actionCompleted = DoAction(actor, action);

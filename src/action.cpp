@@ -11,6 +11,7 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
+#define FLEE_DISTANCE_MIN 3
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -61,11 +62,57 @@ void SetInputBlockStatus(gboolean isBlocked)
 
 // ------------------------------------------------------------------------------------------------
 // Gets the non-player actor's action.
-Action GetActionForAI(void)
+Action GetActionForAI(Actor *actor)
 {
-    gint direction = rand() % DIR_CARDINAL_COUNT + 1;
+    Point *actorPos = &actor->position;
+    guint currentDistanceFromPlayer = GetPathMapDist(actorPos);
 
-    return GetWalkFromDirection((Direction)direction);
+    // Flee from player if distance is below the minimum desired.
+    if (currentDistanceFromPlayer < FLEE_DISTANCE_MIN)
+    {
+        Direction directionToMove = DIR_NONE;
+        guint maxDistanceFromPlayer = 0;
+
+        for (guint i = DIR_NORTH; i < DIR_ALL_COUNT; i++)
+        {
+            Point neighborCell = *actorPos;
+            guint neighborDistance = 0;
+
+            neighborCell.x += hMovement[i];
+            neighborCell.y += vMovement[i];
+
+            neighborDistance = GetPathMapDist(&neighborCell);
+
+            if (neighborDistance > maxDistanceFromPlayer && IsTerrainTraversable(&neighborCell))
+            {
+                maxDistanceFromPlayer = neighborDistance;
+                directionToMove = (Direction)i;
+            }
+        }
+
+        return GetWalkFromDirection(directionToMove);
+    }
+    else
+    {
+        guint attemptCount = 0;
+
+        // Pick a a random direction to move in. Attempt up to ten times before skipping turn.
+        while (attemptCount < 10)
+        {
+            Point neighborCell = *actorPos;
+            guint directionToMove = rand() % DIR_ALL_COUNT;
+
+            neighborCell.x += hMovement[directionToMove];
+            neighborCell.y += vMovement[directionToMove];
+
+            if (GetPathMapDist(&neighborCell) > FLEE_DISTANCE_MIN && IsTerrainTraversable(&neighborCell))
+                return GetWalkFromDirection((Direction)directionToMove);
+
+            attemptCount++;
+        }
+
+        return ACTION_NONE;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
