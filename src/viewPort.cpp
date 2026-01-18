@@ -10,6 +10,7 @@
 #include "dungeonCell.h"
 #include "dungeonMaster.h"
 #include "menuBox.h"
+#include "pathfinding.h"
 #include "tile.h"
 #include "viewPort.h"
 
@@ -295,8 +296,9 @@ static void DoViewPortInput(Point *inputPos)
         {
             Point *selectedCell = GetSelectedCell();
 
-            // If selectedCell is tapped again, auto-navigate player to the dungeoncell.
-            if (IsSamePoint(&tappedCell, selectedCell) && IsTerrainTraversable(&tappedCell))
+            // If selectedCell is tapped again, auto-navigate player to the dungeoncell if possible.
+            if (IsSamePoint(&tappedCell, selectedCell) && IsTerrainTraversable(&tappedCell)
+                && DoesPathToCellExist(selectedCell))
             {
                 SetSelectedCellStatus(STATUS_LOCKED);
                 SetActionForPlayer(ACTION_WALK_AUTO);

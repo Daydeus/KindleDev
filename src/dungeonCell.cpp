@@ -126,6 +126,51 @@ gboolean IsCellOccupiedByActor(Point *position)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Returns TRUE if the given diagonal movement direction to the given cell would be blocked due to
+// non-traversable neighboring cells.
+gboolean IsCellBlockedDiagonally(Point *position, Direction direction)
+{
+    if (IsOutsideDungeon(position))
+    {
+        return TRUE;
+    }
+    else
+    {
+        Direction neighborDir1, neighborDir2 = DIR_NONE;
+
+        switch (direction)
+        {
+        case DIR_NORTH_EAST:
+            neighborDir1 = DIR_SOUTH;
+            neighborDir2 = DIR_WEST;
+            break;
+        case DIR_SOUTH_EAST:
+            neighborDir1 = DIR_NORTH;
+            neighborDir2 = DIR_WEST;
+            break;
+        case DIR_SOUTH_WEST:
+            neighborDir1 = DIR_NORTH;
+            neighborDir2 = DIR_EAST;
+            break;
+        case DIR_NORTH_WEST:
+            neighborDir1 = DIR_EAST;
+            neighborDir2 = DIR_SOUTH;
+            break;
+        default:
+            return FALSE;
+        }
+
+        Point neighbor1 = {position->x + hMovement[neighborDir1], position->y + vMovement[neighborDir1]};
+        Point neighbor2 = {position->x + hMovement[neighborDir2], position->y + vMovement[neighborDir2]};
+
+        if (IsTerrainTraversable(&neighbor1) || IsTerrainTraversable(&neighbor2))
+            return FALSE;
+    }
+
+    return TRUE;
+}
+
+// ------------------------------------------------------------------------------------------------
 // Gets the dungeonCell position of the currently selected cell in the viewPort.
 Point* GetSelectedCell(void)
 {

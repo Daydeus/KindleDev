@@ -59,6 +59,7 @@ Actor* GetCellsActor(Point *position);
 void SetCellsActor(Point *position, Actor *actor);
 gboolean IsTerrainTraversable(Point *position);
 gboolean IsCellOccupiedByActor(Point *position);
+gboolean IsCellBlockedDiagonally(Point *position, Direction direction);
 Point* GetSelectedCell(void);
 void SetSelectedCell(Point *position);
 CellSelectorStatus GetSelectedCellStatus(void);

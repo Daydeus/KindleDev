@@ -44,6 +44,7 @@ void SetPathMapOrigin(Point *position);
 guint GetPathMapDir(Point *position);
 guint GetPathMapDist(Point *position);
 gboolean GetPathMapUpdateStatus(void);
+gboolean DoesPathToCellExist(Point *position);
 void SetPathMapUpdateStatus(PathMapStatus status);
 void BuildPathMap(void);
 

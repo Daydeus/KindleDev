@@ -204,8 +204,12 @@ gboolean ActionWalkAuto(void)
     gint direction = GetPathMapDir(selectedCell);
     gint distance = GetPathMapDist(selectedCell);
 
-    // If we are one move from the selected cell, any walk action will put the player at the
-    // destination. So, unlock the selected cell so we don't attempt to navigate again.
+    // The selectedCell cannot be navigated to, so abort action.
+    if (!DoesPathToCellExist(selectedCell))
+        return ACTION_NONE;
+
+    // Completion of the current action will place the player at the selectedCell, so unlock the
+    // cell selector icon.
     if (distance == 1)
         SetSelectedCellStatus(STATUS_UNLOCKED);
 

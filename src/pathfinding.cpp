@@ -102,6 +102,16 @@ void SetPathMapUpdateStatus(PathMapStatus status)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Returns TRUE if there is a path from the pathMapOrigin to the given position.
+gboolean DoesPathToCellExist(Point *position)
+{
+    if (GetPathMapDist(position) == MAX_DISTANCE || IsOutsideDungeon(position))
+        return FALSE;
+    else
+        return TRUE;
+}
+
+// ------------------------------------------------------------------------------------------------
 // Builds a map that stores the direction and distance from all cells to a single origin cell.
 void BuildPathMap(void)
 {
@@ -138,6 +148,7 @@ void BuildPathMap(void)
             Point neighborCell = {currentCell.x + hMovement[dir], currentCell.y + vMovement[dir]};
 
             if (!IsOutsideDungeon(&neighborCell) && IsTerrainTraversable(&neighborCell)
+                && !IsCellBlockedDiagonally(&neighborCell, (Direction)dir)
                 && pathMap[neighborCell.y][neighborCell.x].distance == MAX_DISTANCE)
             {
                 Direction travelDir = GetOppositeDirection((Direction)dir);
