@@ -139,7 +139,6 @@ static void DrawDungeon(cairo_t *context)
     gboolean zoomIsOn = GetViewPortZoom();
     gint tileSize = GetTileSizeForZoom(zoomIsOn);
     Point *viewPosition = GetViewPosition();
-    Point *selectedCell = GetSelectedCell();
 
     for (gint y = 0; y <= VIEWPORT_HEIGHT / tileSize; y++)
     {
@@ -170,9 +169,9 @@ static void DrawDungeon(cairo_t *context)
                 cairo_paint(context);
             }
 
-            // Draw the cell selector icon if it is not on the player's position.
-            if (IsSamePoint(selectedCell, &cell)
-                && !IsSamePoint(selectedCell, GetActorPosition(GetActor(PLAYER_ACTOR_INDEX))))
+            // Draw the cell selector icon if the current cell is selected and selectedCell
+            // status is not off.
+            if (GetSelectedCellStatus() != STATUS_OFF && IsSamePoint(&cell, GetSelectedCell()))
             {
                 gdk_cairo_set_source_pixbuf(context, GetTileForCellSelector(), pixel.x, pixel.y);
                 cairo_paint(context);
@@ -306,11 +305,8 @@ static void DoViewPortInput(Point *inputPos)
             }
             else
             {
-                // Only change selectedCell if status is already unlocked.
-                if (GetSelectedCellStatus() == STATUS_UNLOCKED)
-                    SetSelectedCell(&tappedCell);
-                else
-                    SetSelectedCellStatus(STATUS_UNLOCKED);
+                SetSelectedCellStatus(STATUS_UNLOCKED);
+                SetSelectedCell(&tappedCell);
 
                 SetActionForPlayer(ACTION_NONE);
             }
@@ -320,7 +316,7 @@ static void DoViewPortInput(Point *inputPos)
     }
     else if (gesture == GESTURE_SWIPE)
     {
-        if (GetSelectedCellStatus() == STATUS_UNLOCKED)
+        if (GetSelectedCellStatus() != STATUS_LOCKED)
         {
             Direction swipeDirection = GetOppositeDirection(GetSwipeDirection());
 

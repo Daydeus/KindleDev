@@ -211,7 +211,7 @@ gboolean ActionWalkAuto(void)
     // Completion of the current action will place the player at the selectedCell, so unlock the
     // cell selector icon.
     if (distance == 1)
-        SetSelectedCellStatus(STATUS_UNLOCKED);
+        SetSelectedCellStatus(STATUS_OFF);
 
     // Get the next step in the path to the selected cell.
     for (gint i = distance; i > 0; i--)

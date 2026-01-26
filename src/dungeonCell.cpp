@@ -21,7 +21,7 @@
 
 DungeonCell cells[DUNGEON_HEIGHT][DUNGEON_WIDTH] = {};
 Point selectedCell = {0};
-CellSelectorStatus selectedCellLocked = STATUS_UNLOCKED;
+CellSelectorStatus selectedCellLocked = STATUS_OFF;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations

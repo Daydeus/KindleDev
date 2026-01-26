@@ -28,6 +28,7 @@ enum Terrain
 
 enum CellSelectorStatus
 {
+    STATUS_OFF,
     STATUS_UNLOCKED,
     STATUS_LOCKED,
     STATUS_COUNT
