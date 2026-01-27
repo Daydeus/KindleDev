@@ -309,17 +309,30 @@ GdkPixbuf* GetTileForCellSelector(void)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the GdkPixbuf from the menuBoxTiles array based on the given setting.
+// Returns the GdkPixbuf from the menuBoxTiles array based on the given UI item.
+GdkPixbuf* GetTileForMenuBoxCharacter(CharacterUI item)
+{
+    switch (item)
+    {
+    case MB_CHARACTER_TERRAIN_FLIP_BTTN:
+        return menuBoxTiles[TILE_REFRESH];
+    default:
+        return dungeonTiles[TILE_NULL];
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns the GdkPixbuf from the menuBoxTiles array based on the given UI item.
 GdkPixbuf* GetTileForMenuBoxSettings(SettingsUI item)
 {
     switch (item)
     {
-    case SETTINGS_ZOOM_SWITCH:
+    case MB_SETTINGS_ZOOM_SWITCH:
         if (GetViewPortZoom() == TRUE)
             return menuBoxTiles[TILE_UI_SWITCH_ON];
         else
             return menuBoxTiles[TILE_UI_SWITCH_OFF];
-    case SETTINGS_REFRESH_BUTTON:
+    case MB_SETTINGS_REFRESH_BUTTON:
         return menuBoxTiles[TILE_REFRESH];
     default:
         return dungeonTiles[TILE_NULL];

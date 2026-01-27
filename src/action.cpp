@@ -31,6 +31,7 @@ gboolean inputIsBlocked = FALSE;
 
 static gboolean ActionWalk(Actor *actor, Direction direction);
 static gboolean ActionWalkAuto(void);
+static gboolean ActionTerrainFlip(Actor *actor, Point *target);
 
 // ------------------------------------------------------------------------------------------------
 // Returns the next action to be performed by the player.
@@ -137,6 +138,9 @@ gboolean DoAction(Actor *actor, Action action)
     case ACTION_WALK_AUTO:
         actionCompleted = ActionWalkAuto();
         break;
+    case ACTION_TERRAIN_FLIP:
+        actionCompleted = ActionTerrainFlip(actor, GetSelectedCell());
+        break;
     default:
         actionCompleted = FALSE;
     }
@@ -239,4 +243,32 @@ Action GetWalkFromDirection(Direction direction)
     default:
         return ACTION_NONE;
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Attempts to change the terrain at the given actor's target position.
+// Returns FALSE if the action fails.
+static gboolean ActionTerrainFlip(Actor *actor, Point *target)
+{
+    Terrain terrain = GetCellTerrain(target);
+
+    if (IsOutsideDungeon(target))
+    {
+        return FALSE;
+    }
+    if (IsCellOccupiedByActor(target))
+    {
+        return FALSE;
+    }
+    // TODO: Add fail condition if the target is not in the actor's Line-Of-Sight.
+
+    if (terrain == TERRAIN_WALL)
+        SetCellTerrain(target, TERRAIN_FLOOR);
+    else if (terrain == TERRAIN_FLOOR)
+        SetCellTerrain(target, TERRAIN_WALL);
+
+    // If terrain was changed, the pathMap must be updated.
+    SetPathMapUpdateStatus(UPDATE_NEEDED);
+
+    return TRUE;
 }

@@ -14,14 +14,21 @@
 // Data Types
 // ------------------------------------------------------------------------------------------------
 
+enum CharacterUI
+{
+    MB_CHARACTER_TERRAIN_FLIP_BTTN,
+    MB_CHARACTER_TERRAIN_FLIP_TEXT,
+    MB_CHARACTER_COUNT
+};
+
 enum SettingsUI
 {
-    SETTINGS_ZOOM_SWITCH,
-    SETTINGS_ZOOM_TEXT,
-    SETTINGS_REFRESH_BUTTON,
-    SETTINGS_REFRESH_TEXT,
-    SETTINGS_EXIT_TEXT,
-    SETTINGS_COUNT
+    MB_SETTINGS_ZOOM_SWITCH,
+    MB_SETTINGS_ZOOM_TEXT,
+    MB_SETTINGS_REFRESH_BUTTON,
+    MB_SETTINGS_REFRESH_TEXT,
+    MB_SETTINGS_EXIT_TEXT,
+    MB_SETTINGS_COUNT
 };
 
 struct MenuLayout
@@ -34,12 +41,15 @@ struct MenuLayout
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern MenuLayout settingsItems[SETTINGS_COUNT];
+extern MenuLayout characterItems[MB_CHARACTER_COUNT];
+extern MenuLayout settingsItems[MB_SETTINGS_COUNT];
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
+MenuLayout* GetCharacterLayoutItem(CharacterUI item);
+const char* GetCharacterLayoutText(CharacterUI item);
 MenuLayout* GetSettingsLayoutItem(SettingsUI item);
 const char* GetSettingsLayoutText(SettingsUI item);
 

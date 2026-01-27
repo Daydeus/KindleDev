@@ -1,11 +1,14 @@
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
 #include "global.h"
-#include "tile.h"
+#include "action.h"
 #include "actor.h"
+#include "dungeonCell.h"
 #include "dungeonGeneration.h"
+#include "dungeonMaster.h"
 #include "menuBox.h"
 #include "menuBoxLayout.h"
+#include "tile.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -30,7 +33,9 @@ MenuState menuState = STATE_SETTINGS;
 
 static void DrawMenuBoxBorders(cairo_t *context);
 static void DoMenuStateClicked(Point* position);
+static void DrawMenuStateCharacter(cairo_t *context);
 static void DrawMenuStateSettings(cairo_t *context);
+static void DoMenuStateCharacterInput(Point *inputPos);
 static void DoMenuStateSettingsInput(Point *inputPos);
 static void DoMenuSettingsZoomClick(Point *inputPos);
 static void DoMenuSettingsRefreshClick(Point *inputPos);
@@ -171,6 +176,40 @@ static void DoMenuStateClicked(Point* position)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Draws the contents of the menuBox when menuState is set to STATE_CHARACTER.
+static void DrawMenuStateCharacter(cairo_t *context)
+{
+    PangoLayout *layout = gtk_widget_create_pango_layout(GTK_WIDGET(menuBox), "");
+
+    // Set layout's attributes.
+    PangoAttrList *attr_list = pango_attr_list_new();
+    PangoAttribute *color = pango_attr_foreground_new(65535, 65535, 65535); // WHITE
+    pango_attr_list_insert(attr_list, color);
+    pango_layout_set_attributes(layout, attr_list);
+
+    // Loop through each piece of the layout and draw/print as necessary.
+    for (guint i = 0; i < MB_CHARACTER_COUNT; i++)
+    {
+        MenuLayout *menuItem = GetCharacterLayoutItem((CharacterUI)i);
+
+        if (menuItem->isText)
+        {
+            pango_layout_set_text(layout, GetCharacterLayoutText((CharacterUI)i), -1);
+            cairo_move_to(context, menuItem->layout.origin.x, menuItem->layout.origin.y);
+            pango_cairo_show_layout(context, layout);
+        }
+        else
+        {
+            gdk_cairo_set_source_pixbuf(context, GetTileForMenuBoxCharacter((CharacterUI)i),
+                menuItem->layout.origin.x, menuItem->layout.origin.y);
+            cairo_paint(context);
+        }
+    }
+
+    g_object_unref(layout);
+}
+
+// ------------------------------------------------------------------------------------------------
 // Draws the contents of the menuBox when menuState is set to STATE_SETTINGS.
 static void DrawMenuStateSettings(cairo_t *context)
 {
@@ -183,20 +222,20 @@ static void DrawMenuStateSettings(cairo_t *context)
     pango_layout_set_attributes(layout, attr_list);
 
     // Loop through each piece of the layout and draw/print as necessary.
-    for (guint i = 0; i < SETTINGS_COUNT; i++)
+    for (guint i = 0; i < MB_SETTINGS_COUNT; i++)
     {
-        MenuLayout *settings = GetSettingsLayoutItem((SettingsUI)i);
+        MenuLayout *menuItem = GetSettingsLayoutItem((SettingsUI)i);
 
-        if (settings->isText)
+        if (menuItem->isText)
         {
             pango_layout_set_text(layout, GetSettingsLayoutText((SettingsUI)i), -1);
-            cairo_move_to(context, settings->layout.origin.x, settings->layout.origin.y);
+            cairo_move_to(context, menuItem->layout.origin.x, menuItem->layout.origin.y);
             pango_cairo_show_layout(context, layout);
         }
         else
         {
             gdk_cairo_set_source_pixbuf(context, GetTileForMenuBoxSettings((SettingsUI)i),
-                settings->layout.origin.x, settings->layout.origin.y);
+                menuItem->layout.origin.x, menuItem->layout.origin.y);
             cairo_paint(context);
         }
     }
@@ -224,6 +263,7 @@ gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userDat
         case STATE_INSPECT:
             break;
         case STATE_CHARACTER:
+            DrawMenuStateCharacter(context);
             break;
         case STATE_INVENTORY:
             break;
@@ -243,11 +283,46 @@ gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userDat
 }
 
 // ------------------------------------------------------------------------------------------------
+// Process input for the menuBox when in menuState STATE_CHARACTER.
+static void DoMenuStateCharacterInput(Point *inputPos)
+{
+    // Loop through every item in the layout for menuState character.
+    for (guint i = 0; i < MB_CHARACTER_COUNT; i++)
+    {
+        MenuLayout *menuItem = GetCharacterLayoutItem((CharacterUI)i);
+
+        // If the inputPos is within the rectangle of the current item being checked.
+        if (IsWithinRectangle(inputPos, &menuItem->layout.origin, menuItem->layout.width,
+            menuItem->layout.height))
+        {
+            switch (i)
+            {
+            case MB_CHARACTER_TERRAIN_FLIP_BTTN:
+                if (GetSelectedCellStatus() == STATUS_UNLOCKED)
+                {
+                    SetActionForPlayer(ACTION_TERRAIN_FLIP);
+                    ProcessTurn(NULL);
+                }
+                else if (GetSelectedCellStatus() == STATUS_LOCKED)
+                {
+                    SetSelectedCellStatus(STATUS_UNLOCKED);
+                    SetActionForPlayer(ACTION_NONE);
+                }
+
+                break;
+            default:
+                break;
+            }
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 // Process input for the menuBox when in menuState STATE_SETTINGS.
 static void DoMenuStateSettingsInput(Point *inputPos)
 {
     // Loop through every item in the layout for menuState settings.
-    for (guint i = 0; i < SETTINGS_COUNT; i++)
+    for (guint i = 0; i < MB_SETTINGS_COUNT; i++)
     {
         MenuLayout *settings = GetSettingsLayoutItem((SettingsUI)i);
 
@@ -257,13 +332,13 @@ static void DoMenuStateSettingsInput(Point *inputPos)
         {
             switch (i)
             {
-            case SETTINGS_ZOOM_SWITCH:
+            case MB_SETTINGS_ZOOM_SWITCH:
                 DoMenuSettingsZoomClick(inputPos);
                 break;
-            case SETTINGS_REFRESH_BUTTON:
+            case MB_SETTINGS_REFRESH_BUTTON:
                 DoMenuSettingsRefreshClick(inputPos);
                 break;
-            case SETTINGS_EXIT_TEXT:
+            case MB_SETTINGS_EXIT_TEXT:
                 gtk_main_quit();
                 break;
             default:
@@ -324,6 +399,7 @@ gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer use
         case STATE_INSPECT:
             break;
         case STATE_CHARACTER:
+            DoMenuStateCharacterInput(&clicked);
             break;
         case STATE_INVENTORY:
             break;

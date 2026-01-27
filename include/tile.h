@@ -166,6 +166,7 @@ void FreeDungeonTiles(void);
 GdkPixbuf* GetTileForActor(Actor *actor);
 GdkPixbuf* GetTileForTerrain(Point *position);
 GdkPixbuf* GetTileForCellSelector(void);
+GdkPixbuf* GetTileForMenuBoxCharacter(CharacterUI item);
 GdkPixbuf* GetTileForMenuBoxSettings(SettingsUI item);
 guint GetTileSizeForZoom(gboolean zoomIsOn);
 void ScaleTileForZoom(gboolean zoomIsOn);

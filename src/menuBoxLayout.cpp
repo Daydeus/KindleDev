@@ -9,6 +9,12 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
+// menuBox characterItem positions.
+#define TERRAIN_FLIP_BTTN_X     TILE_SIZE_MB * 3/2
+#define TERRAIN_FLIP_BTTN_Y     TILE_SIZE_MB / 2
+#define TERRAIN_FLIP_TEXT_X     TERRAIN_FLIP_BTTN_X + (TILE_SIZE_MB * 3/2)
+#define TERRAIN_FLIP_TEXT_Y     TERRAIN_FLIP_BTTN_Y + (TILE_SIZE_MB / 4)
+
 // menuBox settingsItem positions.
 #define ZOOM_SWITCH_X      TILE_SIZE_MB * 3/2
 #define ZOOM_SWITCH_Y      TILE_SIZE_MB / 2
@@ -30,13 +36,19 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-MenuLayout settingsItems[SETTINGS_COUNT] =
+MenuLayout characterItems[MB_CHARACTER_COUNT] =
+{   //  origin.x             origin.y              width         height         isText
+    { {{TERRAIN_FLIP_BTTN_X, TERRAIN_FLIP_BTTN_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // TERRAIN_FLIP_BUTTON
+    { {{TERRAIN_FLIP_TEXT_X, TERRAIN_FLIP_TEXT_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // TERRAIN_FLIP_TEXT
+};
+
+MenuLayout settingsItems[MB_SETTINGS_COUNT] =
 {   //  origin.x         origin.y         width         height         isText
-    { {{ZOOM_SWITCH_X,   ZOOM_SWITCH_Y},  TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // SETTINGS_ZOOM_SWITCH
-    { {{ZOOM_TEXT_X,     ZOOM_TEXT_Y},    TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // SETTINGS_ZOOM_TEXT
-    { {{REFRESH_BTTN_X,  REFRESH_BTTN_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // SETTINGS_REFRESH_BUTTON
-    { {{REFRESH_TEXT_X,  REFRESH_TEXT_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // SETTINGS_REFRESH_TEXT
-    { {{EXIT_TEXT_X,     EXIT_TEXT_Y},    TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // SETTINGS_EXIT_TEXT
+    { {{ZOOM_SWITCH_X,   ZOOM_SWITCH_Y},  TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // ZOOM_SWITCH
+    { {{ZOOM_TEXT_X,     ZOOM_TEXT_Y},    TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // ZOOM_TEXT
+    { {{REFRESH_BTTN_X,  REFRESH_BTTN_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // REFRESH_BUTTON
+    { {{REFRESH_TEXT_X,  REFRESH_TEXT_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // REFRESH_TEXT
+    { {{EXIT_TEXT_X,     EXIT_TEXT_Y},    TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // EXIT_TEXT
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -45,23 +57,43 @@ MenuLayout settingsItems[SETTINGS_COUNT] =
 
 
 // ------------------------------------------------------------------------------------------------
-// Gets the Layout for the given SettingsItem.
+// Gets the Layout for the given characterItem.
+MenuLayout* GetCharacterLayoutItem(CharacterUI item)
+{
+    return &characterItems[item];
+}
+
+// ------------------------------------------------------------------------------------------------
+// Gets the text for the given characterItem.
+const char* GetCharacterLayoutText(CharacterUI item)
+{
+    switch (item)
+    {
+    case MB_CHARACTER_TERRAIN_FLIP_TEXT:
+        return "Terrain Flip";
+    default:
+        return NULL;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Gets the Layout for the given settingsItem.
 MenuLayout* GetSettingsLayoutItem(SettingsUI item)
 {
     return &settingsItems[item];
 }
 
 // ------------------------------------------------------------------------------------------------
-// Gets the text for the given SettingsItem.
+// Gets the text for the given settingsItem.
 const char* GetSettingsLayoutText(SettingsUI item)
 {
     switch (item)
     {
-    case SETTINGS_ZOOM_TEXT:
+    case MB_SETTINGS_ZOOM_TEXT:
         return "Zoom";
-    case SETTINGS_REFRESH_TEXT:
+    case MB_SETTINGS_REFRESH_TEXT:
         return "Regenerate";
-    case SETTINGS_EXIT_TEXT:
+    case MB_SETTINGS_EXIT_TEXT:
         return "Exit";
     default:
         return NULL;
