@@ -280,7 +280,7 @@ static void DoViewPortInput(Point *inputPos)
 
         // If the player is tapped and zoom is on, turn zoom off.
         // If the screen is tapped and zoom is off, turn zoom on.
-        if (IsSamePoint(&tappedCell, GetActorPosition(player)) || !zoomIsOn)
+        if (IsSamePoint(&tappedCell, GetActorPosition(player)))
         {
             zoomIsOn = !zoomIsOn;
             SetViewPortZoom(zoomIsOn);
