@@ -301,7 +301,7 @@ static void DoViewPortInput(Point *inputPos)
             {
                 SetSelectedCellStatus(STATUS_LOCKED);
                 SetActionForPlayer(ACTION_WALK_AUTO);
-                g_timeout_add(500, (GSourceFunc)ProcessTurn, NULL);
+                g_timeout_add(TURN_TIMER_AUTO, (GSourceFunc)ProcessTurn, NULL);
             }
             else
             {
