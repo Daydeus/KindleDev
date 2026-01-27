@@ -33,8 +33,6 @@
 // If return value is true, ProcessTurn will be called again after a delay.
 gboolean ProcessTurn(gpointer data)
 {
-    SetInputBlockStatus(INPUT_IS_BLOCKED);
-
     for (gint i = PLAYER_ACTOR_INDEX; i < MAX_ACTOR_COUNT; i++)
     {
         Actor *actor = GetActor(i);
@@ -56,7 +54,6 @@ gboolean ProcessTurn(gpointer data)
             // If the player's action failed, do not process the turn.
             if (!actionCompleted)
             {
-                SetInputBlockStatus(INPUT_IS_NOT_BLOCKED);
                 SetActionForPlayer(ACTION_NONE);
                 return FALSE;
             }
@@ -81,8 +78,6 @@ gboolean ProcessTurn(gpointer data)
             SetPathMapUpdateStatus(UPDATE_NOT_NEEDED);
         }
     }
-
-    SetInputBlockStatus(INPUT_IS_NOT_BLOCKED);
 
     // If player is auto-navigating and has not arrived yet, call ProcessTurn again.
     if (GetActionForPlayer() == ACTION_WALK_AUTO

@@ -33,31 +33,17 @@ static gboolean ActionWalk(Actor *actor, Direction direction);
 static gboolean ActionWalkAuto(void);
 
 // ------------------------------------------------------------------------------------------------
-// Returns the next action to be performed by the player when ProcessTurn is called.
+// Returns the next action to be performed by the player.
 Action GetActionForPlayer(void)
 {
     return playerAction;
 }
 
 // ------------------------------------------------------------------------------------------------
-// Sets the next action to be performed by the player when ProcessTurn is called.
+// Sets the next action to be performed by the player.
 void SetActionForPlayer(Action action)
 {
     playerAction = action;
-}
-
-// ------------------------------------------------------------------------------------------------
-// Gets whether the player input is currently blocked.
-gboolean GetInputBlockStatus(void)
-{
-    return inputIsBlocked;
-}
-
-// ------------------------------------------------------------------------------------------------
-// Sets whether the player input is currently blocked.
-void SetInputBlockStatus(gboolean isBlocked)
-{
-    inputIsBlocked = isBlocked;
 }
 
 // ------------------------------------------------------------------------------------------------

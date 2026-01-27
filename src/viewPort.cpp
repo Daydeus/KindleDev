@@ -278,8 +278,7 @@ static void DoViewPortInput(Point *inputPos)
         tappedCell.x = viewPosition.x + tappedTile.x;
         tappedCell.y = viewPosition.y + tappedTile.y;
 
-        // If the player is tapped and zoom is on, turn zoom off.
-        // If the screen is tapped and zoom is off, turn zoom on.
+        // If the player's cell is tapped, toggle the zoom level.
         if (IsSamePoint(&tappedCell, GetActorPosition(player)))
         {
             zoomIsOn = !zoomIsOn;
@@ -305,8 +304,11 @@ static void DoViewPortInput(Point *inputPos)
             }
             else
             {
+                // Only change selected cell if it is not locked.
+                if (GetSelectedCellStatus() != STATUS_LOCKED)
+                    SetSelectedCell(&tappedCell);
+
                 SetSelectedCellStatus(STATUS_UNLOCKED);
-                SetSelectedCell(&tappedCell);
 
                 SetActionForPlayer(ACTION_NONE);
             }
@@ -349,9 +351,6 @@ static gboolean on_viewPort_click_press(GtkWidget *widget, GdkEventButton *event
 // Callback function for when the click on the viewPort is released.
 static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *event, gpointer userData)
 {
-    if (GetInputBlockStatus() == INPUT_IS_BLOCKED)
-        return FALSE;
-
     Point inputPos = {(gint)event->x, (gint)event->y};
     SetGestureEndPos(&inputPos);
     SetGestureEndTime();

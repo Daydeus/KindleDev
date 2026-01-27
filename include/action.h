@@ -45,8 +45,6 @@ extern gboolean inputIsBlocked;
 
 Action GetActionForPlayer(void);
 void SetActionForPlayer(Action action);
-gboolean GetInputBlockStatus(void);
-void SetInputBlockStatus(gboolean isBlocked);
 Action GetActionForAI(Actor *actor);
 gboolean DoAction(Actor *actor, Action action);
 Action GetWalkFromDirection(Direction direction);
