@@ -70,7 +70,8 @@ Action GetActionForAI(Actor *actor)
 
             neighborDistance = GetPathMapDist(&neighborCell);
 
-            if (neighborDistance > maxDistanceFromPlayer && IsTerrainTraversable(&neighborCell))
+            if (neighborDistance > maxDistanceFromPlayer && IsTerrainTraversable(&neighborCell)
+                && !IsCellBlockedDiagonally(&neighborCell, (Direction)i))
             {
                 maxDistanceFromPlayer = neighborDistance;
                 directionToMove = (Direction)i;
@@ -92,7 +93,8 @@ Action GetActionForAI(Actor *actor)
             neighborCell.x += hMovement[directionToMove];
             neighborCell.y += vMovement[directionToMove];
 
-            if (GetPathMapDist(&neighborCell) > FLEE_DISTANCE_MIN && IsTerrainTraversable(&neighborCell))
+            if (GetPathMapDist(&neighborCell) > FLEE_DISTANCE_MIN && IsTerrainTraversable(&neighborCell)
+                && !IsCellBlockedDiagonally(&neighborCell, (Direction)directionToMove))
                 return GetWalkFromDirection((Direction)directionToMove);
 
             attemptCount++;
