@@ -306,6 +306,7 @@ static void DoMenuStateCharacterInput(Point *inputPos)
                 else if (GetSelectedCellStatus() == STATUS_LOCKED)
                 {
                     SetSelectedCellStatus(STATUS_UNLOCKED);
+                    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
                     SetActionForPlayer(ACTION_NONE);
                 }
 
