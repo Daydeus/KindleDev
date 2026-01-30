@@ -106,6 +106,39 @@ gboolean IsSamePoint(Point *point1, Point *point2)
         return FALSE;
 }
 
+// ------------------------------------------------------------------------------------------------
+// On a line drawn using Bresenham's algorithm from the given start position to the given end
+// position, returns the next point along the line.
+// Note: Use this function in a loop to perform an action on each point in the line.
+Point* GetNextPointOnLine(Point *startPos, Point *endPos)
+{
+    gint changeX =  ABS(endPos->x - startPos->x);
+    gint changeY = -ABS(endPos->y - startPos->y);
+
+    gint stepX = (startPos->x < endPos->x) ? hMovement[DIR_EAST] : hMovement[DIR_WEST];
+    gint stepY = (startPos->y < endPos->y) ? vMovement[DIR_SOUTH] : vMovement[DIR_NORTH];
+    gint err = changeX + changeY;
+    gint e2; // error value e_xy
+
+    e2 = 2 * err;
+
+    // Move along x-axis
+    if (e2 >= changeY)
+    {
+        err += changeY;
+        startPos->x += stepX;
+    } // e_xy + e_x > 0
+
+    // Move along y-axis
+    if (e2 <= changeX)
+    {
+        err += changeX;
+        startPos->y += stepY;
+    } // e_xy + e_y < 0
+
+    return startPos;
+}
+
 //-------------------------------------------------------------------------------------------------
 // Returns TRUE if the gven value is even and FALSE if it is odd.
 gboolean IsValueEven(gint value)
