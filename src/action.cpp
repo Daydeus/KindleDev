@@ -254,7 +254,8 @@ static gboolean ActionTerrainFlip(Actor *actor, Point *target)
 {
     Terrain terrain = GetCellTerrain(target);
 
-    if (IsOutsideDungeon(target) || IsCellOccupiedByActor(target) || !IsVisibleToPlayer(target))
+    if (IsOutsideDungeon(target) || IsCellOccupiedByActor(target) || !IsVisibleToPlayer(target)
+        || (terrain != TERRAIN_WALL && terrain != TERRAIN_FLOOR))
         return FALSE;
 
     if (terrain == TERRAIN_WALL)
