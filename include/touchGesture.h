@@ -18,7 +18,7 @@ enum GestureType
     GESTURE_NONE,
     GESTURE_SINGLE_TAP,
     //GESTURE_DOUBLE_TAP, To be implemented later.
-    //GESTURE_LONG_PRESS, To be implemented later.
+    GESTURE_HOLD_TAP,
     GESTURE_SWIPE,
     GESTURE_COUNT
 };

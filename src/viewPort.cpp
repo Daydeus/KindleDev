@@ -265,25 +265,24 @@ static void DoViewPortInput(Point *inputPos)
     gboolean zoomIsOn = GetViewPortZoom();
     gint tileSize = GetTileSizeForZoom(zoomIsOn);
     Actor *player = GetActor(PLAYER_ACTOR_INDEX);
+    Point viewPosition = *GetViewPosition();
+    Point tappedTile = {inputPos->x / tileSize, inputPos->y / tileSize};
+    Point tappedCell = {0};
+
+    // When the viewPort's length in tiles is even, the tiles are drawn offset by half a
+    // tile to keep the player centered on-screen. This must be taken into account when
+    // determining which tile was tapped.
+    if (IsValueEven(VIEWPORT_WIDTH / tileSize))
+        tappedTile.x = (inputPos->x + tileSize / 2) / tileSize;
+    if (IsValueEven(VIEWPORT_HEIGHT / tileSize))
+        tappedTile.y = (inputPos->y + tileSize / 2) / tileSize;
+
+    // Get the dungeonCell of the clicked tile.
+    tappedCell.x = viewPosition.x + tappedTile.x;
+    tappedCell.y = viewPosition.y + tappedTile.y;
 
     if (gesture == GESTURE_SINGLE_TAP)
     {
-        Point viewPosition = *GetViewPosition();
-        Point tappedTile = {inputPos->x / tileSize, inputPos->y / tileSize};
-        Point tappedCell = {0};
-
-        // When the viewPort's length in tiles is even, the tiles are drawn offset by half a
-        // tile to keep the player centered on-screen. This must be taken into account when
-        // determining which tile was tapped.
-        if (IsValueEven(VIEWPORT_WIDTH / tileSize))
-            tappedTile.x = (inputPos->x + tileSize / 2) / tileSize;
-        if (IsValueEven(VIEWPORT_HEIGHT / tileSize))
-            tappedTile.y = (inputPos->y + tileSize / 2) / tileSize;
-
-        // Get the dungeonCell of the clicked tile.
-        tappedCell.x = viewPosition.x + tappedTile.x;
-        tappedCell.y = viewPosition.y + tappedTile.y;
-
         // If the player's cell is tapped, toggle the zoom level.
         if (IsSamePoint(&tappedCell, GetActorPosition(player)))
         {
@@ -292,7 +291,6 @@ static void DoViewPortInput(Point *inputPos)
             ScaleTileForZoom(zoomIsOn);
             CenterViewPortOn(&player->position);
 
-            gtk_widget_queue_draw(GTK_WIDGET(viewPort));
             if (GetMenuState() == STATE_SETTINGS)
                 gtk_widget_queue_draw(GTK_WIDGET(menuBox));
         }
@@ -302,7 +300,7 @@ static void DoViewPortInput(Point *inputPos)
 
             // If selectedCell is tapped again, auto-navigate player to the dungeoncell if possible.
             if (IsSamePoint(&tappedCell, selectedCell) && IsTerrainTraversable(&tappedCell)
-                && DoesPathToCellExist(selectedCell))
+                && DoesPathToCellExist(selectedCell) && GetCellSightId(&tappedCell) != CELL_UNEXPLORED)
             {
                 SetSelectedCellStatus(STATUS_LOCKED);
                 SetActionForPlayer(ACTION_WALK_AUTO);
@@ -311,17 +309,35 @@ static void DoViewPortInput(Point *inputPos)
             else
             {
                 // Only change selected cell if it is not locked and the cell has been explored.
-                if (GetSelectedCellStatus() != STATUS_LOCKED
+                if (GetSelectedCellStatus() == STATUS_LOCKED)
+                {
+                    SetSelectedCellStatus(STATUS_UNLOCKED);
+                    SetActionForPlayer(ACTION_NONE);
+                }
+                else if (GetSelectedCellStatus() != STATUS_LOCKED
                     && GetCellSightId(&tappedCell) != CELL_UNEXPLORED)
                 {
+                    SetSelectedCellStatus(STATUS_UNLOCKED);
                     SetSelectedCell(&tappedCell);
                 }
-
-                SetSelectedCellStatus(STATUS_UNLOCKED);
-                SetActionForPlayer(ACTION_NONE);
             }
-
-            gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+        }
+    }
+    else if (gesture == GESTURE_HOLD_TAP)
+    {
+        // If the cell interacted with is eligible, auto-navigate player to the dungeoncell.
+        if (IsTerrainTraversable(&tappedCell) && GetCellSightId(&tappedCell) != CELL_UNEXPLORED
+            && DoesPathToCellExist(&tappedCell) && !IsSamePoint(&tappedCell, GetActorPosition(player)))
+        {
+            SetSelectedCell(&tappedCell);
+            SetSelectedCellStatus(STATUS_LOCKED);
+            SetActionForPlayer(ACTION_WALK_AUTO);
+            g_timeout_add(TURN_TIMER_AUTO, (GSourceFunc)ProcessTurn, NULL);
+        }
+        else
+        {
+            SetSelectedCellStatus(STATUS_UNLOCKED);
+            SetSelectedCell(&tappedCell);
         }
     }
     else if (gesture == GESTURE_SWIPE)
@@ -338,9 +354,9 @@ static void DoViewPortInput(Point *inputPos)
             SetSelectedCellStatus(STATUS_UNLOCKED);
             SetActionForPlayer(ACTION_NONE);
         }
-
-        gtk_widget_queue_draw(GTK_WIDGET(viewPort));
     }
+
+    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
 }
 
 // ------------------------------------------------------------------------------------------------

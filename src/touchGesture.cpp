@@ -8,7 +8,7 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#define MIN_HOLD_TIME   2  // Hold time in seconds for a gesture to be a GESTURE_LONG_PRESS.
+#define MIN_HOLD_TIME   1  // Hold time in seconds for a gesture to be a GESTURE_LONG_PRESS.
 #define MIN_SWIPE_DIST  64 // Distance in pixels for a gesture to be a GESTURE_SWIPE.
 
 // ------------------------------------------------------------------------------------------------
@@ -98,10 +98,12 @@ GestureType GetGestureType(void)
 
     if (distanceX < MIN_SWIPE_DIST && distanceY < MIN_SWIPE_DIST && duration < MIN_HOLD_TIME)
         return GESTURE_SINGLE_TAP;
-    else if ((distanceX >= MIN_SWIPE_DIST || distanceY >= MIN_SWIPE_DIST) && duration < MIN_HOLD_TIME)
+    else if (distanceX < MIN_SWIPE_DIST && distanceY < MIN_SWIPE_DIST && duration >= MIN_HOLD_TIME)
+        return GESTURE_HOLD_TAP;
+    else if ((distanceX >= MIN_SWIPE_DIST || distanceY >= MIN_SWIPE_DIST) && duration < MIN_HOLD_TIME * 2)
         return GESTURE_SWIPE;
     else
-        return GESTURE_SINGLE_TAP;
+        return GESTURE_NONE;
 }
 
 // ------------------------------------------------------------------------------------------------
