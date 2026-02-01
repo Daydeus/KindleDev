@@ -88,7 +88,7 @@ enum Color
 // Indices for GdkPixbufs in the dungeonTiles array.
 enum DungeonTile
 {
-    TILE_NULL,
+    TILE_EDGE,
     TILE_WALL_INNER_CORNER_NORTHEAST,
     TILE_WALL_INNER_CORNER_SOUTHEAST,
     TILE_WALL_FACING_EAST,

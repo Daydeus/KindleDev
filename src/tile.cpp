@@ -194,7 +194,7 @@ static GdkPixbuf* GetDungeonDarkTile(DungeonTile tile)
 // Returns the tile image for a TERRAIN_WALL cell based on the surrounding cells.
 static DungeonTile GetWallTile(Point *position)
 {
-    guint tile = TILE_NULL;
+    guint tile = TILE_EDGE;
     Terrain neighbors[DIR_ALL_COUNT] = {TERRAIN_NULL};
 
     // Get terrain for each neighboring cell.
@@ -278,11 +278,10 @@ GdkPixbuf* GetTileForTerrain(Point *position)
         tile = TILE_STAIRS;
         break;
     case TERRAIN_WALL:
-    case TERRAIN_NULL:
         tile = GetWallTile(position);
         break;
     default:
-        tile = TILE_NULL;
+        tile = TILE_EDGE;
     }
 
     if (IsVisibleToPlayer(position))
@@ -322,7 +321,7 @@ GdkPixbuf* GetTileForMenuBoxCharacter(CharacterUI item)
     case MB_CHARACTER_TERRAIN_FLIP_BTTN:
         return menuBoxTiles[TILE_REFRESH];
     default:
-        return dungeonLightTiles[TILE_NULL];
+        return dungeonLightTiles[TILE_EDGE];
     }
 }
 
@@ -340,7 +339,7 @@ GdkPixbuf* GetTileForMenuBoxSettings(SettingsUI item)
     case MB_SETTINGS_REFRESH_BUTTON:
         return menuBoxTiles[TILE_REFRESH];
     default:
-        return dungeonLightTiles[TILE_NULL];
+        return dungeonLightTiles[TILE_EDGE];
     }
 }
 

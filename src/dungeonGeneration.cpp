@@ -31,6 +31,12 @@ typedef struct
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
+static void InitDungeon(void);
+static void PlaceRoom(Room *room);
+static void CreateCorridor(Point *startPos, Point *endPos);
+static void PlaceEdgeTerrain(void);
+static void PlaceStairs(void);
+static void PrintTerrainMap(void);
 
 // ------------------------------------------------------------------------------------------------
 // Set the terrain of all dungeon cells to TERRAIN_WALL.
@@ -66,22 +72,47 @@ static void PlaceRoom(Room *room)
 
 // ------------------------------------------------------------------------------------------------
 // Move from the start to the end position and change each dungeon cell's terrain to TERRAIN_FLOOR.
-static void CreateCorridor(gint startX, gint startY, gint endX, gint endY)
+static void CreateCorridor(Point *startPos, Point *endPos)
 {
-    for (gint y = startY; y != endY; y += (endY > startY ? 1 : -1))
+    for (gint y = startPos->y; y != endPos->y; y += (endPos->y > startPos->y ? 1 : -1))
     {
-        Point position = {startX, y};
+        Point position = {startPos->x, y};
 
         if (!IsOutsideDungeon(&position))
             SetCellTerrain(&position, TERRAIN_FLOOR);
     }
 
-    for (gint x = startX; x != endX; x += (endX > startX ? 1 : -1))
+    for (gint x = startPos->x; x != endPos->x; x += (endPos->x > startPos->x ? 1 : -1))
     {
-        Point position = {x, endY};
+        Point position = {x, endPos->y};
 
         if (!IsOutsideDungeon(&position))
             SetCellTerrain(&position, TERRAIN_FLOOR);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Set the terrain of the dungeon boundaries to TERRAIN_EDGE.
+static void PlaceEdgeTerrain(void)
+{
+    // Set terrain of left and right edges.
+    for (gint y = 0; y < DUNGEON_HEIGHT; y++)
+    {
+        Point edgeCellLeft = {0, y};
+        Point edgeCellRight = {DUNGEON_WIDTH - 1, y};
+
+        SetCellTerrain(&edgeCellLeft, TERRAIN_EDGE);
+        SetCellTerrain(&edgeCellRight, TERRAIN_EDGE);
+    }
+
+    // Set terrain of top and bottom edges.
+    for (gint x = 0; x < DUNGEON_WIDTH; x++)
+    {
+        Point edgeCellTop = {x, 0};
+        Point edgeCellBottom = {x, DUNGEON_HEIGHT - 1};
+
+        SetCellTerrain(&edgeCellTop, TERRAIN_EDGE);
+        SetCellTerrain(&edgeCellBottom, TERRAIN_EDGE);
     }
 }
 
@@ -115,8 +146,8 @@ void GenerateDungeon(void)
     {
         rooms[i].width = ROOM_WIDTH_MIN + rand() % 8;
         rooms[i].height = ROOM_HEIGHT_MIN + rand() % 8;
-        rooms[i].start.x = rand() % (DUNGEON_WIDTH - rooms[i].width);
-        rooms[i].start.y = rand() % (DUNGEON_HEIGHT - rooms[i].height);
+        rooms[i].start.x = 1 + rand() % (DUNGEON_WIDTH - rooms[i].width);
+        rooms[i].start.y = 1 + rand() % (DUNGEON_HEIGHT - rooms[i].height);
 
         PlaceRoom(&rooms[i]);
         roomCount++;
@@ -126,13 +157,52 @@ void GenerateDungeon(void)
     for (guint i = 0; i < roomCount - 1; i++)
     {
         // Navigate from the center of one room to another.
-        gint startX = rooms[i].start.x + (rooms[i].width / 2);
-        gint startY = rooms[i].start.y + (rooms[i].height / 2);
-        gint endX = rooms[i + 1].start.x + (rooms[i + 1].width / 2);
-        gint endY = rooms[i + 1].start.y + (rooms[i + 1].height / 2);
+        Point startPos, endPos;
 
-        CreateCorridor(startX, startY, endX, endY);
+        startPos.x = rooms[i].start.x + (rooms[i].width / 2);
+        startPos.y = rooms[i].start.y + (rooms[i].height / 2);
+        endPos.x = rooms[i + 1].start.x + (rooms[i + 1].width / 2);
+        endPos.y = rooms[i + 1].start.y + (rooms[i + 1].height / 2);
+
+        CreateCorridor(&startPos, &endPos);
     }
 
+    PlaceEdgeTerrain();
     PlaceStairs();
+}
+
+// ------------------------------------------------------------------------------------------------
+// Prints the terrain of all cells in the dungeon.
+static void PrintTerrainMap(void)
+{
+    g_print("\n");
+
+    for (gint y = 0; y < DUNGEON_HEIGHT; y++)
+    {
+        for (gint x = 0; x < DUNGEON_WIDTH; x++)
+        {
+            Point cell = {x, y};
+
+            switch (GetCellTerrain(&cell))
+            {
+            case TERRAIN_EDGE:
+                g_print("\u2610 ");
+                break;
+            case TERRAIN_FLOOR:
+                g_print(". ");
+                break;
+            case TERRAIN_STAIRS:
+                g_print("^ ");
+                break;
+            case TERRAIN_WALL:
+                g_print("# ");
+                break;
+            default:
+                g_print("? ");
+                break;
+            }
+        }
+
+        g_print("\n");
+    }
 }
