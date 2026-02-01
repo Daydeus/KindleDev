@@ -43,6 +43,7 @@ static void InitDungeon(void)
             Point position = {x, y};
 
             SetCellTerrain(&position, TERRAIN_WALL);
+            SetCellSightId(&position, CELL_UNEXPLORED);
         }
     }
 }

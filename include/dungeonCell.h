@@ -13,6 +13,8 @@
 #define DUNGEON_WIDTH  60
 #define DUNGEON_HEIGHT 40
 
+#define CELL_UNEXPLORED 0
+
 // ------------------------------------------------------------------------------------------------
 // Data Types
 // ------------------------------------------------------------------------------------------------
@@ -38,6 +40,7 @@ typedef struct
 {
     Terrain terrain;
     Actor *actor;
+    guint sightId;
 } DungeonCell;
 
 // ------------------------------------------------------------------------------------------------
@@ -58,9 +61,12 @@ Terrain GetCellTerrain(Point *position);
 void SetCellTerrain(Point *position, Terrain terrain);
 Actor* GetCellsActor(Point *position);
 void SetCellsActor(Point *position, Actor *actor);
+guint GetCellSightId(Point *position);
+void SetCellSightId(Point *position, guint sightId);
 gboolean IsTerrainTraversable(Point *position);
 gboolean IsCellOccupiedByActor(Point *position);
 gboolean IsCellBlockedDiagonally(Point *position, Direction direction);
+Direction GetTravelDirectionBetweenCells(Point *startPos, Point *endPos);
 Point* GetSelectedCell(void);
 void SetSelectedCell(Point *position);
 CellSelectorStatus GetSelectedCellStatus(void);

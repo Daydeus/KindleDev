@@ -3,15 +3,16 @@
 #include <glib-2.0/glib.h>
 #include <cairo/cairo.h>
 #include <cstdlib>
-#include "global.h"
-#include "touchGesture.h"
 #include "action.h"
 #include "actor.h"
 #include "dungeonCell.h"
 #include "dungeonMaster.h"
+#include "fieldOfView.h"
+#include "global.h"
 #include "menuBox.h"
 #include "pathfinding.h"
 #include "tile.h"
+#include "touchGesture.h"
 #include "viewPort.h"
 
 // ------------------------------------------------------------------------------------------------
@@ -47,14 +48,14 @@ static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *eve
 // Load GdkPixbuf tiles and initialize the dungeon viewPort.
 void InitViewPort(void)
 {
-    LoadDungeonTiles(TILESET_CAVE);
+    LoadDungeonTiles();
     LoadActorTiles();
     ScaleTileForZoom(GetViewPortZoom());
 
     // Initialize the viewPort.
     viewPort = GTK_DRAWING_AREA(gtk_drawing_area_new());
     gtk_widget_set_size_request(GTK_WIDGET(viewPort), VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
-    SetWidgetBgColor(GTK_WIDGET(viewPort), COLOR_WHITE);
+    SetWidgetBgColor(GTK_WIDGET(viewPort), COLOR_BLACK);
 
     // Set up signals.
     g_signal_connect(viewPort, "expose_event", G_CALLBACK(on_viewPort_update), NULL);
@@ -117,11 +118,9 @@ void SetViewPortZoom(gboolean boolean)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns if the given position is visible in the viewPort.
+// Returns if the given position is present in the viewPort.
 gboolean IsPositionOnScreen(Point *position)
 {
-    // Temporary function until Fog of War and sightId is implemented for cells.
-    // TODO: remove
     gint tileSize = GetTileSizeForZoom(zoomIsOn);
     gint viewPortWidth = VIEWPORT_WIDTH / tileSize;
     gint viewPortHeight = VIEWPORT_HEIGHT / tileSize;
@@ -157,24 +156,31 @@ static void DrawDungeon(cairo_t *context)
             // The dungeon cell to be drawn in the viewPort.
             Point cell = {viewPosition->x + x, viewPosition->y + y};
 
-            // Draws the terrain for the cell.
-            gdk_cairo_set_source_pixbuf(context, GetTileForTerrain(&cell), pixel.x, pixel.y);
-            cairo_paint(context);
-
-            // If position contains an actor, draw it over the terrain.
-            Actor *actorToDraw = GetCellsActor(&cell);
-            if (actorToDraw != NULL)
+            // Only draw cell terrain and cell selector if the player has seen the cell before.
+            if (GetCellSightId(&cell) != CELL_UNEXPLORED)
             {
-                gdk_cairo_set_source_pixbuf(context, GetTileForActor(actorToDraw), pixel.x, pixel.y);
+                // Draws the terrain for the cell.
+                gdk_cairo_set_source_pixbuf(context, GetTileForTerrain(&cell), pixel.x, pixel.y);
                 cairo_paint(context);
-            }
 
-            // Draw the cell selector icon if the current cell is selected and selectedCell
-            // status is not off.
-            if (GetSelectedCellStatus() != STATUS_OFF && IsSamePoint(&cell, GetSelectedCell()))
-            {
-                gdk_cairo_set_source_pixbuf(context, GetTileForCellSelector(), pixel.x, pixel.y);
-                cairo_paint(context);
+                // Only draw actors if player has line of sight.
+                if (IsVisibleToPlayer(&cell))
+                {
+                    // If position contains an actor, draw it over the terrain.
+                    Actor *actorToDraw = GetCellsActor(&cell);
+                    if (actorToDraw != NULL)
+                    {
+                        gdk_cairo_set_source_pixbuf(context, GetTileForActor(actorToDraw), pixel.x, pixel.y);
+                        cairo_paint(context);
+                    }
+                }
+
+                // Draw the cell selector icon on the current cell if it is selected.
+                if (GetSelectedCellStatus() != STATUS_OFF && IsSamePoint(&cell, GetSelectedCell()))
+                {
+                    gdk_cairo_set_source_pixbuf(context, GetTileForCellSelector(), pixel.x, pixel.y);
+                    cairo_paint(context);
+                }
             }
         }
     }
@@ -304,12 +310,14 @@ static void DoViewPortInput(Point *inputPos)
             }
             else
             {
-                // Only change selected cell if it is not locked.
-                if (GetSelectedCellStatus() != STATUS_LOCKED)
+                // Only change selected cell if it is not locked and the cell has been explored.
+                if (GetSelectedCellStatus() != STATUS_LOCKED
+                    && GetCellSightId(&tappedCell) != CELL_UNEXPLORED)
+                {
                     SetSelectedCell(&tappedCell);
+                }
 
                 SetSelectedCellStatus(STATUS_UNLOCKED);
-
                 SetActionForPlayer(ACTION_NONE);
             }
 

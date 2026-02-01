@@ -5,6 +5,7 @@
 #include "action.h"
 #include "actor.h"
 #include "dungeonMaster.h"
+#include "fieldOfView.h"
 #include "pathfinding.h"
 #include "viewPort.h"
 
@@ -59,12 +60,14 @@ gboolean ProcessTurn(gpointer data)
             }
             else
             {
+                SetPlayerSightId(GetPlayerSightId() + 1);
+                UpdateFOV(GetActorPosition(actor), GetActorSightRange(actor));
                 CenterViewPortOn(&actor->position);
             }
         }
 
-        // If actor is on-screen, pause processing to redraw the viewPort mid-turn.
-        if (IsPositionOnScreen(&actor->position))
+        // If actor is (or was) visible to player, pause processing to redraw the viewPort mid-turn.
+        if (IsVisibleToPlayer(&actor->prevPosition) || IsVisibleToPlayer(&actor->position))
         {
             gtk_widget_queue_draw(GTK_WIDGET(viewPort));
             WaitForScreenRedraw();

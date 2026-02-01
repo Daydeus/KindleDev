@@ -1,7 +1,6 @@
-#ifndef ACTOR_H
-#define ACTOR_H
+#ifndef FIELD_OF_VIEW_H
+#define FIELD_OF_VIEW_H
 
-#include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
 #include "global.h"
 
@@ -9,47 +8,26 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#define MAX_ACTOR_COUNT    5
-#define PLAYER_ACTOR_INDEX 0
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
 // ------------------------------------------------------------------------------------------------
 
-enum ActorSpecies
-{
-    SPECIES_NULL,
-    SPECIES_PLAYER,
-    SPECIES_SLIME,
-    SPECIES_COUNT
-};
-
-typedef struct
-{
-    ActorSpecies species;
-    Point position;
-    Point prevPosition;
-    guint sightRange:4;
-} Actor;
 
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern Actor actors[MAX_ACTOR_COUNT];
+extern guint playerSightId;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-void InitActors(void);
-void PlaceAllActors(void);
-Actor* GetActor(guint actorIndex);
-ActorSpecies GetActorSpecies(Actor *actor);
-void SetActorSpecies(Actor *actor, ActorSpecies species);
-Point* GetActorPosition(Actor *actor);
-void SetActorPosition(Actor *actor, Point *position);
-guint GetActorSightRange(Actor *actor);
-void SetActorSightRange(Actor *actor, guint sightRange);
+guint GetPlayerSightId(void);
+void SetPlayerSightId(guint newValue);
+void UpdateFOV(Point *center, gint sightRange);
+gboolean IsVisibleToPlayer(Point *position);
+void PrintFOV(void);
 
-#endif // ACTOR_H
+#endif // FIELD_OF_VIEW_H

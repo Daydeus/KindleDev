@@ -28,6 +28,7 @@ sources = files(
     './src/dungeonCell.cpp',
     './src/dungeonGeneration.cpp',
     './src/dungeonMaster.cpp',
+    './src/fieldOfView.cpp',
     './src/menuBox.cpp',
     './src/menuBoxLayout.cpp',
     './src/pathfinding.cpp',
@@ -41,6 +42,7 @@ sources = files(
     './src/data/tilesetBorder.cpp',
     './src/data/tilesetColorFill.cpp',
     './src/data/tilesetDungeonCave.cpp',
+    './src/data/tilesetDungeonCaveDark.cpp',
     './src/data/tilesetMenuBoxSettings.cpp',
 )
 

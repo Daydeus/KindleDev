@@ -5,6 +5,7 @@
 #include "actor.h"
 #include "action.h"
 #include "dungeonCell.h"
+#include "fieldOfView.h"
 #include "pathfinding.h"
 
 // ------------------------------------------------------------------------------------------------
@@ -253,15 +254,8 @@ static gboolean ActionTerrainFlip(Actor *actor, Point *target)
 {
     Terrain terrain = GetCellTerrain(target);
 
-    if (IsOutsideDungeon(target))
-    {
+    if (IsOutsideDungeon(target) || IsCellOccupiedByActor(target) || !IsVisibleToPlayer(target))
         return FALSE;
-    }
-    if (IsCellOccupiedByActor(target))
-    {
-        return FALSE;
-    }
-    // TODO: Add fail condition if the target is not in the actor's Line-Of-Sight.
 
     if (terrain == TERRAIN_WALL)
         SetCellTerrain(target, TERRAIN_FLOOR);

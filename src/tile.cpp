@@ -1,15 +1,17 @@
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
-#include "global.h"
 #include "actor.h"
 #include "dungeonCell.h"
+#include "fieldOfView.h"
+#include "global.h"
+#include "menuBoxLayout.h"
 #include "tile.h"
 #include "viewPort.h"
-#include "menuBoxLayout.h"
 #include "data/tilesetActor.h"
 #include "data/tilesetBorder.h"
 #include "data/tilesetColorFill.h"
 #include "data/tilesetDungeonCave.h"
+#include "data/tilesetDungeonCaveDark.h"
 #include "data/tilesetMenuBoxSettings.h"
 
 // ------------------------------------------------------------------------------------------------
@@ -29,15 +31,16 @@
 GdkPixbuf *actorTiles[TILE_COUNT_ACTOR] = {NULL};
 GdkPixbuf *borderTiles[TILE_COUNT_BORDER] = {NULL};
 GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL] = {NULL};
-GdkPixbuf *dungeonTiles[TILE_COUNT_VP] = {NULL};
+GdkPixbuf *dungeonLightTiles[TILE_COUNT_VP] = {NULL};
+GdkPixbuf *dungeonDarkTiles[TILE_COUNT_VP] = {NULL};
 GdkPixbuf *menuBoxTiles[TILE_COUNT_MB] = {NULL};
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-static const guint8* GetTilesetImageData(DungeonTileset tileset);
-static GdkPixbuf* GetPixbufFromTile(DungeonTile tile);
+static GdkPixbuf* GetDungeonLightTile(DungeonTile tile);
+static GdkPixbuf* GetDungeonDarkTile(DungeonTile tile);
 static DungeonTile GetWallTile(Point *position);
 
 // ------------------------------------------------------------------------------------------------
@@ -139,22 +142,26 @@ void FreeColorFillTiles(void)
 
 // ------------------------------------------------------------------------------------------------
 // Read image data for the given tileset into the GdkPixbufs tiles array.
-void LoadDungeonTiles(DungeonTileset tileset)
+void LoadDungeonTiles(void)
 {
-    GdkPixbuf *source = NULL;
+    GdkPixbuf *sourceLight = NULL;
+    GdkPixbuf *sourceDark = NULL;
     GError * error = NULL;
 
-    source = gdk_pixbuf_new_from_inline(-1, tilesetDungeonCave, FALSE, &error);
+    sourceLight = gdk_pixbuf_new_from_inline(-1, tilesetDungeonCave, FALSE, &error);
+    sourceDark = gdk_pixbuf_new_from_inline(-1, tilesetDungeonCaveDark, FALSE, &error);
 
     for (guint i = 0; i < TILE_COUNT_VP; i++)
     {
         guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_16;
         guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
 
-        dungeonTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
+        dungeonLightTiles[i] = gdk_pixbuf_new_subpixbuf(sourceLight, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
+        dungeonDarkTiles[i] = gdk_pixbuf_new_subpixbuf(sourceDark, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
     }
 
-    g_object_unref(source);
+    g_object_unref(sourceLight);
+    g_object_unref(sourceDark);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -164,28 +171,23 @@ void FreeDungeonTiles(void)
     // Free memory used by GdkPixbufs.
     for (guint i = 0; i < TILE_COUNT_VP; i++)
     {
-        g_object_unref(dungeonTiles[i]);
+        g_object_unref(dungeonLightTiles[i]);
+        g_object_unref(dungeonDarkTiles[i]);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the array of image data required for gdk_pixbuf_new_from_inline.
-static const guint8* GetTilesetImageData(DungeonTileset tileset)
+// Returns a GdkPixbuf based on the given index to the dungeonLightTiles array.
+static GdkPixbuf* GetDungeonLightTile(DungeonTile tile)
 {
-    switch (tileset)
-    {
-    case TILESET_CAVE:
-        return tilesetDungeonCave;
-    default:
-        return NULL;
-    }
+    return dungeonLightTiles[tile];
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns a GdkPixbuf based on the given idex to the tiles array.
-static GdkPixbuf* GetPixbufFromTile(DungeonTile tile)
+// Returns a GdkPixbuf based on the given index to the dungeonDarkTiles array.
+static GdkPixbuf* GetDungeonDarkTile(DungeonTile tile)
 {
-    return dungeonTiles[tile];
+    return dungeonDarkTiles[tile];
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -283,7 +285,10 @@ GdkPixbuf* GetTileForTerrain(Point *position)
         tile = TILE_NULL;
     }
 
-    return GetPixbufFromTile(tile);
+    if (IsVisibleToPlayer(position))
+        return GetDungeonLightTile(tile);
+    else
+        return GetDungeonDarkTile(tile);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -305,7 +310,7 @@ GdkPixbuf* GetTileForCellSelector(void)
         tile = TILE_CELL_SELECTOR_UNLOCKED;
     }
 
-    return GetPixbufFromTile(tile);
+    return GetDungeonLightTile(tile);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -317,7 +322,7 @@ GdkPixbuf* GetTileForMenuBoxCharacter(CharacterUI item)
     case MB_CHARACTER_TERRAIN_FLIP_BTTN:
         return menuBoxTiles[TILE_REFRESH];
     default:
-        return dungeonTiles[TILE_NULL];
+        return dungeonLightTiles[TILE_NULL];
     }
 }
 
@@ -335,7 +340,7 @@ GdkPixbuf* GetTileForMenuBoxSettings(SettingsUI item)
     case MB_SETTINGS_REFRESH_BUTTON:
         return menuBoxTiles[TILE_REFRESH];
     default:
-        return dungeonTiles[TILE_NULL];
+        return dungeonLightTiles[TILE_NULL];
     }
 }
 
@@ -365,7 +370,8 @@ void ScaleTileForZoom(gboolean zoomIsOn)
     // Scale tiles for dungeon.
     for (guint i = 0; i < TILE_COUNT_VP; i++)
     {
-        dungeonTiles[i] = gdk_pixbuf_scale_simple(dungeonTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
+        dungeonLightTiles[i] = gdk_pixbuf_scale_simple(dungeonLightTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
+        dungeonDarkTiles[i] = gdk_pixbuf_scale_simple(dungeonDarkTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
     }
 
     // Scale tiles for actors.

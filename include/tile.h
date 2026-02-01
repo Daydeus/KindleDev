@@ -125,12 +125,6 @@ enum MenuBoxTile
     TILE_COUNT_MB
 };
 
-enum DungeonTileset
-{
-    TILESET_CAVE,
-    TILESET_COUNT
-};
-
 // Bitmask for determining which wall tile to display.
 enum TileMask
 {
@@ -148,7 +142,8 @@ enum TileMask
 extern GdkPixbuf *actorTiles[TILE_COUNT_ACTOR];
 extern GdkPixbuf *borderTiles[TILE_COUNT_BORDER];
 extern GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL];
-extern GdkPixbuf *dungeonTiles[TILE_COUNT_VP];
+extern GdkPixbuf *dungeonLightTiles[TILE_COUNT_VP];
+extern GdkPixbuf *dungeonDarkTiles[TILE_COUNT_VP];
 extern GdkPixbuf *menuBoxTiles[TILE_COUNT_MB];
 
 // ------------------------------------------------------------------------------------------------
@@ -161,7 +156,7 @@ void LoadBorderTiles(void);
 void FreeBorderTiles(void);
 void LoadColorFillTiles(void);
 void FreeColorFillTiles(void);
-void LoadDungeonTiles(DungeonTileset tileset);
+void LoadDungeonTiles(void);
 void FreeDungeonTiles(void);
 GdkPixbuf* GetTileForActor(Actor *actor);
 GdkPixbuf* GetTileForTerrain(Point *position);

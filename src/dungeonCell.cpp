@@ -87,6 +87,24 @@ void SetCellsActor(Point *position, Actor *actor)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Gets the current sightId for the given dungeonCell.
+guint GetCellSightId(Point *position)
+{
+    if (!IsOutsideDungeon(position))
+        return cells[position->y][position->x].sightId;
+    else
+        return CELL_UNEXPLORED;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets the given dungeonCell's sightId to the given value.
+void SetCellSightId(Point *position, guint sightId)
+{
+    if (!IsOutsideDungeon(position))
+        cells[position->y][position->x].sightId = sightId;
+}
+
+// ------------------------------------------------------------------------------------------------
 // Returns whether the given cell's terrain is traversable.
 gboolean IsTerrainTraversable(Point *position)
 {
@@ -168,6 +186,46 @@ gboolean IsCellBlockedDiagonally(Point *position, Direction direction)
     }
 
     return TRUE;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns the direction to travel to move from the start position to the end position.
+Direction GetTravelDirectionBetweenCells(Point *startPos, Point *endPos)
+{
+    Direction direction = DIR_NONE;
+    gint distanceX = endPos->x - startPos->x;
+    gint distanceY = endPos->y - startPos->y;
+
+    // Find the direction to travel.
+    if (distanceY < 0)
+    {
+        if (distanceX < 0)
+            direction = DIR_NORTH_WEST;
+        else if (distanceX == 0)
+            direction = DIR_NORTH;
+        else
+            direction = DIR_NORTH_EAST;
+    }
+    else if (distanceY == 0)
+    {
+        if (distanceX < 0)
+            direction = DIR_WEST;
+        else if (distanceX > 0)
+            direction = DIR_EAST;
+        else
+            direction = DIR_NONE;
+    }
+    else if (distanceY > 0)
+    {
+        if (distanceX < 0)
+            direction = DIR_SOUTH_WEST;
+        else if (distanceX == 0)
+            direction = DIR_SOUTH;
+        else
+            direction = DIR_SOUTH_EAST;
+    }
+
+    return direction;
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 #include "global.h"
 #include "actor.h"
 #include "dungeonCell.h"
+#include "fieldOfView.h"
 #include "pathfinding.h"
 
 // ------------------------------------------------------------------------------------------------
@@ -36,9 +37,15 @@ void InitActors(void)
         Actor *actor = GetActor(index);
 
         if (index == 0)
+        {
             SetActorSpecies(actor, SPECIES_PLAYER);
+            SetActorSightRange(actor, 6);
+        }
         else
+        {
             SetActorSpecies(actor, SPECIES_SLIME);
+            SetActorSightRange(actor, 3);
+        }
     }
 }
 
@@ -59,8 +66,13 @@ void PlaceAllActors(void)
 
         SetActorPosition(actor, &position);
     }
-    SetPathMapOrigin(GetActorPosition(GetActor(PLAYER_ACTOR_INDEX)));
+
+    // Update player-position dependent features.
+    Actor *player = GetActor(PLAYER_ACTOR_INDEX);
+    SetPathMapOrigin(GetActorPosition(player));
     BuildPathMap();
+    SetPlayerSightId(1);
+    UpdateFOV(GetActorPosition(player), GetActorSightRange(player));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -98,10 +110,24 @@ void SetActorPosition(Actor *actor, Point* position)
     if (IsOutsideDungeon(position))
         return;
 
-    Point *oldPosition = GetActorPosition(actor);
+    actor->prevPosition = *GetActorPosition(actor);
 
-    SetCellsActor(oldPosition, NULL);
+    SetCellsActor(&actor->prevPosition, NULL);
     SetCellsActor(position, actor);
 
     actor->position = *position;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Gets the sight range for the given actor based on their species.
+guint GetActorSightRange(Actor *actor)
+{
+    return actor->sightRange;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets the sight range of the given actor based on their species.
+void SetActorSightRange(Actor *actor, guint sightRange)
+{
+    actor->sightRange = sightRange;
 }
