@@ -20,6 +20,7 @@
 // ------------------------------------------------------------------------------------------------
 
 guint playerSightId = 0;
+gboolean debug_fogOfWarIsOn = TRUE;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -217,4 +218,18 @@ void PrintFOV(void)
 
         g_print("\n");
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns the current status of the debug variable fogOfWarIsOn.
+gboolean GetFogOfWarStatus(void)
+{
+    return debug_fogOfWarIsOn;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets the current status of the debug variable fogOfWarIsOn.
+void SetFogOfWarStatus(gboolean status)
+{
+    debug_fogOfWarIsOn = status;
 }

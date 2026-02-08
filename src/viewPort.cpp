@@ -157,7 +157,7 @@ static void DrawDungeon(cairo_t *context)
             Point cell = {viewPosition->x + x, viewPosition->y + y};
 
             // Only draw cell terrain and cell selector if the player has seen the cell before.
-            if (GetCellSightId(&cell) != CELL_UNEXPLORED)
+            if (GetCellSightId(&cell) != CELL_UNEXPLORED || GetFogOfWarStatus() == FALSE)
             {
                 // Draws the terrain for the cell.
                 gdk_cairo_set_source_pixbuf(context, GetTileForTerrain(&cell), pixel.x, pixel.y);
@@ -300,7 +300,8 @@ static void DoViewPortInput(Point *inputPos)
 
             // If selectedCell is tapped again, auto-navigate player to the dungeoncell if possible.
             if (IsSamePoint(&tappedCell, selectedCell) && IsTerrainTraversable(&tappedCell)
-                && DoesPathToCellExist(selectedCell) && GetCellSightId(&tappedCell) != CELL_UNEXPLORED)
+                && DoesPathToCellExist(selectedCell)
+                && (GetCellSightId(&tappedCell) != CELL_UNEXPLORED || GetFogOfWarStatus() == FALSE))
             {
                 SetSelectedCellStatus(STATUS_LOCKED);
                 SetActionForPlayer(ACTION_WALK_AUTO);
@@ -315,7 +316,7 @@ static void DoViewPortInput(Point *inputPos)
                     SetActionForPlayer(ACTION_NONE);
                 }
                 else if (GetSelectedCellStatus() != STATUS_LOCKED
-                    && GetCellSightId(&tappedCell) != CELL_UNEXPLORED)
+                    && (GetCellSightId(&tappedCell) != CELL_UNEXPLORED || GetFogOfWarStatus() == FALSE))
                 {
                     SetSelectedCellStatus(STATUS_UNLOCKED);
                     SetSelectedCell(&tappedCell);
@@ -326,8 +327,9 @@ static void DoViewPortInput(Point *inputPos)
     else if (gesture == GESTURE_HOLD_TAP)
     {
         // If the cell interacted with is eligible, auto-navigate player to the dungeoncell.
-        if (IsTerrainTraversable(&tappedCell) && GetCellSightId(&tappedCell) != CELL_UNEXPLORED
-            && DoesPathToCellExist(&tappedCell) && !IsSamePoint(&tappedCell, GetActorPosition(player)))
+        if (IsTerrainTraversable(&tappedCell) && DoesPathToCellExist(&tappedCell)
+            && !IsSamePoint(&tappedCell, GetActorPosition(player))
+            && (GetCellSightId(&tappedCell) != CELL_UNEXPLORED || GetFogOfWarStatus() == FALSE))
         {
             SetSelectedCell(&tappedCell);
             SetSelectedCellStatus(STATUS_LOCKED);

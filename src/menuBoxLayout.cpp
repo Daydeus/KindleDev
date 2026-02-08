@@ -20,10 +20,17 @@
 #define ZOOM_SWITCH_Y      TILE_SIZE_MB / 2
 #define ZOOM_TEXT_X        ZOOM_SWITCH_X + (TILE_SIZE_MB * 3/2)
 #define ZOOM_TEXT_Y        ZOOM_SWITCH_Y
-#define REFRESH_BTTN_X     TILE_SIZE_MB * 3/2
-#define REFRESH_BTTN_Y     TILE_SIZE_MB * 3/2
+
+#define REFRESH_BTTN_X     ZOOM_SWITCH_X
+#define REFRESH_BTTN_Y     ZOOM_SWITCH_Y + TILE_SIZE_MB
 #define REFRESH_TEXT_X     REFRESH_BTTN_X + (TILE_SIZE_MB * 3/2)
-#define REFRESH_TEXT_Y     REFRESH_BTTN_Y + (TILE_SIZE_MB / 4)
+#define REFRESH_TEXT_Y     ZOOM_SWITCH_Y + TILE_SIZE_MB
+
+#define FOGOFWAR_BTTN_X    ZOOM_SWITCH_X
+#define FOGOFWAR_BTTN_Y    REFRESH_BTTN_Y + TILE_SIZE_MB
+#define FOGOFWAR_TEXT_X    REFRESH_BTTN_X + (TILE_SIZE_MB * 3/2)
+#define FOGOFWAR_TEXT_Y    REFRESH_TEXT_Y + TILE_SIZE_MB
+
 #define EXIT_TEXT_X        MENU_BOX_WIDTH - TILE_SIZE_MB * 7/2
 #define EXIT_TEXT_Y        MENU_BOX_HEIGHT - TILE_SIZE_MB * 2
 
@@ -43,12 +50,14 @@ MenuLayout characterItems[MB_CHARACTER_COUNT] =
 };
 
 MenuLayout settingsItems[MB_SETTINGS_COUNT] =
-{   //  origin.x         origin.y         width         height         isText
-    { {{ZOOM_SWITCH_X,   ZOOM_SWITCH_Y},  TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // ZOOM_SWITCH
-    { {{ZOOM_TEXT_X,     ZOOM_TEXT_Y},    TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // ZOOM_TEXT
-    { {{REFRESH_BTTN_X,  REFRESH_BTTN_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // REFRESH_BUTTON
-    { {{REFRESH_TEXT_X,  REFRESH_TEXT_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // REFRESH_TEXT
-    { {{EXIT_TEXT_X,     EXIT_TEXT_Y},    TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // EXIT_TEXT
+{   //  origin.x         origin.y          width         height         isText
+    { {{ZOOM_SWITCH_X,   ZOOM_SWITCH_Y},   TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // ZOOM_SWITCH
+    { {{ZOOM_TEXT_X,     ZOOM_TEXT_Y},     TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // ZOOM_TEXT
+    { {{REFRESH_BTTN_X,  REFRESH_BTTN_Y},  TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // REFRESH_BUTTON
+    { {{REFRESH_TEXT_X,  REFRESH_TEXT_Y},  TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // REFRESH_TEXT
+    { {{FOGOFWAR_BTTN_X, FOGOFWAR_BTTN_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // FOGOFWAR_BUTTON
+    { {{FOGOFWAR_TEXT_X, FOGOFWAR_TEXT_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // FOGOFWAR_TEXT
+    { {{EXIT_TEXT_X,     EXIT_TEXT_Y},     TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // EXIT_TEXT
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -93,6 +102,8 @@ const char* GetSettingsLayoutText(SettingsUI item)
         return "Zoom";
     case MB_SETTINGS_REFRESH_TEXT:
         return "Regenerate";
+    case MB_SETTINGS_FOGOFWAR_TEXT:
+        return "Fog of War";
     case MB_SETTINGS_EXIT_TEXT:
         return "Exit";
     default:

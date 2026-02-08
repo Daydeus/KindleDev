@@ -338,6 +338,11 @@ GdkPixbuf* GetTileForMenuBoxSettings(SettingsUI item)
             return menuBoxTiles[TILE_UI_SWITCH_OFF];
     case MB_SETTINGS_REFRESH_BUTTON:
         return menuBoxTiles[TILE_REFRESH];
+    case MB_SETTINGS_FOGOFWAR_BUTTON:
+        if (GetFogOfWarStatus() == TRUE)
+            return menuBoxTiles[TILE_UI_SWITCH_ON];
+        else
+            return menuBoxTiles[TILE_UI_SWITCH_OFF];
     default:
         return dungeonLightTiles[TILE_EDGE];
     }

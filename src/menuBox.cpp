@@ -6,6 +6,7 @@
 #include "dungeonCell.h"
 #include "dungeonGeneration.h"
 #include "dungeonMaster.h"
+#include "fieldOfView.h"
 #include "menuBox.h"
 #include "menuBoxLayout.h"
 #include "tile.h"
@@ -39,6 +40,7 @@ static void DoMenuStateCharacterInput(Point *inputPos);
 static void DoMenuStateSettingsInput(Point *inputPos);
 static void DoMenuSettingsZoomClick(Point *inputPos);
 static void DoMenuSettingsRefreshClick(Point *inputPos);
+static void DoMenuSettingsFogOfWarClick(Point *inputPos);
 
 // ------------------------------------------------------------------------------------------------
 // Load GdkPixbuf tiles and initialize the menuBbox for the player.
@@ -339,6 +341,9 @@ static void DoMenuStateSettingsInput(Point *inputPos)
             case MB_SETTINGS_REFRESH_BUTTON:
                 DoMenuSettingsRefreshClick(inputPos);
                 break;
+            case MB_SETTINGS_FOGOFWAR_BUTTON:
+                DoMenuSettingsFogOfWarClick(inputPos);
+                break;
             case MB_SETTINGS_EXIT_TEXT:
                 gtk_main_quit();
                 break;
@@ -378,6 +383,16 @@ static void DoMenuSettingsRefreshClick(Point *inputPos)
     CenterViewPortOn(&player->position);
 
     gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+}
+
+// ------------------------------------------------------------------------------------------------
+// Toggles whether the Fog of War is on or off.
+static void DoMenuSettingsFogOfWarClick(Point *inputPos)
+{
+    SetFogOfWarStatus(!GetFogOfWarStatus());
+
+    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+    gtk_widget_queue_draw(GTK_WIDGET(menuBox));
 }
 
 // ------------------------------------------------------------------------------------------------
