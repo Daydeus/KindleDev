@@ -343,6 +343,8 @@ GdkPixbuf* GetTileForMenuBoxSettings(SettingsUI item)
             return menuBoxTiles[TILE_UI_SWITCH_ON];
         else
             return menuBoxTiles[TILE_UI_SWITCH_OFF];
+    case MB_SETTINGS_EXIT_BUTTON:
+        return menuBoxTiles[TILE_EXIT];
     default:
         return dungeonLightTiles[TILE_EDGE];
     }

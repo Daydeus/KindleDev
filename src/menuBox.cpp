@@ -344,7 +344,7 @@ static void DoMenuStateSettingsInput(Point *inputPos)
             case MB_SETTINGS_FOGOFWAR_BUTTON:
                 DoMenuSettingsFogOfWarClick(inputPos);
                 break;
-            case MB_SETTINGS_EXIT_TEXT:
+            case MB_SETTINGS_EXIT_BUTTON:
                 gtk_main_quit();
                 break;
             default:

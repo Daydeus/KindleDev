@@ -1,38 +1,53 @@
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
 #include "global.h"
-#include "tile.h"
 #include "menuBox.h"
 #include "menuBoxLayout.h"
+#include "tile.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
+#define MENU_CORNER_X           TILE_SIZE_MB * 3/4
+#define MENU_CORNER_Y           TILE_SIZE_MB * 3/4
+
+#ifdef KINDLE_BUILD
+    #define TEXT_ICON_GAP_X     TILE_SIZE_MB * 4
+    #define TEXT_ICON_GAP_Y     -TILE_SIZE_MB / 16
+    #define MENU_ITEM_GAP_Y     TILE_SIZE_MB * 3/2
+#else
+    #define TEXT_ICON_GAP_X     TILE_SIZE_MB * 3
+    #define TEXT_ICON_GAP_Y     -TILE_SIZE_MB / 4
+    #define MENU_ITEM_GAP_Y     TILE_SIZE_MB
+#endif
+
 // menuBox characterItem positions.
-#define TERRAIN_FLIP_BTTN_X     TILE_SIZE_MB * 3/2
-#define TERRAIN_FLIP_BTTN_Y     TILE_SIZE_MB / 2
-#define TERRAIN_FLIP_TEXT_X     TERRAIN_FLIP_BTTN_X + (TILE_SIZE_MB * 3/2)
-#define TERRAIN_FLIP_TEXT_Y     TERRAIN_FLIP_BTTN_Y + (TILE_SIZE_MB / 4)
+#define TERRAIN_FLIP_TEXT_X     MENU_CORNER_X
+#define TERRAIN_FLIP_TEXT_Y     MENU_CORNER_Y
+#define TERRAIN_FLIP_BTTN_X     TERRAIN_FLIP_TEXT_X + TEXT_ICON_GAP_X
+#define TERRAIN_FLIP_BTTN_Y     TERRAIN_FLIP_TEXT_Y + TEXT_ICON_GAP_Y
 
 // menuBox settingsItem positions.
-#define ZOOM_SWITCH_X      TILE_SIZE_MB * 3/2
-#define ZOOM_SWITCH_Y      TILE_SIZE_MB / 2
-#define ZOOM_TEXT_X        ZOOM_SWITCH_X + (TILE_SIZE_MB * 3/2)
-#define ZOOM_TEXT_Y        ZOOM_SWITCH_Y
+#define ZOOM_TEXT_X             MENU_CORNER_X
+#define ZOOM_TEXT_Y             MENU_CORNER_Y
+#define ZOOM_SWITCH_X           ZOOM_TEXT_X + TEXT_ICON_GAP_X
+#define ZOOM_SWITCH_Y           ZOOM_TEXT_Y + TEXT_ICON_GAP_Y
 
-#define REFRESH_BTTN_X     ZOOM_SWITCH_X
-#define REFRESH_BTTN_Y     ZOOM_SWITCH_Y + TILE_SIZE_MB
-#define REFRESH_TEXT_X     REFRESH_BTTN_X + (TILE_SIZE_MB * 3/2)
-#define REFRESH_TEXT_Y     ZOOM_SWITCH_Y + TILE_SIZE_MB
+#define REFRESH_TEXT_X          ZOOM_TEXT_X
+#define REFRESH_TEXT_Y          ZOOM_TEXT_Y + MENU_ITEM_GAP_Y
+#define REFRESH_BTTN_X          ZOOM_SWITCH_X
+#define REFRESH_BTTN_Y          ZOOM_SWITCH_Y + MENU_ITEM_GAP_Y
 
-#define FOGOFWAR_BTTN_X    ZOOM_SWITCH_X
-#define FOGOFWAR_BTTN_Y    REFRESH_BTTN_Y + TILE_SIZE_MB
-#define FOGOFWAR_TEXT_X    REFRESH_BTTN_X + (TILE_SIZE_MB * 3/2)
-#define FOGOFWAR_TEXT_Y    REFRESH_TEXT_Y + TILE_SIZE_MB
+#define FOGOFWAR_TEXT_X         ZOOM_TEXT_X
+#define FOGOFWAR_TEXT_Y         REFRESH_TEXT_Y + MENU_ITEM_GAP_Y
+#define FOGOFWAR_BTTN_X         ZOOM_SWITCH_X
+#define FOGOFWAR_BTTN_Y         REFRESH_BTTN_Y + MENU_ITEM_GAP_Y
 
-#define EXIT_TEXT_X        MENU_BOX_WIDTH - TILE_SIZE_MB * 7/2
-#define EXIT_TEXT_Y        MENU_BOX_HEIGHT - TILE_SIZE_MB * 2
+#define EXIT_TEXT_X             ZOOM_TEXT_X
+#define EXIT_TEXT_Y             FOGOFWAR_TEXT_Y + MENU_ITEM_GAP_Y
+#define EXIT_BTTN_X             ZOOM_SWITCH_X
+#define EXIT_BTTN_Y             FOGOFWAR_BTTN_Y + MENU_ITEM_GAP_Y
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -51,13 +66,14 @@ MenuLayout characterItems[MB_CHARACTER_COUNT] =
 
 MenuLayout settingsItems[MB_SETTINGS_COUNT] =
 {   //  origin.x         origin.y          width         height         isText
-    { {{ZOOM_SWITCH_X,   ZOOM_SWITCH_Y},   TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // ZOOM_SWITCH
     { {{ZOOM_TEXT_X,     ZOOM_TEXT_Y},     TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // ZOOM_TEXT
-    { {{REFRESH_BTTN_X,  REFRESH_BTTN_Y},  TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // REFRESH_BUTTON
+    { {{ZOOM_SWITCH_X,   ZOOM_SWITCH_Y},   TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // ZOOM_SWITCH
     { {{REFRESH_TEXT_X,  REFRESH_TEXT_Y},  TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // REFRESH_TEXT
-    { {{FOGOFWAR_BTTN_X, FOGOFWAR_BTTN_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // FOGOFWAR_BUTTON
+    { {{REFRESH_BTTN_X,  REFRESH_BTTN_Y},  TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // REFRESH_BUTTON
     { {{FOGOFWAR_TEXT_X, FOGOFWAR_TEXT_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // FOGOFWAR_TEXT
+    { {{FOGOFWAR_BTTN_X, FOGOFWAR_BTTN_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // FOGOFWAR_BUTTON
     { {{EXIT_TEXT_X,     EXIT_TEXT_Y},     TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // EXIT_TEXT
+    { {{EXIT_BTTN_X,     EXIT_BTTN_Y},     TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // EXIT_BUTTON
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -101,7 +117,7 @@ const char* GetSettingsLayoutText(SettingsUI item)
     case MB_SETTINGS_ZOOM_TEXT:
         return "Zoom";
     case MB_SETTINGS_REFRESH_TEXT:
-        return "Regenerate";
+        return "New Map";
     case MB_SETTINGS_FOGOFWAR_TEXT:
         return "Fog of War";
     case MB_SETTINGS_EXIT_TEXT:
