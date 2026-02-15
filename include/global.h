@@ -59,6 +59,7 @@ Direction GetOppositeDirection(Direction direction);
 const char* GetDirectionSymbol(Direction direction);
 gboolean IsSamePoint(Point *point1, Point *point2);
 Point* GetNextPointOnLine(Point *startPos, Point *endPos);
+guint GetDistanceBetween(Point *point1, Point *point2);
 gboolean IsValueEven(gint value);
 gint ClampValue(gint value, gint minimum, gint maximum);
 gint WrapValue(gint value, gint minimum, gint maximum);

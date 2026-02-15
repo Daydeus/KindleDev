@@ -36,14 +36,16 @@ void InitActors(void)
     {
         Actor *actor = GetActor(index);
 
-        if (index == 0)
+        if (index == PLAYER_ACTOR_INDEX)
         {
             SetActorSpecies(actor, SPECIES_PLAYER);
+            SetActorHealthCurrent(actor, 5);
             SetActorSightRange(actor, 6);
         }
         else
         {
             SetActorSpecies(actor, SPECIES_SLIME);
+            SetActorHealthCurrent(actor, 1);
             SetActorSightRange(actor, 3);
         }
     }
@@ -116,6 +118,30 @@ void SetActorPosition(Actor *actor, Point* position)
     SetCellsActor(position, actor);
 
     actor->position = *position;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Gets the current health for the given actor.
+gint GetActorHealthCurrent(Actor *actor)
+{
+    return actor->healthCurrent;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets the current helath for the given actor.
+void SetActorHealthCurrent(Actor *actor, gint newHealth)
+{
+    actor->healthCurrent = newHealth;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns TRUE is the given actor's health is less than or equal to zero.
+gboolean IsActorDead(Actor *actor)
+{
+    if (actor->healthCurrent > 0)
+        return FALSE;
+    else
+        return TRUE;
 }
 
 // ------------------------------------------------------------------------------------------------

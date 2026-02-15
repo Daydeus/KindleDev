@@ -29,6 +29,7 @@ typedef struct
     ActorSpecies species;
     Point position;
     Point prevPosition;
+    gint healthCurrent;
     guint sightRange:4;
 } Actor;
 
@@ -49,6 +50,9 @@ ActorSpecies GetActorSpecies(Actor *actor);
 void SetActorSpecies(Actor *actor, ActorSpecies species);
 Point* GetActorPosition(Actor *actor);
 void SetActorPosition(Actor *actor, Point *position);
+gint GetActorHealthCurrent(Actor *actor);
+void SetActorHealthCurrent(Actor *actor, gint newHealth);
+gboolean IsActorDead(Actor *actor);
 guint GetActorSightRange(Actor *actor);
 void SetActorSightRange(Actor *actor, guint sightRange);
 

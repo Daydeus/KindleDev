@@ -1,3 +1,5 @@
+#include <cstdlib>
+#include <math.h>
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
 #include "global.h"
@@ -137,6 +139,17 @@ Point* GetNextPointOnLine(Point *startPos, Point *endPos)
     } // e_xy + e_y < 0
 
     return startPos;
+}
+
+//-------------------------------------------------------------------------------------------------
+// Returns the distance between two given points.
+guint GetDistanceBetween(Point *point1, Point *point2)
+{
+    gint changeX = point2->x - point1->x;
+    gint changeY = point2->y - point1->y;
+    double distance = sqrt( (changeX * changeX) + (changeY * changeY));
+
+    return (guint)distance;
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -31,6 +31,7 @@ Action playerAction =  ACTION_NONE;
 
 static gboolean ActionWalk(Actor *actor, Direction direction);
 static gboolean ActionWalkAuto(void);
+static gboolean ActionAttack(Actor *actor, Direction direction);
 static gboolean ActionTerrainFlip(Actor *actor, Point *target);
 
 // ------------------------------------------------------------------------------------------------
@@ -140,6 +141,30 @@ gboolean DoAction(Actor *actor, Action action)
     case ACTION_WALK_AUTO:
         actionCompleted = ActionWalkAuto();
         break;
+    case ACTION_ATTACK_NORTH:
+        actionCompleted = ActionAttack(actor, DIR_NORTH);
+        break;
+    case ACTION_ATTACK_EAST:
+        actionCompleted = ActionAttack(actor, DIR_EAST);
+        break;
+    case ACTION_ATTACK_SOUTH:
+        actionCompleted = ActionAttack(actor, DIR_SOUTH);
+        break;
+    case ACTION_ATTACK_WEST:
+        actionCompleted = ActionAttack(actor, DIR_WEST);
+        break;
+    case ACTION_ATTACK_NORTH_EAST:
+        actionCompleted = ActionAttack(actor, DIR_NORTH_EAST);
+        break;
+    case ACTION_ATTACK_SOUTH_EAST:
+        actionCompleted = ActionAttack(actor, DIR_SOUTH_EAST);
+        break;
+    case ACTION_ATTACK_SOUTH_WEST:
+        actionCompleted = ActionAttack(actor, DIR_SOUTH_WEST);
+        break;
+    case ACTION_ATTACK_NORTH_WEST:
+        actionCompleted = ActionAttack(actor, DIR_NORTH_WEST);
+        break;
     case ACTION_TERRAIN_FLIP:
         actionCompleted = ActionTerrainFlip(actor, GetSelectedCell());
         break;
@@ -224,27 +249,33 @@ gboolean ActionWalkAuto(void)
 // Gets the Walk action associated with a given direction.
 Action GetWalkFromDirection(Direction direction)
 {
-    switch (direction)
-    {
-    case DIR_NORTH:
-        return ACTION_WALK_NORTH;
-    case DIR_EAST:
-        return ACTION_WALK_EAST;
-    case DIR_SOUTH:
-        return ACTION_WALK_SOUTH;
-    case DIR_WEST:
-        return ACTION_WALK_WEST;
-    case DIR_NORTH_EAST:
-        return ACTION_WALK_NORTH_EAST;
-    case DIR_SOUTH_EAST:
-        return ACTION_WALK_SOUTH_EAST;
-    case DIR_SOUTH_WEST:
-        return ACTION_WALK_SOUTH_WEST;
-    case DIR_NORTH_WEST:
-        return ACTION_WALK_NORTH_WEST;
-    default:
-        return ACTION_NONE;
-    }
+    return (Action)(ACTION_WALK_NORTH + (guint)direction);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Attempts to deal one damage to the target in the given direction.
+// Returns FALSE if the action fails.
+static gboolean ActionAttack(Actor *attacker, Direction direction)
+{
+    Point target = *GetActorPosition(attacker);
+    target.x += hMovement[direction];
+    target.y += vMovement[direction];
+
+    if (IsOutsideDungeon(&target) || !IsVisibleToPlayer(&target) || !IsCellOccupiedByActor(&target))
+        return FALSE;
+
+    Actor *defender = GetCellsActor(&target);
+
+    SetActorHealthCurrent(defender, GetActorHealthCurrent(defender) - 1);
+
+    return TRUE;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Gets the Attack action associated with a given direction.
+Action GetAttackFromDirection(Direction direction)
+{
+    return (Action)(ACTION_ATTACK_NORTH + (guint)direction);
 }
 
 // ------------------------------------------------------------------------------------------------

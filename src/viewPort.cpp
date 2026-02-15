@@ -166,9 +166,9 @@ static void DrawDungeon(cairo_t *context)
                 // Only draw actors if player has line of sight.
                 if (IsVisibleToPlayer(&cell))
                 {
-                    // If position contains an actor, draw it over the terrain.
+                    // If position contains an non-dead actor, draw it over the terrain.
                     Actor *actorToDraw = GetCellsActor(&cell);
-                    if (actorToDraw != NULL)
+                    if (actorToDraw != NULL && !IsActorDead(actorToDraw))
                     {
                         gdk_cairo_set_source_pixbuf(context, GetTileForActor(actorToDraw), pixel.x, pixel.y);
                         cairo_paint(context);
@@ -297,15 +297,27 @@ static void DoViewPortInput(Point *inputPos)
         else
         {
             Point *selectedCell = GetSelectedCell();
+            Point *playerPos = GetActorPosition(player);
 
             // If selectedCell is tapped again, auto-navigate player to the dungeoncell if possible.
             if (IsSamePoint(&tappedCell, selectedCell) && IsTerrainTraversable(&tappedCell)
                 && DoesPathToCellExist(selectedCell)
                 && (GetCellSightId(&tappedCell) != CELL_UNEXPLORED || GetFogOfWarStatus() == FALSE))
             {
-                SetSelectedCellStatus(STATUS_LOCKED);
-                SetActionForPlayer(ACTION_WALK_AUTO);
-                g_timeout_add(TURN_TIMER_AUTO, (GSourceFunc)ProcessTurn, NULL);
+                guint distance = GetDistanceBetween(GetActorPosition(player), selectedCell);
+
+                if (distance == ATTACK_DISTANCE && IsCellOccupiedByActor(selectedCell))
+                {
+                    Direction direction = GetTravelDirectionBetweenCells(playerPos, selectedCell);
+                    SetActionForPlayer(GetAttackFromDirection(direction));
+                    ProcessTurn(NULL);
+                }
+                else
+                {
+                    SetSelectedCellStatus(STATUS_LOCKED);
+                    SetActionForPlayer(ACTION_WALK_AUTO);
+                    g_timeout_add(TURN_TIMER_AUTO, (GSourceFunc)ProcessTurn, NULL);
+                }
             }
             else
             {
@@ -347,8 +359,14 @@ static void DoViewPortInput(Point *inputPos)
         if (GetSelectedCellStatus() != STATUS_LOCKED)
         {
             Direction swipeDirection = GetOppositeDirection(GetSwipeDirection());
+            Point targetPos = *GetActorPosition(player);
+            targetPos.x += hMovement[swipeDirection];
+            targetPos.y += vMovement[swipeDirection];
 
-            SetActionForPlayer(GetWalkFromDirection(swipeDirection));
+            if (IsCellOccupiedByActor(&targetPos))
+                SetActionForPlayer(GetAttackFromDirection(swipeDirection));
+            else
+                SetActionForPlayer(GetWalkFromDirection(swipeDirection));
             ProcessTurn(NULL);
         }
         else

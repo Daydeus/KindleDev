@@ -10,6 +10,7 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
+#define ATTACK_DISTANCE 1
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -27,6 +28,14 @@ enum Action
     ACTION_WALK_SOUTH_WEST,
     ACTION_WALK_NORTH_WEST,
     ACTION_WALK_AUTO,
+    ACTION_ATTACK_NORTH,
+    ACTION_ATTACK_EAST,
+    ACTION_ATTACK_SOUTH,
+    ACTION_ATTACK_WEST,
+    ACTION_ATTACK_NORTH_EAST,
+    ACTION_ATTACK_SOUTH_EAST,
+    ACTION_ATTACK_SOUTH_WEST,
+    ACTION_ATTACK_NORTH_WEST,
     ACTION_TERRAIN_FLIP,
     ACTION_COUNT
 };
@@ -46,5 +55,6 @@ void SetActionForPlayer(Action action);
 Action GetActionForAI(Actor *actor);
 gboolean DoAction(Actor *actor, Action action);
 Action GetWalkFromDirection(Direction direction);
+Action GetAttackFromDirection(Direction direction);
 
 #endif // ACTION_H

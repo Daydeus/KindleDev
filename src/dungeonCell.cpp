@@ -135,8 +135,8 @@ gboolean IsCellOccupiedByActor(Point *position)
     {
         Actor *actor = GetCellsActor(position);
 
-        // Check if cell already contains an actor.
-        if (actor != NULL)
+        // Check if cell contains an alive actor.
+        if (actor != NULL && !IsActorDead(actor))
             return TRUE;
         else
             return FALSE;
