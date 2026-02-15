@@ -268,6 +268,7 @@ static void DoViewPortInput(Point *inputPos)
     Point viewPosition = *GetViewPosition();
     Point tappedTile = {inputPos->x / tileSize, inputPos->y / tileSize};
     Point tappedCell = {0};
+    Point *selectedCell = GetSelectedCell();
 
     // When the viewPort's length in tiles is even, the tiles are drawn offset by half a
     // tile to keep the player centered on-screen. This must be taken into account when
@@ -296,7 +297,6 @@ static void DoViewPortInput(Point *inputPos)
         }
         else
         {
-            Point *selectedCell = GetSelectedCell();
             Point *playerPos = GetActorPosition(player);
 
             // If selectedCell is tapped again, auto-navigate player to the dungeoncell if possible.
@@ -359,15 +359,14 @@ static void DoViewPortInput(Point *inputPos)
         if (GetSelectedCellStatus() != STATUS_LOCKED)
         {
             Direction swipeDirection = GetOppositeDirection(GetSwipeDirection());
-            Point targetPos = *GetActorPosition(player);
-            targetPos.x += hMovement[swipeDirection];
-            targetPos.y += vMovement[swipeDirection];
+            Point newPosition = *selectedCell;
 
-            if (IsCellOccupiedByActor(&targetPos))
-                SetActionForPlayer(GetAttackFromDirection(swipeDirection));
-            else
-                SetActionForPlayer(GetWalkFromDirection(swipeDirection));
-            ProcessTurn(NULL);
+            newPosition.x += hMovement[swipeDirection];
+            newPosition.y += vMovement[swipeDirection];
+
+            if (GetCellSightId(&newPosition) != CELL_UNEXPLORED
+                || (GetFogOfWarStatus() == FALSE && !IsOutsideDungeon(&newPosition)))
+                SetSelectedCell(&newPosition);
         }
         else
         {
