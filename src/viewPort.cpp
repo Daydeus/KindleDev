@@ -1,5 +1,4 @@
 #include <gtk-2.0/gtk/gtk.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
 #include <glib-2.0/glib.h>
 #include <cairo/cairo.h>
 #include <cstdlib>
@@ -192,16 +191,16 @@ static void DrawViewPortBorders(cairo_t *context)
 {
     // ViewPort edges for the North, East, South, and West directions.
     #define EDGE_N 0
-    #define EDGE_E (VIEWPORT_WIDTH - TILE_SIZE_MB)
-    #define EDGE_S (VIEWPORT_HEIGHT - TILE_SIZE_MB)
+    #define EDGE_E (VIEWPORT_WIDTH - TILE_SIZE_BORDER)
+    #define EDGE_S (VIEWPORT_HEIGHT - TILE_SIZE_BORDER)
     #define EDGE_W 0
 
     guint tileVariant = 0;
 
     // Draw the vertical borders.
-    for (guint i = TILE_SIZE_MB; i < VIEWPORT_WIDTH - TILE_SIZE_MB; i += TILE_SIZE_MB)
+    for (guint i = TILE_SIZE_BORDER; i < VIEWPORT_WIDTH - TILE_SIZE_BORDER; i += TILE_SIZE_BORDER)
     {
-        tileVariant = (i / TILE_SIZE_MB) % 3;
+        tileVariant = (i / TILE_SIZE_BORDER) % 3;
         gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_NORTH_1 + tileVariant], i, EDGE_N);
         cairo_paint(context);
 
@@ -210,9 +209,9 @@ static void DrawViewPortBorders(cairo_t *context)
     }
 
     // Draw the horizontal borders.
-    for (guint i = TILE_SIZE_MB; i < VIEWPORT_HEIGHT - TILE_SIZE_MB; i += TILE_SIZE_MB)
+    for (guint i = TILE_SIZE_BORDER; i < VIEWPORT_HEIGHT - TILE_SIZE_BORDER; i += TILE_SIZE_BORDER)
     {
-        tileVariant = (i / TILE_SIZE_MB) % 3;
+        tileVariant = (i / TILE_SIZE_BORDER) % 3;
         gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_EAST_1 + tileVariant], EDGE_E, i);
         cairo_paint(context);
 

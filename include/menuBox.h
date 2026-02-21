@@ -11,10 +11,10 @@
 
 #ifdef KINDLE_BUILD
 #define MENU_BOX_WIDTH  VIEWPORT_WIDTH
-#define MENU_BOX_HEIGHT 640
+#define MENU_BOX_HEIGHT 736
 #else
 #define MENU_BOX_WIDTH  VIEWPORT_WIDTH
-#define MENU_BOX_HEIGHT 320
+#define MENU_BOX_HEIGHT 368
 #endif
 
 // ------------------------------------------------------------------------------------------------

@@ -9,6 +9,8 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
+#define MENU_TABS_TOP       TILE_SIZE_BORDER * 4
+#define MENU_TABS_BOTTOM    MENU_TABS_TOP + TILE_SIZE_MB + TILE_SIZE_BORDER
 
 // ------------------------------------------------------------------------------------------------
 // Data Types

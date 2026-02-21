@@ -4,6 +4,7 @@
 #include "dungeonCell.h"
 #include "fieldOfView.h"
 #include "global.h"
+#include "menuBox.h"
 #include "menuBoxLayout.h"
 #include "tile.h"
 #include "viewPort.h"
@@ -313,6 +314,44 @@ GdkPixbuf* GetTileForCellSelector(void)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Returns the GdkPixbuf from the menuBoxTiles array for the given state.
+GdkPixbuf* GetTileForMenuState(MenuState state)
+{
+    MenuState currentState = GetMenuState();
+
+    switch (state)
+    {
+    case STATE_INSPECT:
+        if (currentState == STATE_INSPECT)
+            return menuBoxTiles[TILE_INSPECT_ON];
+        else
+            return menuBoxTiles[TILE_INSPECT_OFF];
+    case STATE_CHARACTER:
+        if (currentState == STATE_CHARACTER)
+            return menuBoxTiles[TILE_CHARACTER_ON];
+        else
+            return menuBoxTiles[TILE_CHARACTER_OFF];
+    case STATE_INVENTORY:
+        if (currentState == STATE_INVENTORY)
+            return menuBoxTiles[TILE_INVENTORY_ON];
+        else
+            return menuBoxTiles[TILE_INVENTORY_OFF];
+    case STATE_LOGBOOK:
+        if (currentState == STATE_LOGBOOK)
+            return menuBoxTiles[TILE_LOGBOOK_ON];
+        else
+            return menuBoxTiles[TILE_LOGBOOK_OFF];
+    case STATE_SETTINGS:
+        if (currentState == STATE_SETTINGS)
+            return menuBoxTiles[TILE_SETTINGS_ON];
+        else
+            return menuBoxTiles[TILE_SETTINGS_OFF];
+    default:
+        return menuBoxTiles[0];
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 // Returns the GdkPixbuf from the menuBoxTiles array based on the given UI item.
 GdkPixbuf* GetTileForMenuBoxCharacter(CharacterUI item)
 {
@@ -402,7 +441,7 @@ void LoadMenuBoxTiles(void)
         guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
 
         menuBoxTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
-        menuBoxTiles[i] = gdk_pixbuf_scale_simple(menuBoxTiles[i], TILE_SIZE_BORDER, TILE_SIZE_BORDER,
+        menuBoxTiles[i] = gdk_pixbuf_scale_simple(menuBoxTiles[i], TILE_SIZE_MB, TILE_SIZE_MB,
             GDK_INTERP_NEAREST);
     }
 

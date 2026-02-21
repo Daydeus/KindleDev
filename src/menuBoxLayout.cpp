@@ -10,7 +10,7 @@
 // ------------------------------------------------------------------------------------------------
 
 #define MENU_CORNER_X           TILE_SIZE_MB * 3/4
-#define MENU_CORNER_Y           TILE_SIZE_MB * 3/4
+#define MENU_CORNER_Y           MENU_TABS_BOTTOM
 
 #ifdef KINDLE_BUILD
     #define TEXT_ICON_GAP_X     TILE_SIZE_MB * 4
@@ -24,13 +24,13 @@
 
 // menuBox characterItem positions.
 #define TERRAIN_FLIP_TEXT_X     MENU_CORNER_X
-#define TERRAIN_FLIP_TEXT_Y     MENU_CORNER_Y
+#define TERRAIN_FLIP_TEXT_Y     MENU_CORNER_Y + TILE_SIZE_MB
 #define TERRAIN_FLIP_BTTN_X     TERRAIN_FLIP_TEXT_X + TEXT_ICON_GAP_X
 #define TERRAIN_FLIP_BTTN_Y     TERRAIN_FLIP_TEXT_Y + TEXT_ICON_GAP_Y
 
 // menuBox settingsItem positions.
 #define ZOOM_TEXT_X             MENU_CORNER_X
-#define ZOOM_TEXT_Y             MENU_CORNER_Y
+#define ZOOM_TEXT_Y             MENU_CORNER_Y + TILE_SIZE_MB
 #define ZOOM_SWITCH_X           ZOOM_TEXT_X + TEXT_ICON_GAP_X
 #define ZOOM_SWITCH_Y           ZOOM_TEXT_Y + TEXT_ICON_GAP_Y
 

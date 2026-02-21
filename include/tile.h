@@ -18,10 +18,10 @@
 
 #ifdef KINDLE_BUILD
 #define TILE_SIZE_MB     TILE_SIZE_64
-#define TILE_SIZE_BORDER TILE_SIZE_64
+#define TILE_SIZE_BORDER TILE_SIZE_32
 #else
 #define TILE_SIZE_MB     TILE_SIZE_32
-#define TILE_SIZE_BORDER TILE_SIZE_32
+#define TILE_SIZE_BORDER TILE_SIZE_16
 #endif
 
 // ------------------------------------------------------------------------------------------------
@@ -55,18 +55,16 @@ enum BorderTile
     TILE_BORDER_CORNER_SOUTH_EAST,
     TILE_BORDER_CORNER_SOUTH_WEST,
     TILE_BORDER_CORNER_NORTH_WEST,
-    TILE_BORDER_INSPECT_OFF,
-    TILE_BORDER_ICON_OFF_OFFSET = TILE_BORDER_INSPECT_OFF,
-    TILE_BORDER_CHARACTER_OFF,
-    TILE_BORDER_INVENTORY_OFF,
-    TILE_BORDER_LOGBOOK_OFF,
-    TILE_BORDER_SETTINGS_OFF,
-    TILE_BORDER_INSPECT_ON,
-    TILE_BORDER_ICON_ON_OFFSET = TILE_BORDER_INSPECT_ON,
-    TILE_BORDER_CHARACTER_ON,
-    TILE_BORDER_INVENTORY_ON,
-    TILE_BORDER_LOGBOOK_ON,
-    TILE_BORDER_SETTINGS_ON,
+    TILE_BORDER_T_NORTH,
+    TILE_BORDER_T_EAST,
+    TILE_BORDER_T_SOUTH,
+    TILE_BORDER_T_WEST,
+    TILE_BORDER_MIDDLE_H_1,
+    TILE_BORDER_MIDDLE_H_2,
+    TILE_BORDER_MIDDLE_H_3,
+    TILE_BORDER_MIDDLE_V_1,
+    TILE_BORDER_MIDDLE_V_2,
+    TILE_BORDER_MIDDLE_V_3,
     TILE_COUNT_BORDER
 };
 
@@ -114,15 +112,27 @@ enum DungeonTile
 // Indices for GdkPixbufs in the menuBoxTiles array.
 enum MenuBoxTile
 {
-    TILE_ARROW_NORTH,
-    TILE_ARROW_EAST,
-    TILE_ARROW_SOUTH,
-    TILE_ARROW_WEST,
+    TILE_EXIT,
+    TILE_REFRESH,
     TILE_UI_SWITCH_OFF,
     TILE_UI_SWITCH_MID,
     TILE_UI_SWITCH_ON,
-    TILE_REFRESH,
-    TILE_EXIT,
+    TILE_BAR_END_LEFT,
+    TILE_BAR_MIDDLE,
+    TILE_BAR_END_RIGHT,
+    TILE_HEART,
+    TILE_INSPECT_OFF,
+    TILE_ICON_OFF_OFFSET = TILE_INSPECT_OFF,
+    TILE_CHARACTER_OFF,
+    TILE_INVENTORY_OFF,
+    TILE_LOGBOOK_OFF,
+    TILE_SETTINGS_OFF,
+    TILE_INSPECT_ON,
+    TILE_ICON_ON_OFFSET = TILE_INSPECT_ON,
+    TILE_CHARACTER_ON,
+    TILE_INVENTORY_ON,
+    TILE_LOGBOOK_ON,
+    TILE_SETTINGS_ON,
     TILE_COUNT_MB
 };
 
@@ -162,6 +172,7 @@ void FreeDungeonTiles(void);
 GdkPixbuf* GetTileForActor(Actor *actor);
 GdkPixbuf* GetTileForTerrain(Point *position);
 GdkPixbuf* GetTileForCellSelector(void);
+GdkPixbuf* GetTileForMenuState(MenuState state);
 GdkPixbuf* GetTileForMenuBoxCharacter(CharacterUI item);
 GdkPixbuf* GetTileForMenuBoxSettings(SettingsUI item);
 guint GetTileSizeForZoom(gboolean zoomIsOn);
