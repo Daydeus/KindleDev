@@ -7,7 +7,7 @@
 #include "actor.h"
 #include "dungeonCell.h"
 #include "dungeonGeneration.h"
-#include "menuBox.h"
+#include "menu.h"
 #include "pathfinding.h"
 #include "tile.h"
 #include "viewPort.h"
@@ -48,13 +48,13 @@ int main(int argc, char *argv[])
     gtk_container_add(GTK_CONTAINER(applicationMain), GTK_WIDGET(alignMain));
     gtk_container_add(GTK_CONTAINER(alignMain), GTK_WIDGET(tableMain));
 
-    // Set up the viewPort and menuBox.
+    // Set up the viewPort and menu.
     LoadBorderTiles();
     InitViewPort();
-    InitMenuBox();
+    InitMenu();
     LoadColorFillTiles();
     gtk_table_attach(tableMain, GTK_WIDGET(viewPort), 0, 1, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-    gtk_table_attach(tableMain, GTK_WIDGET(menuBox), 0, 1, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+    gtk_table_attach(tableMain, GTK_WIDGET(menu), 0, 1, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
     gtk_table_set_row_spacing (GTK_TABLE(tableMain), 0, TILE_SIZE_16);
 
     // Connect widget signals to callbacks.
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
     FreeBorderTiles();
     FreeColorFillTiles();
     FreeDungeonTiles();
-    FreeMenuBoxTiles();
+    FreeMenuTiles();
 
     return 0;
 }

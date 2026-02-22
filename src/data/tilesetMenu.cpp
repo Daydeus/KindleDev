@@ -1,15 +1,15 @@
 /* GdkPixbuf RGBA C-Source image dump */
 
 #include <glib-2.0/glib.h>
-  #include "data/tilesetMenuBoxSettings.h"
+  #include "data/tilesetMenu.h"
 
 #ifdef __SUNPRO_C
-#pragma align 4 (tilesetMenuBoxSettings)
+#pragma align 4 (tilesetMenu)
 #endif
 #ifdef __GNUC__
-const guint8 tilesetMenuBoxSettings[] __attribute__ ((__aligned__ (4))) = 
+const guint8 tilesetMenu[] __attribute__ ((__aligned__ (4))) = 
 #else
-const guint8 tilesetMenuBoxSettings[] = 
+const guint8 tilesetMenu[] = 
 #endif
 { ""
   /* Pixbuf magic (0x47646b50) */

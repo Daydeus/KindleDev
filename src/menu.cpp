@@ -7,8 +7,8 @@
 #include "dungeonGeneration.h"
 #include "dungeonMaster.h"
 #include "fieldOfView.h"
-#include "menuBox.h"
-#include "menuBoxLayout.h"
+#include "menu.h"
+#include "menuLayout.h"
 #include "tile.h"
 
 // ------------------------------------------------------------------------------------------------
@@ -33,14 +33,14 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-GtkDrawingArea *menuBox = NULL;
+GtkDrawingArea *menu = NULL;
 MenuState menuState = STATE_SETTINGS;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-static void DrawMenuBoxBorders(cairo_t *context);
+static void DrawMenuBorders(cairo_t *context);
 static void DrawMenuTabs(cairo_t *context);
 static void DrawMenuStateCharacter(cairo_t *context);
 static void DrawMenuStateSettings(cairo_t *context);
@@ -53,19 +53,19 @@ static void DoMenuSettingsFogOfWarClick(Point *inputPos);
 
 // ------------------------------------------------------------------------------------------------
 // Load GdkPixbuf tiles and initialize the menuBbox for the player.
-void InitMenuBox(void)
+void InitMenu(void)
 {
-    LoadMenuBoxTiles();
+    LoadMenuTiles();
 
-    // Initialize menuBox.
-    menuBox = GTK_DRAWING_AREA(gtk_drawing_area_new());
-    gtk_widget_set_size_request(GTK_WIDGET(menuBox), MENU_BOX_WIDTH, MENU_BOX_HEIGHT);
-    SetWidgetBgColor(GTK_WIDGET(menuBox), COLOR_BLACK);
+    // Initialize menu.
+    menu = GTK_DRAWING_AREA(gtk_drawing_area_new());
+    gtk_widget_set_size_request(GTK_WIDGET(menu), MENU_WIDTH, MENU_HEIGHT);
+    SetWidgetBgColor(GTK_WIDGET(menu), COLOR_BLACK);
 
     // Set up signals.
-    g_signal_connect(menuBox, "expose_event", G_CALLBACK(on_menuBox_update), NULL);
-    g_signal_connect(menuBox, "button_press_event", G_CALLBACK(on_menuBox_click), NULL);
-    gtk_widget_set_events(GTK_WIDGET(menuBox), GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK);
+    g_signal_connect(menu, "expose_event", G_CALLBACK(on_menu_update), NULL);
+    g_signal_connect(menu, "button_press_event", G_CALLBACK(on_menu_click), NULL);
+    gtk_widget_set_events(GTK_WIDGET(menu), GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -83,19 +83,19 @@ void SetMenuState(MenuState state)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Draw the borders for the MenuBox.
-static void DrawMenuBoxBorders(cairo_t *context)
+// Draw the borders for the Menu.
+static void DrawMenuBorders(cairo_t *context)
 {
-    // MenuBox edges for the North, East, South, and West directions.
+    // Menu edges for the North, East, South, and West directions.
     #define EDGE_N 0
-    #define EDGE_E (MENU_BOX_WIDTH - TILE_SIZE_BORDER)
-    #define EDGE_S (MENU_BOX_HEIGHT - TILE_SIZE_BORDER)
+    #define EDGE_E (MENU_WIDTH - TILE_SIZE_BORDER)
+    #define EDGE_S (MENU_HEIGHT - TILE_SIZE_BORDER)
     #define EDGE_W 0
 
     guint tileVariant = 0;
 
-    // Draw the borders across the top and bottom edges of the menuBox.
-    for (guint i = TILE_SIZE_BORDER; i < MENU_BOX_WIDTH - TILE_SIZE_BORDER; i += TILE_SIZE_BORDER)
+    // Draw the borders across the top and bottom edges of the menu.
+    for (guint i = TILE_SIZE_BORDER; i < MENU_WIDTH - TILE_SIZE_BORDER; i += TILE_SIZE_BORDER)
     {
         tileVariant = (i / TILE_SIZE_BORDER) % 3;
         gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_NORTH_1 + tileVariant], i, EDGE_N);
@@ -105,8 +105,8 @@ static void DrawMenuBoxBorders(cairo_t *context)
         cairo_paint(context);
     }
 
-    // Draw the borders down the left and right edges of the menuBox.
-    for (guint i = TILE_SIZE_BORDER; i < MENU_BOX_HEIGHT - TILE_SIZE_BORDER; i += TILE_SIZE_BORDER)
+    // Draw the borders down the left and right edges of the menu.
+    for (guint i = TILE_SIZE_BORDER; i < MENU_HEIGHT - TILE_SIZE_BORDER; i += TILE_SIZE_BORDER)
     {
         tileVariant = (i / TILE_SIZE_BORDER) % 3;
         gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_WEST_1 + tileVariant], EDGE_W, i);
@@ -116,7 +116,7 @@ static void DrawMenuBoxBorders(cairo_t *context)
         cairo_paint(context);
     }
 
-    // Draw the corners of the menuBox.
+    // Draw the corners of the menu.
     gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_CORNER_NORTH_EAST], EDGE_E, EDGE_N);
     cairo_paint(context);
     gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_CORNER_SOUTH_EAST], EDGE_E, EDGE_S);
@@ -127,7 +127,7 @@ static void DrawMenuBoxBorders(cairo_t *context)
     cairo_paint(context);
 
     // Draw the top and bottom borders of the menuState tab bar.
-    for (guint i = TILE_SIZE_BORDER; i < MENU_BOX_WIDTH - TILE_SIZE_BORDER; i += TILE_SIZE_BORDER)
+    for (guint i = TILE_SIZE_BORDER; i < MENU_WIDTH - TILE_SIZE_BORDER; i += TILE_SIZE_BORDER)
     {
         guint tileVariant = (i / TILE_SIZE_BORDER) % 3;
         gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_MIDDLE_H_1 + tileVariant], i, MENU_TABS_TOP);
@@ -140,11 +140,11 @@ static void DrawMenuBoxBorders(cairo_t *context)
     // Draw the T-post border pieces for menu state tab bar.
     gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_T_WEST], 0, MENU_TABS_TOP);
     cairo_paint(context);
-    gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_T_EAST], MENU_BOX_WIDTH - TILE_SIZE_BORDER, MENU_TABS_TOP);
+    gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_T_EAST], MENU_WIDTH - TILE_SIZE_BORDER, MENU_TABS_TOP);
     cairo_paint(context);
     gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_T_WEST], 0, MENU_TABS_BOTTOM);
     cairo_paint(context);
-    gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_T_EAST], MENU_BOX_WIDTH - TILE_SIZE_BORDER, MENU_TABS_BOTTOM);
+    gdk_cairo_set_source_pixbuf(context, borderTiles[TILE_BORDER_T_EAST], MENU_WIDTH - TILE_SIZE_BORDER, MENU_TABS_BOTTOM);
     cairo_paint(context);
 
     #undef EDGE_N
@@ -154,7 +154,7 @@ static void DrawMenuBoxBorders(cairo_t *context)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Draw the tabs for the menuBox's menuState.
+// Draw the tabs for the menu's menuState.
 static void DrawMenuTabs(cairo_t *context)
 {
     Point cornerTop = {TILE_SIZE_MB + TAB_GAP, MENU_TABS_TOP + TAB_GAP};
@@ -191,10 +191,10 @@ static void DrawMenuTabs(cairo_t *context)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Draws the contents of the menuBox when menuState is set to STATE_CHARACTER.
+// Draws the contents of the menu when menuState is set to STATE_CHARACTER.
 static void DrawMenuStateCharacter(cairo_t *context)
 {
-    PangoLayout *layout = gtk_widget_create_pango_layout(GTK_WIDGET(menuBox), "");
+    PangoLayout *layout = gtk_widget_create_pango_layout(GTK_WIDGET(menu), "");
 
     // Set layout's attributes.
     PangoAttrList *attr_list = pango_attr_list_new();
@@ -215,7 +215,7 @@ static void DrawMenuStateCharacter(cairo_t *context)
         }
         else
         {
-            gdk_cairo_set_source_pixbuf(context, GetTileForMenuBoxCharacter((CharacterUI)i),
+            gdk_cairo_set_source_pixbuf(context, GetTileForMenuCharacter((CharacterUI)i),
                 menuItem->layout.origin.x, menuItem->layout.origin.y);
             cairo_paint(context);
         }
@@ -225,10 +225,10 @@ static void DrawMenuStateCharacter(cairo_t *context)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Draws the contents of the menuBox when menuState is set to STATE_SETTINGS.
+// Draws the contents of the menu when menuState is set to STATE_SETTINGS.
 static void DrawMenuStateSettings(cairo_t *context)
 {
-    PangoLayout *layout = gtk_widget_create_pango_layout(GTK_WIDGET(menuBox), "");
+    PangoLayout *layout = gtk_widget_create_pango_layout(GTK_WIDGET(menu), "");
 
     // Set layout's attributes.
     PangoAttrList *attr_list = pango_attr_list_new();
@@ -251,7 +251,7 @@ static void DrawMenuStateSettings(cairo_t *context)
         }
         else
         {
-            gdk_cairo_set_source_pixbuf(context, GetTileForMenuBoxSettings((SettingsUI)i),
+            gdk_cairo_set_source_pixbuf(context, GetTileForMenuSettings((SettingsUI)i),
                 menuItem->layout.origin.x, menuItem->layout.origin.y);
             cairo_paint(context);
         }
@@ -261,8 +261,8 @@ static void DrawMenuStateSettings(cairo_t *context)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Callback function to update the tiles shown on the menuBox.
-gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userData)
+// Callback function to update the tiles shown on the menu.
+gboolean on_menu_update(GtkWidget *widget, cairo_t *context, gpointer userData)
 {
     // Get the GdkWindow from the widget
     GdkWindow *window = gtk_widget_get_window(widget);
@@ -272,7 +272,7 @@ gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userDat
         // Create a Cairo context from the GdkWindow
         cairo_t *context = gdk_cairo_create(window);
 
-        DrawMenuBoxBorders(context);
+        DrawMenuBorders(context);
         DrawMenuTabs(context);
 
         switch (GetMenuState())
@@ -314,11 +314,11 @@ static void DoMenuTabsClicked(Point* inputPos)
         currentTab.x += MENU_TAB_WIDTH;
     }
 
-    gtk_widget_queue_draw(GTK_WIDGET(menuBox));
+    gtk_widget_queue_draw(GTK_WIDGET(menu));
 }
 
 // ------------------------------------------------------------------------------------------------
-// Process input for the menuBox when in menuState STATE_CHARACTER.
+// Process input for the menu when in menuState STATE_CHARACTER.
 static void DoMenuStateCharacterInput(Point *inputPos)
 {
     // Loop through every item in the layout for menuState character.
@@ -354,7 +354,7 @@ static void DoMenuStateCharacterInput(Point *inputPos)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Process input for the menuBox when in menuState STATE_SETTINGS.
+// Process input for the menu when in menuState STATE_SETTINGS.
 static void DoMenuStateSettingsInput(Point *inputPos)
 {
     // Loop through every item in the layout for menuState settings.
@@ -388,7 +388,7 @@ static void DoMenuStateSettingsInput(Point *inputPos)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Update the viewPort zoom when the SETTINGS_ZOOM_SWITCH is clicked and queue viewPort and menuBox
+// Update the viewPort zoom when the SETTINGS_ZOOM_SWITCH is clicked and queue viewPort and menu
 // redraws.
 static void DoMenuSettingsZoomClick(Point *inputPos)
 {
@@ -402,7 +402,7 @@ static void DoMenuSettingsZoomClick(Point *inputPos)
     CenterViewPortOn(&player->position);
 
     gtk_widget_queue_draw(GTK_WIDGET(viewPort));
-    gtk_widget_queue_draw(GTK_WIDGET(menuBox));
+    gtk_widget_queue_draw(GTK_WIDGET(menu));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -425,19 +425,19 @@ static void DoMenuSettingsFogOfWarClick(Point *inputPos)
     SetFogOfWarStatus(!GetFogOfWarStatus());
 
     gtk_widget_queue_draw(GTK_WIDGET(viewPort));
-    gtk_widget_queue_draw(GTK_WIDGET(menuBox));
+    gtk_widget_queue_draw(GTK_WIDGET(menu));
 }
 
 // ------------------------------------------------------------------------------------------------
-// Callback function to track input on the menuBox.
-gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer userData)
+// Callback function to track input on the menu.
+gboolean on_menu_click(GtkWidget *widget, GdkEventButton *event, gpointer userData)
 {
     // Get pixbuf tile that was clicked.
     Point clicked = {(gint)(event->x), (gint)(event->y)};
     Point tabsOrigin = {0, MENU_TABS_TOP + TAB_GAP};
 
-    // Check if a menuBox state icon was clicked.
-    if (IsWithinRectangle(&clicked, &tabsOrigin, MENU_BOX_WIDTH, MENU_TAB_HEIGHT))
+    // Check if a menu state icon was clicked.
+    if (IsWithinRectangle(&clicked, &tabsOrigin, MENU_WIDTH, MENU_TAB_HEIGHT))
     {
         DoMenuTabsClicked(&clicked);
     }

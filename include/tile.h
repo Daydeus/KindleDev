@@ -3,7 +3,7 @@
 
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
-#include "menuBoxLayout.h"
+#include "menuLayout.h"
 #include "actor.h"
 
 // ------------------------------------------------------------------------------------------------
@@ -112,31 +112,29 @@ enum DungeonTile
     TILE_COUNT_VP
 };
 
-// Indices for GdkPixbufs in the menuBoxTiles array.
-enum MenuBoxTile
+// Indices for GdkPixbufs in the menuTiles array.
+enum MenuTile
 {
-    TILE_EXIT,
-    TILE_REFRESH,
-    TILE_UI_SWITCH_OFF,
-    TILE_UI_SWITCH_MID,
-    TILE_UI_SWITCH_ON,
-    TILE_BAR_END_LEFT,
-    TILE_BAR_MIDDLE,
-    TILE_BAR_END_RIGHT,
-    TILE_HEART,
-    TILE_INSPECT_OFF,
-    TILE_ICON_OFF_OFFSET = TILE_INSPECT_OFF,
-    TILE_CHARACTER_OFF,
-    TILE_INVENTORY_OFF,
-    TILE_LOGBOOK_OFF,
-    TILE_SETTINGS_OFF,
-    TILE_INSPECT_ON,
-    TILE_ICON_ON_OFFSET = TILE_INSPECT_ON,
-    TILE_CHARACTER_ON,
-    TILE_INVENTORY_ON,
-    TILE_LOGBOOK_ON,
-    TILE_SETTINGS_ON,
-    TILE_COUNT_MB
+    TILE_MENU_EXIT,
+    TILE_MENU_REFRESH,
+    TILE_MENU_UI_SWITCH_OFF,
+    TILE_MENU_UI_SWITCH_MID,
+    TILE_MENU_UI_SWITCH_ON,
+    TILE_MENU_BAR_END_LEFT,
+    TILE_MENU_BAR_MIDDLE,
+    TILE_MENU_BAR_END_RIGHT,
+    TILE_MENU_HEART,
+    TILE_MENU_INSPECT_OFF,
+    TILE_MENU_CHARACTER_OFF,
+    TILE_MENU_INVENTORY_OFF,
+    TILE_MENU_LOGBOOK_OFF,
+    TILE_MENU_SETTINGS_OFF,
+    TILE_MENU_INSPECT_ON,
+    TILE_MENU_CHARACTER_ON,
+    TILE_MENU_INVENTORY_ON,
+    TILE_MENU_LOGBOOK_ON,
+    TILE_MENU_SETTINGS_ON,
+    TILE_MENU_COUNT
 };
 
 // Bitmask for determining which wall tile to display.
@@ -158,7 +156,7 @@ extern GdkPixbuf *borderTiles[TILE_COUNT_BORDER];
 extern GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL];
 extern GdkPixbuf *dungeonLightTiles[TILE_COUNT_VP];
 extern GdkPixbuf *dungeonDarkTiles[TILE_COUNT_VP];
-extern GdkPixbuf *menuBoxTiles[TILE_COUNT_MB];
+extern GdkPixbuf *menuTiles[TILE_MENU_COUNT];
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -176,12 +174,12 @@ GdkPixbuf* GetTileForActor(Actor *actor);
 GdkPixbuf* GetTileForTerrain(Point *position);
 GdkPixbuf* GetTileForCellSelector(void);
 GdkPixbuf* GetTileForMenuState(MenuState state);
-GdkPixbuf* GetTileForMenuBoxCharacter(CharacterUI item);
-GdkPixbuf* GetTileForMenuBoxSettings(SettingsUI item);
+GdkPixbuf* GetTileForMenuCharacter(CharacterUI item);
+GdkPixbuf* GetTileForMenuSettings(SettingsUI item);
 guint GetTileSizeForZoom(gboolean zoomIsOn);
 void ScaleTileForZoom(gboolean zoomIsOn);
-void LoadMenuBoxTiles(void);
-void FreeMenuBoxTiles(void);
+void LoadMenuTiles(void);
+void FreeMenuTiles(void);
 void SetWidgetBgColor(GtkWidget *widget, enum Color colorName);
 void FillColorRectangle(cairo_t *context, Point *origin, gint width, gint height, enum Color color);
 

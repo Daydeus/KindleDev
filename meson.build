@@ -29,8 +29,8 @@ sources = files(
     './src/dungeonGeneration.cpp',
     './src/dungeonMaster.cpp',
     './src/fieldOfView.cpp',
-    './src/menuBox.cpp',
-    './src/menuBoxLayout.cpp',
+    './src/menu.cpp',
+    './src/menuLayout.cpp',
     './src/pathfinding.cpp',
     './src/tile.cpp',
     './src/touchGesture.cpp',
@@ -43,7 +43,7 @@ sources = files(
     './src/data/tilesetColorFill.cpp',
     './src/data/tilesetDungeonCave.cpp',
     './src/data/tilesetDungeonCaveDark.cpp',
-    './src/data/tilesetMenuBoxSettings.cpp',
+    './src/data/tilesetMenu.cpp',
 )
 
 include_dirs = include_directories(

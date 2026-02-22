@@ -4,8 +4,8 @@
 #include "dungeonCell.h"
 #include "fieldOfView.h"
 #include "global.h"
-#include "menuBox.h"
-#include "menuBoxLayout.h"
+#include "menu.h"
+#include "menuLayout.h"
 #include "tile.h"
 #include "viewPort.h"
 #include "data/tilesetActor.h"
@@ -13,7 +13,7 @@
 #include "data/tilesetColorFill.h"
 #include "data/tilesetDungeonCave.h"
 #include "data/tilesetDungeonCaveDark.h"
-#include "data/tilesetMenuBoxSettings.h"
+#include "data/tilesetMenu.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -34,7 +34,7 @@ GdkPixbuf *borderTiles[TILE_COUNT_BORDER] = {NULL};
 GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL] = {NULL};
 GdkPixbuf *dungeonLightTiles[TILE_COUNT_VP] = {NULL};
 GdkPixbuf *dungeonDarkTiles[TILE_COUNT_VP] = {NULL};
-GdkPixbuf *menuBoxTiles[TILE_COUNT_MB] = {NULL};
+GdkPixbuf *menuTiles[TILE_MENU_COUNT] = {NULL};
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -319,7 +319,7 @@ GdkPixbuf* GetTileForCellSelector(void)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the GdkPixbuf from the menuBoxTiles array for the given state.
+// Returns the GdkPixbuf from the menuTiles array for the given state.
 GdkPixbuf* GetTileForMenuState(MenuState state)
 {
     MenuState currentState = GetMenuState();
@@ -328,67 +328,67 @@ GdkPixbuf* GetTileForMenuState(MenuState state)
     {
     case STATE_INSPECT:
         if (currentState == STATE_INSPECT)
-            return menuBoxTiles[TILE_INSPECT_ON];
+            return menuTiles[TILE_MENU_INSPECT_ON];
         else
-            return menuBoxTiles[TILE_INSPECT_OFF];
+            return menuTiles[TILE_MENU_INSPECT_OFF];
     case STATE_CHARACTER:
         if (currentState == STATE_CHARACTER)
-            return menuBoxTiles[TILE_CHARACTER_ON];
+            return menuTiles[TILE_MENU_CHARACTER_ON];
         else
-            return menuBoxTiles[TILE_CHARACTER_OFF];
+            return menuTiles[TILE_MENU_CHARACTER_OFF];
     case STATE_INVENTORY:
         if (currentState == STATE_INVENTORY)
-            return menuBoxTiles[TILE_INVENTORY_ON];
+            return menuTiles[TILE_MENU_INVENTORY_ON];
         else
-            return menuBoxTiles[TILE_INVENTORY_OFF];
+            return menuTiles[TILE_MENU_INVENTORY_OFF];
     case STATE_LOGBOOK:
         if (currentState == STATE_LOGBOOK)
-            return menuBoxTiles[TILE_LOGBOOK_ON];
+            return menuTiles[TILE_MENU_LOGBOOK_ON];
         else
-            return menuBoxTiles[TILE_LOGBOOK_OFF];
+            return menuTiles[TILE_MENU_LOGBOOK_OFF];
     case STATE_SETTINGS:
         if (currentState == STATE_SETTINGS)
-            return menuBoxTiles[TILE_SETTINGS_ON];
+            return menuTiles[TILE_MENU_SETTINGS_ON];
         else
-            return menuBoxTiles[TILE_SETTINGS_OFF];
+            return menuTiles[TILE_MENU_SETTINGS_OFF];
     default:
-        return menuBoxTiles[0];
+        return menuTiles[0];
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the GdkPixbuf from the menuBoxTiles array based on the given UI item.
-GdkPixbuf* GetTileForMenuBoxCharacter(CharacterUI item)
+// Returns the GdkPixbuf from the menuTiles array based on the given UI item.
+GdkPixbuf* GetTileForMenuCharacter(CharacterUI item)
 {
     switch (item)
     {
     case MB_CHARACTER_TERRAIN_FLIP_BTTN:
-        return menuBoxTiles[TILE_REFRESH];
+        return menuTiles[TILE_MENU_REFRESH];
     default:
         return dungeonLightTiles[TILE_EDGE];
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the GdkPixbuf from the menuBoxTiles array based on the given UI item.
-GdkPixbuf* GetTileForMenuBoxSettings(SettingsUI item)
+// Returns the GdkPixbuf from the menuTiles array based on the given UI item.
+GdkPixbuf* GetTileForMenuSettings(SettingsUI item)
 {
     switch (item)
     {
     case MB_SETTINGS_ZOOM_SWITCH:
         if (GetViewPortZoom() == TRUE)
-            return menuBoxTiles[TILE_UI_SWITCH_ON];
+            return menuTiles[TILE_MENU_UI_SWITCH_ON];
         else
-            return menuBoxTiles[TILE_UI_SWITCH_OFF];
+            return menuTiles[TILE_MENU_UI_SWITCH_OFF];
     case MB_SETTINGS_REFRESH_BUTTON:
-        return menuBoxTiles[TILE_REFRESH];
+        return menuTiles[TILE_MENU_REFRESH];
     case MB_SETTINGS_FOGOFWAR_BUTTON:
         if (GetFogOfWarStatus() == TRUE)
-            return menuBoxTiles[TILE_UI_SWITCH_ON];
+            return menuTiles[TILE_MENU_UI_SWITCH_ON];
         else
-            return menuBoxTiles[TILE_UI_SWITCH_OFF];
+            return menuTiles[TILE_MENU_UI_SWITCH_OFF];
     case MB_SETTINGS_EXIT_BUTTON:
-        return menuBoxTiles[TILE_EXIT];
+        return menuTiles[TILE_MENU_EXIT];
     default:
         return dungeonLightTiles[TILE_EDGE];
     }
@@ -432,21 +432,21 @@ void ScaleTileForZoom(gboolean zoomIsOn)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Read image data into the GdkPixbufs menuBoxTiles array.
-void LoadMenuBoxTiles(void)
+// Read image data into the GdkPixbufs menuTiles array.
+void LoadMenuTiles(void)
 {
     GdkPixbuf *source = NULL;
     GError * error = NULL;
 
-    source = gdk_pixbuf_new_from_inline(-1, tilesetMenuBoxSettings, FALSE, &error);
+    source = gdk_pixbuf_new_from_inline(-1, tilesetMenu, FALSE, &error);
 
-    for (guint i = 0; i < TILE_COUNT_MB; i++)
+    for (guint i = 0; i < TILE_MENU_COUNT; i++)
     {
         guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_16;
         guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
 
-        menuBoxTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
-        menuBoxTiles[i] = gdk_pixbuf_scale_simple(menuBoxTiles[i], TILE_SIZE_MB, TILE_SIZE_MB,
+        menuTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
+        menuTiles[i] = gdk_pixbuf_scale_simple(menuTiles[i], TILE_SIZE_MB, TILE_SIZE_MB,
             GDK_INTERP_NEAREST);
     }
 
@@ -454,13 +454,13 @@ void LoadMenuBoxTiles(void)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Free the GdkPixbufs for the menuBoxTiles array.
-void FreeMenuBoxTiles(void)
+// Free the GdkPixbufs for the menuTiles array.
+void FreeMenuTiles(void)
 {
     // Free memory used by GdkPixbufs.
-    for (guint i = 0; i < TILE_COUNT_MB; i++)
+    for (guint i = 0; i < TILE_MENU_COUNT; i++)
     {
-        g_object_unref(menuBoxTiles[i]);
+        g_object_unref(menuTiles[i]);
     }
 }
 

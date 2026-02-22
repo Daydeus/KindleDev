@@ -1,5 +1,5 @@
-#ifndef MENU_BOX
-#define MENU_BOX
+#ifndef MENU_H
+#define MENU_H
 
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
@@ -10,11 +10,11 @@
 // ------------------------------------------------------------------------------------------------
 
 #ifdef KINDLE_BUILD
-#define MENU_BOX_WIDTH  VIEWPORT_WIDTH
-#define MENU_BOX_HEIGHT 736
+#define MENU_WIDTH  VIEWPORT_WIDTH
+#define MENU_HEIGHT 736
 #else
-#define MENU_BOX_WIDTH  VIEWPORT_WIDTH
-#define MENU_BOX_HEIGHT 368
+#define MENU_WIDTH  VIEWPORT_WIDTH
+#define MENU_HEIGHT 368
 #endif
 
 // ------------------------------------------------------------------------------------------------
@@ -35,17 +35,17 @@ enum MenuState
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern GtkDrawingArea *menuBox;
+extern GtkDrawingArea *menu;
 extern MenuState menuState;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-void InitMenuBox(void);
+void InitMenu(void);
 MenuState GetMenuState(void);
 void SetMenuState(MenuState state);
-gboolean on_menuBox_update(GtkWidget *widget, cairo_t *context, gpointer userData);
-gboolean on_menuBox_click(GtkWidget *widget, GdkEventButton *event, gpointer userData);
+gboolean on_menu_update(GtkWidget *widget, cairo_t *context, gpointer userData);
+gboolean on_menu_click(GtkWidget *widget, GdkEventButton *event, gpointer userData);
 
-#endif // MENU_BOX
+#endif // MENU_H

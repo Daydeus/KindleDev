@@ -1,8 +1,8 @@
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
 #include "global.h"
-#include "menuBox.h"
-#include "menuBoxLayout.h"
+#include "menu.h"
+#include "menuLayout.h"
 #include "tile.h"
 
 // ------------------------------------------------------------------------------------------------
@@ -22,13 +22,13 @@
     #define MENU_ITEM_GAP_Y     TILE_SIZE_MB
 #endif
 
-// menuBox characterItem positions.
+// menu characterItem positions.
 #define TERRAIN_FLIP_TEXT_X     MENU_CORNER_X
 #define TERRAIN_FLIP_TEXT_Y     MENU_CORNER_Y + TILE_SIZE_MB
 #define TERRAIN_FLIP_BTTN_X     TERRAIN_FLIP_TEXT_X + TEXT_ICON_GAP_X
 #define TERRAIN_FLIP_BTTN_Y     TERRAIN_FLIP_TEXT_Y + TEXT_ICON_GAP_Y
 
-// menuBox settingsItem positions.
+// menu settingsItem positions.
 #define ZOOM_TEXT_X             MENU_CORNER_X
 #define ZOOM_TEXT_Y             MENU_CORNER_Y + TILE_SIZE_MB
 #define ZOOM_SWITCH_X           ZOOM_TEXT_X + TEXT_ICON_GAP_X

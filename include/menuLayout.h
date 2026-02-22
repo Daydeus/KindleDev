@@ -1,5 +1,5 @@
-#ifndef MENUBOX_LAYOUT
-#define MENUBOX_LAYOUT
+#ifndef MENU_LAYOUT
+#define MENU_LAYOUT
 
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
@@ -58,4 +58,4 @@ const char* GetCharacterLayoutText(CharacterUI item);
 MenuLayout* GetSettingsLayoutItem(SettingsUI item);
 const char* GetSettingsLayoutText(SettingsUI item);
 
-#endif // MENUBOX_LAYOUT
+#endif // MENU_LAYOUT

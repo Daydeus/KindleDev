@@ -8,7 +8,7 @@
 #include "dungeonMaster.h"
 #include "fieldOfView.h"
 #include "global.h"
-#include "menuBox.h"
+#include "menu.h"
 #include "pathfinding.h"
 #include "tile.h"
 #include "touchGesture.h"
@@ -186,7 +186,7 @@ static void DrawDungeon(cairo_t *context)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Draw the border for the MenuBox.
+// Draw the border for the viewPort.
 static void DrawViewPortBorders(cairo_t *context)
 {
     // ViewPort edges for the North, East, South, and West directions.
@@ -292,7 +292,7 @@ static void DoViewPortInput(Point *inputPos)
             CenterViewPortOn(&player->position);
 
             if (GetMenuState() == STATE_SETTINGS)
-                gtk_widget_queue_draw(GTK_WIDGET(menuBox));
+                gtk_widget_queue_draw(GTK_WIDGET(menu));
         }
         else
         {
