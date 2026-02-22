@@ -344,21 +344,7 @@ static void DoViewPortInput(Point *inputPos)
     }
     else if (gesture == GESTURE_HOLD_TAP)
     {
-        // If the cell interacted with is eligible, auto-navigate player to the dungeoncell.
-        if (IsTerrainTraversable(&tappedCell) && DoesPathToCellExist(&tappedCell)
-            && !IsSamePoint(&tappedCell, GetActorPosition(player))
-            && (GetCellSightId(&tappedCell) != CELL_UNEXPLORED || GetFogOfWarStatus() == FALSE))
-        {
-            SetSelectedCell(&tappedCell);
-            SetSelectedCellStatus(STATUS_LOCKED);
-            SetActionForPlayer(ACTION_WALK_AUTO);
-            g_timeout_add(TURN_TIMER_AUTO, (GSourceFunc)ProcessTurn, NULL);
-        }
-        else
-        {
-            SetSelectedCellStatus(STATUS_UNLOCKED);
-            SetSelectedCell(&tappedCell);
-        }
+        // Placeholder
     }
     else if (gesture == GESTURE_SWIPE)
     {
