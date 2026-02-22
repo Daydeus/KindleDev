@@ -42,13 +42,14 @@ MenuState menuState = STATE_SETTINGS;
 
 static void DrawMenuBorders(cairo_t *context);
 static void DrawMenuTabs(cairo_t *context);
+static void DrawPlayerHUD(cairo_t *context);
 static void DrawMenuStateCharacter(cairo_t *context);
 static void DrawMenuStateSettings(cairo_t *context);
 static void DoMenuTabsClicked(Point* inputPos);
 static void DoMenuStateCharacterInput(Point *inputPos);
 static void DoMenuStateSettingsInput(Point *inputPos);
 static void DoMenuSettingsZoomClick(Point *inputPos);
-static void DoMenuSettingsRefreshClick(Point *inputPos);
+static void DoMenuSettingsSkipClick(Point *inputPos);
 static void DoMenuSettingsFogOfWarClick(Point *inputPos);
 
 // ------------------------------------------------------------------------------------------------
@@ -151,6 +152,34 @@ static void DrawMenuBorders(cairo_t *context)
     #undef EDGE_E
     #undef EDGE_S
     #undef EDGE_W
+}
+
+// ------------------------------------------------------------------------------------------------
+// Draw the heads-up-display (HUD) for the player in the menu.
+static void DrawPlayerHUD(cairo_t *context)
+{
+    PangoLayout *layout = gtk_widget_create_pango_layout(GTK_WIDGET(menu), "");
+    Actor *player = GetActor(PLAYER_ACTOR_INDEX);
+
+    // Set layout's attributes.
+    PangoAttrList *attr_list = pango_attr_list_new();
+    PangoAttribute *color = pango_attr_foreground_new(65535, 65535, 65535); // WHITE
+    pango_attr_list_insert(attr_list, color);
+    pango_layout_set_attributes(layout, attr_list);
+
+    // Display the player's current health.
+    char *text = g_strdup_printf("Player Health: %d", GetActorHealthCurrent(player));
+    pango_layout_set_text(layout, text, -1);
+    cairo_move_to(context, TILE_SIZE_BORDER, TILE_SIZE_BORDER / 2);
+    pango_cairo_show_layout(context, layout);
+
+    // Display the current floor number of the dungeon.
+    text = g_strdup_printf("Floor: %d", GetDungeonFloor());
+    pango_layout_set_text(layout, text, -1);
+    cairo_move_to(context, TILE_SIZE_BORDER, TILE_SIZE_BORDER * 3/2);
+    pango_cairo_show_layout(context, layout);
+
+    g_object_unref(layout);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -274,6 +303,7 @@ gboolean on_menu_update(GtkWidget *widget, cairo_t *context, gpointer userData)
 
         DrawMenuBorders(context);
         DrawMenuTabs(context);
+        DrawPlayerHUD(context);
 
         switch (GetMenuState())
         {
@@ -371,8 +401,8 @@ static void DoMenuStateSettingsInput(Point *inputPos)
             case MB_SETTINGS_ZOOM_SWITCH:
                 DoMenuSettingsZoomClick(inputPos);
                 break;
-            case MB_SETTINGS_REFRESH_BUTTON:
-                DoMenuSettingsRefreshClick(inputPos);
+            case MB_SETTINGS_SKIP_BUTTON:
+                DoMenuSettingsSkipClick(inputPos);
                 break;
             case MB_SETTINGS_FOGOFWAR_BUTTON:
                 DoMenuSettingsFogOfWarClick(inputPos);
@@ -407,15 +437,10 @@ static void DoMenuSettingsZoomClick(Point *inputPos)
 
 // ------------------------------------------------------------------------------------------------
 // Regenerate the dungeon and move all actors to random TERRAIN_FLOOR positions.
-static void DoMenuSettingsRefreshClick(Point *inputPos)
+static void DoMenuSettingsSkipClick(Point *inputPos)
 {
-    GenerateDungeon();
-    PlaceAllActors();
-
-    Actor *player = GetActor(0);
-    CenterViewPortOn(&player->position);
-
-    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+    SetActionForPlayer(ACTION_ADVANCE_FLOOR);
+    ProcessTurn(NULL);
 }
 
 // ------------------------------------------------------------------------------------------------

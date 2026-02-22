@@ -4,8 +4,6 @@
 #include "global.h"
 #include "actor.h"
 #include "dungeonCell.h"
-#include "fieldOfView.h"
-#include "pathfinding.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -70,13 +68,6 @@ void PlaceAllActors(void)
 
         SetActorPosition(actor, &position);
     }
-
-    // Update player-position dependent features.
-    Actor *player = GetActor(PLAYER_ACTOR_INDEX);
-    SetPathMapOrigin(GetActorPosition(player));
-    BuildPathMap();
-    SetPlayerSightId(1);
-    UpdateFOV(GetActorPosition(player), GetActorSightRange(player));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -179,6 +170,35 @@ gboolean IsActorDead(Actor *actor)
         return FALSE;
     else
         return TRUE;
+}
+
+// ------------------------------------------------------------------------------------------------
+// If the given actor is dead, respawns them as the given species.
+gboolean ReincarnateActor(Actor *actor, ActorSpecies species)
+{
+    if (IsActorDead(actor))
+    {
+        SetActorSpecies(actor, species);
+        SetActorHealthCurrent(actor, 1);
+        SetActorSightRange(actor, 3);
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Loops through all actors and reincarnates the dead ones.
+void ReincarnateAllActors(void)
+{
+    for (guint i = 0; i < MAX_ACTOR_COUNT; i++)
+    {
+        Actor *actor = GetActor(i);
+        ActorSpecies species = SPECIES_SLIME;
+
+        ReincarnateActor(actor, species);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

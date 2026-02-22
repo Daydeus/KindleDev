@@ -1,7 +1,10 @@
 #include <glib-2.0/glib.h>
 #include <cstdlib>
+#include "actor.h"
 #include "dungeonCell.h"
 #include "dungeonGeneration.h"
+#include "fieldOfView.h"
+#include "pathfinding.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -26,6 +29,7 @@ typedef struct
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
+guint dungeonFloor = 0;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -36,7 +40,15 @@ static void PlaceRoom(Room *room);
 static void CreateCorridor(Point *startPos, Point *endPos);
 static void PlaceEdgeTerrain(void);
 static void PlaceStairs(void);
+static void BuildTerrain(void);
 static void PrintTerrainMap(void);
+
+// ------------------------------------------------------------------------------------------------
+// Gets the current floor of the dungeon.
+guint GetDungeonFloor(void)
+{
+    return dungeonFloor;
+}
 
 // ------------------------------------------------------------------------------------------------
 // Set the terrain of all dungeon cells to TERRAIN_WALL.
@@ -133,7 +145,7 @@ static void PlaceStairs(void)
 
 // ------------------------------------------------------------------------------------------------
 // Replace all dungeon cell's terrain with TERRAIN_WALL and add rooms and corridors of TERRAIN_FLOOR.
-void GenerateDungeon(void)
+static void BuildTerrain(void)
 {
     Room rooms[MAX_ROOMS];
     guint roomCount = 0;
@@ -169,6 +181,29 @@ void GenerateDungeon(void)
 
     PlaceEdgeTerrain();
     PlaceStairs();
+}
+
+// ------------------------------------------------------------------------------------------------
+// Build terrain and place actors in the dungeon.
+void GenerateDungeon(void)
+{
+    Actor *player = GetActor(PLAYER_ACTOR_INDEX);
+
+    BuildTerrain();
+
+    if (GetDungeonFloor() == 0)
+        InitActors();
+    else
+        ReincarnateAllActors();
+
+    // Update position-dependent features.
+    PlaceAllActors();
+    SetPathMapOrigin(GetActorPosition(player));
+    BuildPathMap();
+    SetPlayerSightId(1);
+    UpdateFOV(GetActorPosition(player), GetActorSightRange(player));
+
+    dungeonFloor++;
 }
 
 // ------------------------------------------------------------------------------------------------

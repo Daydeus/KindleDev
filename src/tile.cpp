@@ -447,7 +447,7 @@ GdkPixbuf* GetTileForMenuSettings(SettingsUI item)
             return menuTiles[TILE_MENU_UI_SWITCH_ON];
         else
             return menuTiles[TILE_MENU_UI_SWITCH_OFF];
-    case MB_SETTINGS_REFRESH_BUTTON:
+    case MB_SETTINGS_SKIP_BUTTON:
         return menuTiles[TILE_MENU_REFRESH];
     case MB_SETTINGS_FOGOFWAR_BUTTON:
         if (GetFogOfWarStatus() == TRUE)

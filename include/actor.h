@@ -63,6 +63,8 @@ void UpdateActorFacing(Actor *actor, Direction direction);
 gint GetActorHealthCurrent(Actor *actor);
 void SetActorHealthCurrent(Actor *actor, gint newHealth);
 gboolean IsActorDead(Actor *actor);
+gboolean ReincarnateActor(Actor *actor, ActorSpecies species);
+void ReincarnateAllActors(void);
 guint GetActorSightRange(Actor *actor);
 void SetActorSightRange(Actor *actor, guint sightRange);
 

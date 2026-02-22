@@ -5,8 +5,11 @@
 #include "actor.h"
 #include "action.h"
 #include "dungeonCell.h"
+#include "dungeonGeneration.h"
 #include "fieldOfView.h"
+#include "menu.h"
 #include "pathfinding.h"
+#include "viewPort.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -31,6 +34,7 @@ Action playerAction =  ACTION_NONE;
 
 static gboolean ActionWalk(Actor *actor, Direction direction);
 static gboolean ActionWalkAuto(void);
+static gboolean ActionAdvanceFloor(void);
 static gboolean ActionAttack(Actor *actor, Direction direction);
 static gboolean ActionTerrainFlip(Actor *actor, Point *target);
 
@@ -141,6 +145,9 @@ gboolean DoAction(Actor *actor, Action action)
     case ACTION_WALK_AUTO:
         actionCompleted = ActionWalkAuto();
         break;
+    case ACTION_ADVANCE_FLOOR:
+        actionCompleted = ActionAdvanceFloor();
+        break;
     case ACTION_ATTACK_NORTH:
         actionCompleted = ActionAttack(actor, DIR_NORTH);
         break;
@@ -205,9 +212,14 @@ static gboolean ActionWalk(Actor *actor, Direction direction)
     SetActorPosition(actor, &newPosition);
     UpdateActorFacing(actor, direction);
 
-    // If actor was the player, flag the pathMap as needing an update.
+    // Player-specific code.
     if (actor == GetActor(PLAYER_ACTOR_INDEX))
-        SetPathMapUpdateStatus(UPDATE_NEEDED);
+    {
+        if (GetCellTerrain(&newPosition) == TERRAIN_STAIRS)
+            ActionAdvanceFloor();
+        else
+            SetPathMapUpdateStatus(UPDATE_NEEDED);
+    }
 
     return TRUE;
 }
@@ -215,7 +227,7 @@ static gboolean ActionWalk(Actor *actor, Direction direction)
 // ------------------------------------------------------------------------------------------------
 // Attempts to ACTION_WALK the player in the direction of the next cell on the path to the
 // selectedCell. Returns FALSE if the action fails.
-gboolean ActionWalkAuto(void)
+static gboolean ActionWalkAuto(void)
 {
     Point *selectedCell = GetSelectedCell();
     Point pathStep = {selectedCell->x, selectedCell->y};
@@ -244,6 +256,21 @@ gboolean ActionWalkAuto(void)
     direction = GetOppositeDirection((Direction)direction);
 
     return ActionWalk(GetActor(PLAYER_ACTOR_INDEX), (Direction)direction);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Advances the player to the next floor.
+static gboolean ActionAdvanceFloor(void)
+{
+    GenerateDungeon();
+
+    Actor *player = GetActor(0);
+    CenterViewPortOn(&player->position);
+
+    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+    gtk_widget_queue_draw(GTK_WIDGET(menu));
+
+    return TRUE;
 }
 
 // ------------------------------------------------------------------------------------------------
