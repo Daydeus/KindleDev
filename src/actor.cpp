@@ -48,6 +48,8 @@ void InitActors(void)
             SetActorHealthCurrent(actor, 1);
             SetActorSightRange(actor, 3);
         }
+
+        SetActorFacing(actor, rand() % 2);
     }
 }
 
@@ -118,6 +120,41 @@ void SetActorPosition(Actor *actor, Point* position)
     SetCellsActor(position, actor);
 
     actor->position = *position;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Gets the facing direction of the given actor.
+guint GetActorFacing(Actor *actor)
+{
+    return actor->facing;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets the facing direction of the given actor.
+void SetActorFacing(Actor *actor, guint facing)
+{
+    actor->facing = facing;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Updates the facing direction of the given actor based on movement direction.
+void UpdateActorFacing(Actor *actor, Direction direction)
+{
+    switch (direction)
+    {
+    case DIR_NORTH_EAST:
+    case DIR_EAST:
+    case DIR_SOUTH_EAST:
+        SetActorFacing(actor, FACING_RIGHT);
+        break;
+    case DIR_SOUTH_WEST:
+    case DIR_WEST:
+    case DIR_NORTH_WEST:
+        SetActorFacing(actor, FACING_LEFT);
+        break;
+    default:
+        break;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

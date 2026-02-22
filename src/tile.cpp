@@ -246,18 +246,23 @@ static DungeonTile GetWallTile(Point *position)
 GdkPixbuf* GetTileForActor(Actor *actor)
 {
     ActorSpecies species = actor->species;
+    guint facing = GetActorFacing(actor);
     ActorTile tile;
 
     switch (species)
     {
     case SPECIES_PLAYER:
-        tile = TILE_PLAYER;
+        if (facing == FACING_LEFT)
+            tile = TILE_PLAYER_LEFT;
+        else
+            tile = TILE_PLAYER_RIGHT;
+        //tile = (facing == FACING_LEFT) ? TILE_PLAYER_LEFT : TILE_PLAYER_RIGHT;
         break;
     case SPECIES_SLIME:
-        tile = TILE_SLIME;
+        tile = (facing == FACING_LEFT) ? TILE_SLIME_LEFT : TILE_SLIME_RIGHT;
         break;
     default:
-        tile = TILE_PLAYER;
+        tile = TILE_ACTOR_DUMMY;
     }
 
     return actorTiles[tile];

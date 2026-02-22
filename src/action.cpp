@@ -203,6 +203,7 @@ static gboolean ActionWalk(Actor *actor, Direction direction)
 
     SetCellsActor(&newPosition, actor);
     SetActorPosition(actor, &newPosition);
+    UpdateActorFacing(actor, direction);
 
     // If actor was the player, flag the pathMap as needing an update.
     if (actor == GetActor(PLAYER_ACTOR_INDEX))

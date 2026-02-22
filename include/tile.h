@@ -31,8 +31,11 @@
 // Indices for GdkPixbufs in the actorTiles array.
 enum ActorTile
 {
-    TILE_PLAYER,
-    TILE_SLIME,
+    TILE_PLAYER_LEFT,
+    TILE_PLAYER_RIGHT,
+    TILE_SLIME_LEFT,
+    TILE_SLIME_RIGHT,
+    TILE_ACTOR_DUMMY,
     TILE_COUNT_ACTOR
 };
 

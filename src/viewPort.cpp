@@ -331,6 +331,13 @@ static void DoViewPortInput(Point *inputPos)
                 {
                     SetSelectedCellStatus(STATUS_UNLOCKED);
                     SetSelectedCell(&tappedCell);
+
+                    // Make player face the selectedCell.
+                    gint facing = playerPos->x - selectedCell->x;
+                    if (facing > 0)
+                        UpdateActorFacing(player, DIR_WEST);
+                    else if (facing < 0)
+                        UpdateActorFacing(player, DIR_EAST);
                 }
             }
         }

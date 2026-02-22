@@ -24,11 +24,18 @@ enum ActorSpecies
     SPECIES_COUNT
 };
 
+enum Facing
+{
+    FACING_LEFT,
+    FACING_RIGHT
+};
+
 typedef struct
 {
     ActorSpecies species;
     Point position;
     Point prevPosition;
+    guint facing:1;
     gint healthCurrent;
     guint sightRange:4;
 } Actor;
@@ -50,6 +57,9 @@ ActorSpecies GetActorSpecies(Actor *actor);
 void SetActorSpecies(Actor *actor, ActorSpecies species);
 Point* GetActorPosition(Actor *actor);
 void SetActorPosition(Actor *actor, Point *position);
+guint GetActorFacing(Actor *actor);
+void SetActorFacing(Actor *actor, guint facing);
+void UpdateActorFacing(Actor *actor, Direction direction);
 gint GetActorHealthCurrent(Actor *actor);
 void SetActorHealthCurrent(Actor *actor, gint newHealth);
 gboolean IsActorDead(Actor *actor);
