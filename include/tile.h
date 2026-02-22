@@ -164,23 +164,23 @@ extern GdkPixbuf *terrainLightTiles[TILE_TERRAIN_COUNT];
 
 void LoadActorTiles(void);
 void FreeActorTiles(void);
+GdkPixbuf* GetTileForActor(Actor *actor);
+GdkPixbuf* GetTileForCellSelector(void);
 void LoadBorderTiles(void);
 void FreeBorderTiles(void);
 void LoadColorFillTiles(void);
 void FreeColorFillTiles(void);
+void FillColorRectangle(cairo_t *context, Point *origin, gint width, gint height, enum Color color);
+void SetWidgetBgColor(GtkWidget *widget, enum Color colorName);
 void LoadTerrainTiles(void);
 void FreeTerrainTiles(void);
-GdkPixbuf* GetTileForActor(Actor *actor);
 GdkPixbuf* GetTileForTerrain(Point *position);
-GdkPixbuf* GetTileForCellSelector(void);
+void LoadMenuTiles(void);
+void FreeMenuTiles(void);
 GdkPixbuf* GetTileForMenuState(MenuState state);
 GdkPixbuf* GetTileForMenuCharacter(CharacterUI item);
 GdkPixbuf* GetTileForMenuSettings(SettingsUI item);
 guint GetTileSizeForZoom(gboolean zoomIsOn);
 void ScaleTileForZoom(gboolean zoomIsOn);
-void LoadMenuTiles(void);
-void FreeMenuTiles(void);
-void SetWidgetBgColor(GtkWidget *widget, enum Color colorName);
-void FillColorRectangle(cairo_t *context, Point *origin, gint width, gint height, enum Color color);
 
 #endif // TILE_H

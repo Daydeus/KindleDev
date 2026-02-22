@@ -78,6 +78,45 @@ void FreeActorTiles(void)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Returns the GdkPixbuf from the tiles array for the given actor.
+GdkPixbuf* GetTileForActor(Actor *actor)
+{
+    ActorSpecies species = actor->species;
+    guint facing = GetActorFacing(actor);
+    ActorTile tile;
+
+    switch (species)
+    {
+    case SPECIES_PLAYER:
+        tile = (facing == FACING_LEFT) ? TILE_ACTOR_PLAYER_LEFT : TILE_ACTOR_PLAYER_RIGHT;
+        break;
+    case SPECIES_SLIME:
+        tile = (facing == FACING_LEFT) ? TILE_ACTOR_SLIME_LEFT : TILE_ACTOR_SLIME_RIGHT;
+        break;
+    default:
+        tile = TILE_ACTOR_DUMMY;
+    }
+
+    return actorTiles[tile];
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns the GdkPixbuf from the actorTiles array for the cellSelector icon.
+GdkPixbuf* GetTileForCellSelector(void)
+{
+    CellSelectorStatus status = GetSelectedCellStatus();
+
+    switch (status)
+    {
+    case STATUS_LOCKED:
+        return actorTiles[TILE_ACTOR_SELECTOR_LOCKED];
+    case STATUS_UNLOCKED:
+    default:
+        return actorTiles[TILE_ACTOR_SELECTOR_UNLOCKED];
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 // Read image data into the GdkPixbufs borderTiles array.
 void LoadBorderTiles(void)
 {
@@ -142,6 +181,50 @@ void FreeColorFillTiles(void)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Draws a rectangle with the given dimensions in the given color.
+void FillColorRectangle(cairo_t *context, Point *origin, gint width, gint height, enum Color color)
+{
+    for (gint y = origin->y; y < origin->y + height; y += TILE_SIZE_16)
+    {
+        for (gint x = origin->x; x < origin->x + width; x += TILE_SIZE_16)
+        {
+            gdk_cairo_set_source_pixbuf(context, colorFillTiles[color], x, y);
+            cairo_paint(context);
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets the widget's background color.
+void SetWidgetBgColor(GtkWidget *widget, enum Color colorName)
+{
+    const gchar* string;
+    GdkColor color;
+
+    switch (colorName)
+    {
+    case COLOR_BLACK:
+        string = "#000000";
+        break;
+    case COLOR_GREY_DARK:
+        string = "#444444";
+        break;
+    case COLOR_GREY_LIGHT:
+        string = "#bbbbbb";
+        break;
+    case COLOR_WHITE:
+    default:
+        string = "#ffffff";
+        break;
+    }
+
+    if (gdk_color_parse(string, &color))
+    {
+        gtk_widget_modify_bg(widget, GTK_STATE_NORMAL, &color);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 // Read image data for the given tileset into the GdkPixbufs tiles array.
 void LoadTerrainTiles(void)
 {
@@ -178,17 +261,17 @@ void FreeTerrainTiles(void)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns a GdkPixbuf based on the given index to the dungeonLightTiles array.
-static GdkPixbuf* GetTerrainLightTile(TerrainTile tile)
-{
-    return terrainLightTiles[tile];
-}
-
-// ------------------------------------------------------------------------------------------------
 // Returns a GdkPixbuf based on the given index to the dungeonDarkTiles array.
 static GdkPixbuf* GetTerrainDarkTile(TerrainTile tile)
 {
     return terrainDarkTiles[tile];
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns a GdkPixbuf based on the given index to the dungeonLightTiles array.
+static GdkPixbuf* GetTerrainLightTile(TerrainTile tile)
+{
+    return terrainLightTiles[tile];
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -242,29 +325,6 @@ static TerrainTile GetWallTile(Point *position)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the GdkPixbuf from the tiles array for the given actor.
-GdkPixbuf* GetTileForActor(Actor *actor)
-{
-    ActorSpecies species = actor->species;
-    guint facing = GetActorFacing(actor);
-    ActorTile tile;
-
-    switch (species)
-    {
-    case SPECIES_PLAYER:
-        tile = (facing == FACING_LEFT) ? TILE_ACTOR_PLAYER_LEFT : TILE_ACTOR_PLAYER_RIGHT;
-        break;
-    case SPECIES_SLIME:
-        tile = (facing == FACING_LEFT) ? TILE_ACTOR_SLIME_LEFT : TILE_ACTOR_SLIME_RIGHT;
-        break;
-    default:
-        tile = TILE_ACTOR_DUMMY;
-    }
-
-    return actorTiles[tile];
-}
-
-// ------------------------------------------------------------------------------------------------
 // Returns the GdkPixbuf from the tiles array for the given cell based on its terrain.
 GdkPixbuf* GetTileForTerrain(Point *position)
 {
@@ -293,18 +353,35 @@ GdkPixbuf* GetTileForTerrain(Point *position)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the GdkPixbuf from the actorTiles array for the cellSelector icon.
-GdkPixbuf* GetTileForCellSelector(void)
+// Read image data into the GdkPixbufs menuTiles array.
+void LoadMenuTiles(void)
 {
-    CellSelectorStatus status = GetSelectedCellStatus();
+    GdkPixbuf *source = NULL;
+    GError * error = NULL;
 
-    switch (status)
+    source = gdk_pixbuf_new_from_inline(-1, tilesetMenu, FALSE, &error);
+
+    for (guint i = 0; i < TILE_MENU_COUNT; i++)
     {
-    case STATUS_LOCKED:
-        return actorTiles[TILE_ACTOR_SELECTOR_LOCKED];
-    case STATUS_UNLOCKED:
-    default:
-        return actorTiles[TILE_ACTOR_SELECTOR_UNLOCKED];
+        guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_16;
+        guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
+
+        menuTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
+        menuTiles[i] = gdk_pixbuf_scale_simple(menuTiles[i], TILE_SIZE_MB, TILE_SIZE_MB,
+            GDK_INTERP_NEAREST);
+    }
+
+    g_object_unref(source);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Free the GdkPixbufs for the menuTiles array.
+void FreeMenuTiles(void)
+{
+    // Free memory used by GdkPixbufs.
+    for (guint i = 0; i < TILE_MENU_COUNT; i++)
+    {
+        g_object_unref(menuTiles[i]);
     }
 }
 
@@ -418,82 +495,5 @@ void ScaleTileForZoom(gboolean zoomIsOn)
     for (guint i = 0; i < TILE_ACTOR_COUNT; i++)
     {
         actorTiles[i] = gdk_pixbuf_scale_simple(actorTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Read image data into the GdkPixbufs menuTiles array.
-void LoadMenuTiles(void)
-{
-    GdkPixbuf *source = NULL;
-    GError * error = NULL;
-
-    source = gdk_pixbuf_new_from_inline(-1, tilesetMenu, FALSE, &error);
-
-    for (guint i = 0; i < TILE_MENU_COUNT; i++)
-    {
-        guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_16;
-        guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
-
-        menuTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
-        menuTiles[i] = gdk_pixbuf_scale_simple(menuTiles[i], TILE_SIZE_MB, TILE_SIZE_MB,
-            GDK_INTERP_NEAREST);
-    }
-
-    g_object_unref(source);
-}
-
-// ------------------------------------------------------------------------------------------------
-// Free the GdkPixbufs for the menuTiles array.
-void FreeMenuTiles(void)
-{
-    // Free memory used by GdkPixbufs.
-    for (guint i = 0; i < TILE_MENU_COUNT; i++)
-    {
-        g_object_unref(menuTiles[i]);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Sets the widget's background color.
-void SetWidgetBgColor(GtkWidget *widget, enum Color colorName)
-{
-    const gchar* string;
-    GdkColor color;
-
-    switch (colorName)
-    {
-    case COLOR_BLACK:
-        string = "#000000";
-        break;
-    case COLOR_GREY_DARK:
-        string = "#444444";
-        break;
-    case COLOR_GREY_LIGHT:
-        string = "#bbbbbb";
-        break;
-    case COLOR_WHITE:
-    default:
-        string = "#ffffff";
-        break;
-    }
-
-    if (gdk_color_parse(string, &color))
-    {
-        gtk_widget_modify_bg(widget, GTK_STATE_NORMAL, &color);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Draws a rectangle with the given dimensions in the given color.
-void FillColorRectangle(cairo_t *context, Point *origin, gint width, gint height, enum Color color)
-{
-    for (gint y = origin->y; y < origin->y + height; y += TILE_SIZE_16)
-    {
-        for (gint x = origin->x; x < origin->x + width; x += TILE_SIZE_16)
-        {
-            gdk_cairo_set_source_pixbuf(context, colorFillTiles[color], x, y);
-            cairo_paint(context);
-        }
     }
 }
