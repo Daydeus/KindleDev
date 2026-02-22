@@ -29,7 +29,7 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-GdkPixbuf *actorTiles[TILE_COUNT_ACTOR] = {NULL};
+GdkPixbuf *actorTiles[TILE_ACTOR_COUNT] = {NULL};
 GdkPixbuf *borderTiles[TILE_COUNT_BORDER] = {NULL};
 GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL] = {NULL};
 GdkPixbuf *dungeonLightTiles[TILE_COUNT_VP] = {NULL};
@@ -53,7 +53,7 @@ void LoadActorTiles(void)
 
     source = gdk_pixbuf_new_from_inline(-1, tilesetActor, FALSE, &error);
 
-    for (guint i = 0; i < TILE_COUNT_ACTOR; i++)
+    for (guint i = 0; i < TILE_ACTOR_COUNT; i++)
     {
         guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_16;
         guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
@@ -71,7 +71,7 @@ void LoadActorTiles(void)
 void FreeActorTiles(void)
 {
     // Free memory used by GdkPixbufs.
-    for (guint i = 0; i < TILE_COUNT_ACTOR; i++)
+    for (guint i = 0; i < TILE_ACTOR_COUNT; i++)
     {
         g_object_unref(actorTiles[i]);
     }
@@ -252,14 +252,10 @@ GdkPixbuf* GetTileForActor(Actor *actor)
     switch (species)
     {
     case SPECIES_PLAYER:
-        if (facing == FACING_LEFT)
-            tile = TILE_PLAYER_LEFT;
-        else
-            tile = TILE_PLAYER_RIGHT;
-        //tile = (facing == FACING_LEFT) ? TILE_PLAYER_LEFT : TILE_PLAYER_RIGHT;
+        tile = (facing == FACING_LEFT) ? TILE_ACTOR_PLAYER_LEFT : TILE_ACTOR_PLAYER_RIGHT;
         break;
     case SPECIES_SLIME:
-        tile = (facing == FACING_LEFT) ? TILE_SLIME_LEFT : TILE_SLIME_RIGHT;
+        tile = (facing == FACING_LEFT) ? TILE_ACTOR_SLIME_LEFT : TILE_ACTOR_SLIME_RIGHT;
         break;
     default:
         tile = TILE_ACTOR_DUMMY;
@@ -297,25 +293,19 @@ GdkPixbuf* GetTileForTerrain(Point *position)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Returns the GdkPixbuf from the tiles array for the cellSelector icon.
+// Returns the GdkPixbuf from the actorTiles array for the cellSelector icon.
 GdkPixbuf* GetTileForCellSelector(void)
 {
     CellSelectorStatus status = GetSelectedCellStatus();
-    DungeonTile tile;
 
     switch (status)
     {
-    case STATUS_UNLOCKED:
-        tile = TILE_CELL_SELECTOR_UNLOCKED;
-        break;
     case STATUS_LOCKED:
-        tile = TILE_CELL_SELECTOR_LOCKED;
-        break;
+        return actorTiles[TILE_ACTOR_SELECTOR_LOCKED];
+    case STATUS_UNLOCKED:
     default:
-        tile = TILE_CELL_SELECTOR_UNLOCKED;
+        return actorTiles[TILE_ACTOR_SELECTOR_UNLOCKED];
     }
-
-    return GetDungeonLightTile(tile);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -425,7 +415,7 @@ void ScaleTileForZoom(gboolean zoomIsOn)
     }
 
     // Scale tiles for actors.
-    for (guint i = 0; i < TILE_COUNT_ACTOR; i++)
+    for (guint i = 0; i < TILE_ACTOR_COUNT; i++)
     {
         actorTiles[i] = gdk_pixbuf_scale_simple(actorTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
     }

@@ -31,12 +31,14 @@
 // Indices for GdkPixbufs in the actorTiles array.
 enum ActorTile
 {
-    TILE_PLAYER_LEFT,
-    TILE_PLAYER_RIGHT,
-    TILE_SLIME_LEFT,
-    TILE_SLIME_RIGHT,
+    TILE_ACTOR_SELECTOR_UNLOCKED,
+    TILE_ACTOR_SELECTOR_LOCKED,
+    TILE_ACTOR_PLAYER_LEFT,
+    TILE_ACTOR_PLAYER_RIGHT,
+    TILE_ACTOR_SLIME_LEFT,
+    TILE_ACTOR_SLIME_RIGHT,
     TILE_ACTOR_DUMMY,
-    TILE_COUNT_ACTOR
+    TILE_ACTOR_COUNT
 };
 
 // Indices for GdkPixbufs in the b array.
@@ -107,8 +109,6 @@ enum DungeonTile
     TILE_WALL_STANDALONE,
     TILE_FLOOR,
     TILE_STAIRS,
-    TILE_CELL_SELECTOR_UNLOCKED,
-    TILE_CELL_SELECTOR_LOCKED,
     TILE_COUNT_VP
 };
 
@@ -151,7 +151,7 @@ enum TileMask
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern GdkPixbuf *actorTiles[TILE_COUNT_ACTOR];
+extern GdkPixbuf *actorTiles[TILE_ACTOR_COUNT];
 extern GdkPixbuf *borderTiles[TILE_COUNT_BORDER];
 extern GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL];
 extern GdkPixbuf *dungeonLightTiles[TILE_COUNT_VP];
