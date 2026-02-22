@@ -11,9 +11,9 @@
 #include "data/tilesetActor.h"
 #include "data/tilesetBorder.h"
 #include "data/tilesetColorFill.h"
-#include "data/tilesetDungeonCave.h"
-#include "data/tilesetDungeonCaveDark.h"
 #include "data/tilesetMenu.h"
+#include "data/tilesetTerrainDark.h"
+#include "data/tilesetTerrainLight.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -30,19 +30,19 @@
 // ------------------------------------------------------------------------------------------------
 
 GdkPixbuf *actorTiles[TILE_ACTOR_COUNT] = {NULL};
-GdkPixbuf *borderTiles[TILE_COUNT_BORDER] = {NULL};
+GdkPixbuf *borderTiles[TILE_BORDER_COUNT] = {NULL};
 GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL] = {NULL};
-GdkPixbuf *dungeonLightTiles[TILE_COUNT_VP] = {NULL};
-GdkPixbuf *dungeonDarkTiles[TILE_COUNT_VP] = {NULL};
 GdkPixbuf *menuTiles[TILE_MENU_COUNT] = {NULL};
+GdkPixbuf *terrainDarkTiles[TILE_TERRAIN_COUNT] = {NULL};
+GdkPixbuf *terrainLightTiles[TILE_TERRAIN_COUNT] = {NULL};
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-static GdkPixbuf* GetDungeonLightTile(DungeonTile tile);
-static GdkPixbuf* GetDungeonDarkTile(DungeonTile tile);
-static DungeonTile GetWallTile(Point *position);
+static GdkPixbuf* GetTerrainDarkTile(TerrainTile tile);
+static GdkPixbuf* GetTerrainLightTile(TerrainTile tile);
+static TerrainTile GetWallTile(Point *position);
 
 // ------------------------------------------------------------------------------------------------
 // Read image data into the GdkPixbufs actorTiles array.
@@ -86,7 +86,7 @@ void LoadBorderTiles(void)
 
     source = gdk_pixbuf_new_from_inline(-1, tilesetBorder, FALSE, &error);
 
-    for (guint i = 0; i < TILE_COUNT_BORDER; i++)
+    for (guint i = 0; i < TILE_BORDER_COUNT; i++)
     {
         guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_16;
         guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
@@ -104,7 +104,7 @@ void LoadBorderTiles(void)
 void FreeBorderTiles(void)
 {
     // Free memory used by GdkPixbufs.
-    for (guint i = 0; i < TILE_COUNT_BORDER; i++)
+    for (guint i = 0; i < TILE_BORDER_COUNT; i++)
     {
         g_object_unref(borderTiles[i]);
     }
@@ -143,59 +143,59 @@ void FreeColorFillTiles(void)
 
 // ------------------------------------------------------------------------------------------------
 // Read image data for the given tileset into the GdkPixbufs tiles array.
-void LoadDungeonTiles(void)
+void LoadTerrainTiles(void)
 {
-    GdkPixbuf *sourceLight = NULL;
     GdkPixbuf *sourceDark = NULL;
+    GdkPixbuf *sourceLight = NULL;
     GError * error = NULL;
 
-    sourceLight = gdk_pixbuf_new_from_inline(-1, tilesetDungeonCave, FALSE, &error);
-    sourceDark = gdk_pixbuf_new_from_inline(-1, tilesetDungeonCaveDark, FALSE, &error);
+    sourceLight = gdk_pixbuf_new_from_inline(-1, tilesetTerrainLight, FALSE, &error);
+    sourceDark = gdk_pixbuf_new_from_inline(-1, tilesetTerrainDark, FALSE, &error);
 
-    for (guint i = 0; i < TILE_COUNT_VP; i++)
+    for (guint i = 0; i < TILE_TERRAIN_COUNT; i++)
     {
         guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_16;
         guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
 
-        dungeonLightTiles[i] = gdk_pixbuf_new_subpixbuf(sourceLight, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
-        dungeonDarkTiles[i] = gdk_pixbuf_new_subpixbuf(sourceDark, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
+        terrainDarkTiles[i] = gdk_pixbuf_new_subpixbuf(sourceDark, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
+        terrainLightTiles[i] = gdk_pixbuf_new_subpixbuf(sourceLight, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
     }
 
-    g_object_unref(sourceLight);
     g_object_unref(sourceDark);
+    g_object_unref(sourceLight);
 }
 
 // ------------------------------------------------------------------------------------------------
 // Free the GdkPixbufs for the dungeonTiles array.
-void FreeDungeonTiles(void)
+void FreeTerrainTiles(void)
 {
     // Free memory used by GdkPixbufs.
-    for (guint i = 0; i < TILE_COUNT_VP; i++)
+    for (guint i = 0; i < TILE_TERRAIN_COUNT; i++)
     {
-        g_object_unref(dungeonLightTiles[i]);
-        g_object_unref(dungeonDarkTiles[i]);
+        g_object_unref(terrainDarkTiles[i]);
+        g_object_unref(terrainLightTiles[i]);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 // Returns a GdkPixbuf based on the given index to the dungeonLightTiles array.
-static GdkPixbuf* GetDungeonLightTile(DungeonTile tile)
+static GdkPixbuf* GetTerrainLightTile(TerrainTile tile)
 {
-    return dungeonLightTiles[tile];
+    return terrainLightTiles[tile];
 }
 
 // ------------------------------------------------------------------------------------------------
 // Returns a GdkPixbuf based on the given index to the dungeonDarkTiles array.
-static GdkPixbuf* GetDungeonDarkTile(DungeonTile tile)
+static GdkPixbuf* GetTerrainDarkTile(TerrainTile tile)
 {
-    return dungeonDarkTiles[tile];
+    return terrainDarkTiles[tile];
 }
 
 // ------------------------------------------------------------------------------------------------
 // Returns the tile image for a TERRAIN_WALL cell based on the surrounding cells.
-static DungeonTile GetWallTile(Point *position)
+static TerrainTile GetWallTile(Point *position)
 {
-    guint tile = TILE_EDGE;
+    guint tile = TILE_TERRAIN_EDGE;
     Terrain neighbors[DIR_ALL_COUNT] = {TERRAIN_NULL};
 
     // Get terrain for each neighboring cell.
@@ -238,7 +238,7 @@ static DungeonTile GetWallTile(Point *position)
         tile |= MASK_NORTH_WEST;
     }
 
-    return (DungeonTile)tile;
+    return (TerrainTile)tile;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -269,27 +269,27 @@ GdkPixbuf* GetTileForActor(Actor *actor)
 GdkPixbuf* GetTileForTerrain(Point *position)
 {
     Terrain terrain = GetCellTerrain(position);
-    DungeonTile tile;
+    TerrainTile tile;
 
     switch (terrain)
     {
     case TERRAIN_FLOOR:
-        tile = TILE_FLOOR;
+        tile = TILE_TERRAIN_FLOOR;
         break;
     case TERRAIN_STAIRS:
-        tile = TILE_STAIRS;
+        tile = TILE_TERRAIN_STAIRS;
         break;
     case TERRAIN_WALL:
         tile = GetWallTile(position);
         break;
     default:
-        tile = TILE_EDGE;
+        tile = TILE_TERRAIN_EDGE;
     }
 
     if (IsVisibleToPlayer(position))
-        return GetDungeonLightTile(tile);
+        return GetTerrainLightTile(tile);
     else
-        return GetDungeonDarkTile(tile);
+        return GetTerrainDarkTile(tile);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -355,7 +355,7 @@ GdkPixbuf* GetTileForMenuCharacter(CharacterUI item)
     case MB_CHARACTER_TERRAIN_FLIP_BTTN:
         return menuTiles[TILE_MENU_REFRESH];
     default:
-        return dungeonLightTiles[TILE_EDGE];
+        return terrainLightTiles[TILE_TERRAIN_EDGE];
     }
 }
 
@@ -380,7 +380,7 @@ GdkPixbuf* GetTileForMenuSettings(SettingsUI item)
     case MB_SETTINGS_EXIT_BUTTON:
         return menuTiles[TILE_MENU_EXIT];
     default:
-        return dungeonLightTiles[TILE_EDGE];
+        return terrainLightTiles[TILE_TERRAIN_EDGE];
     }
 }
 
@@ -408,10 +408,10 @@ void ScaleTileForZoom(gboolean zoomIsOn)
     guint tileSize = GetTileSizeForZoom(zoomIsOn);
 
     // Scale tiles for dungeon.
-    for (guint i = 0; i < TILE_COUNT_VP; i++)
+    for (guint i = 0; i < TILE_TERRAIN_COUNT; i++)
     {
-        dungeonLightTiles[i] = gdk_pixbuf_scale_simple(dungeonLightTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
-        dungeonDarkTiles[i] = gdk_pixbuf_scale_simple(dungeonDarkTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
+        terrainDarkTiles[i] = gdk_pixbuf_scale_simple(terrainDarkTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
+        terrainLightTiles[i] = gdk_pixbuf_scale_simple(terrainLightTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
     }
 
     // Scale tiles for actors.

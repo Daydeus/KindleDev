@@ -1,15 +1,15 @@
 /* GdkPixbuf RGBA C-Source image dump */
 
 #include <glib-2.0/glib.h>
-  #include "data/tilesetDungeonCaveDark.h"
+  #include "data/tilesetTerrainDark.h"
 
 #ifdef __SUNPRO_C
-#pragma align 4 (tilesetDungeonCaveDark)
+#pragma align 4 (tilesetTerrainDark)
 #endif
 #ifdef __GNUC__
-const guint8 tilesetDungeonCaveDark[] __attribute__ ((__aligned__ (4))) = 
+const guint8 tilesetTerrainDark[] __attribute__ ((__aligned__ (4))) = 
 #else
-const guint8 tilesetDungeonCaveDark[] = 
+const guint8 tilesetTerrainDark[] = 
 #endif
 { ""
   /* Pixbuf magic (0x47646b50) */

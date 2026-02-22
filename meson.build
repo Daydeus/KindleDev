@@ -41,9 +41,9 @@ sources = files(
     './src/data/tilesetActor.cpp',
     './src/data/tilesetBorder.cpp',
     './src/data/tilesetColorFill.cpp',
-    './src/data/tilesetDungeonCave.cpp',
-    './src/data/tilesetDungeonCaveDark.cpp',
     './src/data/tilesetMenu.cpp',
+    './src/data/tilesetTerrainDark.cpp',
+    './src/data/tilesetTerrainLight.cpp',
 )
 
 include_dirs = include_directories(

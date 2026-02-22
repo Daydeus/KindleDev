@@ -41,7 +41,7 @@ enum ActorTile
     TILE_ACTOR_COUNT
 };
 
-// Indices for GdkPixbufs in the b array.
+// Indices for GdkPixbufs in the borderTiles array.
 enum BorderTile
 {
     TILE_BORDER_NORTH_1,
@@ -70,7 +70,7 @@ enum BorderTile
     TILE_BORDER_MIDDLE_V_1,
     TILE_BORDER_MIDDLE_V_2,
     TILE_BORDER_MIDDLE_V_3,
-    TILE_COUNT_BORDER
+    TILE_BORDER_COUNT
 };
 
 // Colors available for the application to use.
@@ -88,28 +88,28 @@ enum Color
     COLOR_COUNT_ALL
 };
 
-// Indices for GdkPixbufs in the dungeonTiles array.
-enum DungeonTile
+// Indices for GdkPixbufs in the terrain(Light/Dark)Tiles array.
+enum TerrainTile
 {
-    TILE_EDGE,
-    TILE_WALL_INNER_CORNER_NORTHEAST,
-    TILE_WALL_INNER_CORNER_SOUTHEAST,
-    TILE_WALL_FACING_EAST,
-    TILE_WALL_INNER_CORNER_SOUTHWEST,
-    TILE_WALL_DUAL_CORNERS_SOUTHWEST_NORTHEAST,
-    TILE_WALL_FACING_SOUTH,
-    TILE_WALL_OUTER_CORNER_SOUTHEAST,
-    TILE_WALL_INNER_CORNER_NORTHWEST,
-    TILE_WALL_FACING_NORTH,
-    TILE_WALL_DUAL_CORNERS_NORTHWEST_SOUTHEAST,
-    TILE_WALL_OUTER_CORNER_NORTHEAST,
-    TILE_WALL_FACING_WEST,
-    TILE_WALL_OUTER_CORNER_NORTHWEST,
-    TILE_WALL_OUTER_CORNER_SOUTHWEST,
-    TILE_WALL_STANDALONE,
-    TILE_FLOOR,
-    TILE_STAIRS,
-    TILE_COUNT_VP
+    TILE_TERRAIN_EDGE,
+    TILE_TERRAIN_WALL_INNER_CORNER_NE,
+    TILE_TERRAIN_WALL_INNER_CORNER_SE,
+    TILE_TERRAIN_WALL_FACING_EAST,
+    TILE_TERRAIN_WALL_INNER_CORNER_SW,
+    TILE_TERRAIN_WALL_DUAL_CORNERS_SW_NE,
+    TILE_TERRAIN_WALL_FACING_SOUTH,
+    TILE_TERRAIN_WALL_OUTER_CORNER_SE,
+    TILE_TERRAIN_WALL_INNER_CORNER_NW,
+    TILE_TERRAIN_WALL_FACING_NORTH,
+    TILE_TERRAIN_WALL_DUAL_CORNERS_NW_SE,
+    TILE_TERRAIN_WALL_OUTER_CORNER_NE,
+    TILE_TERRAIN_WALL_FACING_WEST,
+    TILE_TERRAIN_WALL_OUTER_CORNER_NW,
+    TILE_TERRAIN_WALL_OUTER_CORNER_SW,
+    TILE_TERRAIN_WALL_STANDALONE,
+    TILE_TERRAIN_FLOOR,
+    TILE_TERRAIN_STAIRS,
+    TILE_TERRAIN_COUNT
 };
 
 // Indices for GdkPixbufs in the menuTiles array.
@@ -152,11 +152,11 @@ enum TileMask
 // ------------------------------------------------------------------------------------------------
 
 extern GdkPixbuf *actorTiles[TILE_ACTOR_COUNT];
-extern GdkPixbuf *borderTiles[TILE_COUNT_BORDER];
+extern GdkPixbuf *borderTiles[TILE_BORDER_COUNT];
 extern GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL];
-extern GdkPixbuf *dungeonLightTiles[TILE_COUNT_VP];
-extern GdkPixbuf *dungeonDarkTiles[TILE_COUNT_VP];
 extern GdkPixbuf *menuTiles[TILE_MENU_COUNT];
+extern GdkPixbuf *terrainDarkTiles[TILE_TERRAIN_COUNT];
+extern GdkPixbuf *terrainLightTiles[TILE_TERRAIN_COUNT];
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -168,8 +168,8 @@ void LoadBorderTiles(void);
 void FreeBorderTiles(void);
 void LoadColorFillTiles(void);
 void FreeColorFillTiles(void);
-void LoadDungeonTiles(void);
-void FreeDungeonTiles(void);
+void LoadTerrainTiles(void);
+void FreeTerrainTiles(void);
 GdkPixbuf* GetTileForActor(Actor *actor);
 GdkPixbuf* GetTileForTerrain(Point *position);
 GdkPixbuf* GetTileForCellSelector(void);

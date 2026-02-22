@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     FreeActorTiles();
     FreeBorderTiles();
     FreeColorFillTiles();
-    FreeDungeonTiles();
+    FreeTerrainTiles();
     FreeMenuTiles();
 
     return 0;

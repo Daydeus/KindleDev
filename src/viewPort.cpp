@@ -47,7 +47,7 @@ static gboolean on_viewPort_click_release(GtkWidget *widget, GdkEventButton *eve
 // Load GdkPixbuf tiles and initialize the dungeon viewPort.
 void InitViewPort(void)
 {
-    LoadDungeonTiles();
+    LoadTerrainTiles();
     LoadActorTiles();
     ScaleTileForZoom(GetViewPortZoom());
 
