@@ -42,6 +42,7 @@ sources = files(
     './src/data/tilesetBorder.cpp',
     './src/data/tilesetColorFill.cpp',
     './src/data/tilesetMenu.cpp',
+    './src/data/tilesetMiniMap.cpp',
     './src/data/tilesetTerrainDark.cpp',
     './src/data/tilesetTerrainLight.cpp',
 )

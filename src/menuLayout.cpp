@@ -9,9 +9,6 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#define MENU_CORNER_X           TILE_SIZE_MB * 3/4
-#define MENU_CORNER_Y           MENU_TABS_BOTTOM
-
 #ifdef KINDLE_BUILD
     #define TEXT_ICON_GAP_X     TILE_SIZE_MB * 4
     #define TEXT_ICON_GAP_Y     -TILE_SIZE_MB / 16

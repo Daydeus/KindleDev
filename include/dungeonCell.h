@@ -10,8 +10,8 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#define DUNGEON_WIDTH  60
-#define DUNGEON_HEIGHT 40
+#define DUNGEON_WIDTH  74
+#define DUNGEON_HEIGHT 29
 
 #define CELL_UNEXPLORED 0
 

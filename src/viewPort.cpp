@@ -368,6 +368,8 @@ static void DoViewPortInput(Point *inputPos)
     }
 
     gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+    if (GetMenuState() == STATE_MINIMAP)
+        gtk_widget_queue_draw(GTK_WIDGET(menu));
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -11,6 +11,8 @@
 
 #define MENU_TABS_TOP       TILE_SIZE_BORDER * 4
 #define MENU_TABS_BOTTOM    MENU_TABS_TOP + TILE_SIZE_MB + TILE_SIZE_BORDER
+#define MENU_CORNER_X       TILE_SIZE_MB * 3/4
+#define MENU_CORNER_Y       MENU_TABS_BOTTOM
 
 // ------------------------------------------------------------------------------------------------
 // Data Types

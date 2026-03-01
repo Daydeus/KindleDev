@@ -6,6 +6,7 @@
 #include "actor.h"
 #include "dungeonMaster.h"
 #include "fieldOfView.h"
+#include "menu.h"
 #include "pathfinding.h"
 #include "viewPort.h"
 
@@ -81,6 +82,10 @@ gboolean ProcessTurn(gpointer data)
             SetPathMapUpdateStatus(UPDATE_NOT_NEEDED);
         }
     }
+
+    // Update the miniMap after all actors have taken their turn.
+    if (GetMenuState() == STATE_MINIMAP)
+        gtk_widget_queue_draw(GTK_WIDGET(menu));
 
     // If player is auto-navigating and has not arrived yet, call ProcessTurn again.
     if (GetActionForPlayer() == ACTION_WALK_AUTO

@@ -10,6 +10,7 @@
 #include "menu.h"
 #include "menuLayout.h"
 #include "tile.h"
+#include "viewPort.h"
 
 // ------------------------------------------------------------------------------------------------
 // Project Defines
@@ -44,9 +45,11 @@ static void DrawMenuBorders(cairo_t *context);
 static void DrawMenuTabs(cairo_t *context);
 static void DrawPlayerHUD(cairo_t *context);
 static void DrawMenuStateCharacter(cairo_t *context);
+static void DrawMenuStateMiniMap(cairo_t *context);
 static void DrawMenuStateSettings(cairo_t *context);
 static void DoMenuTabsClicked(Point* inputPos);
 static void DoMenuStateCharacterInput(Point *inputPos);
+static void DoMenuStateMiniMapInput(Point *inputPos);
 static void DoMenuStateSettingsInput(Point *inputPos);
 static void DoMenuSettingsZoomClick(Point *inputPos);
 static void DoMenuSettingsSkipClick(Point *inputPos);
@@ -57,6 +60,7 @@ static void DoMenuSettingsFogOfWarClick(Point *inputPos);
 void InitMenu(void)
 {
     LoadMenuTiles();
+    LoadMiniMapTiles();
 
     // Initialize menu.
     menu = GTK_DRAWING_AREA(gtk_drawing_area_new());
@@ -254,6 +258,25 @@ static void DrawMenuStateCharacter(cairo_t *context)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Draws the contents of the menu when menuState is set to STATE_MINIMAP.
+static void DrawMenuStateMiniMap(cairo_t *context)
+{
+    Point mapOrigin = {TILE_SIZE_BORDER / 2, MENU_TABS_BOTTOM + TILE_SIZE_BORDER};
+
+    for (gint y = 0; y < DUNGEON_HEIGHT; y++)
+    {
+        for (gint x = 0; x < DUNGEON_WIDTH; x++)
+        {
+            Point pixelPos = {mapOrigin.x + x * TILE_SIZE_MINIMAP, mapOrigin.y + y * TILE_SIZE_MINIMAP};
+            Point cellPos = {x, y};
+
+            gdk_cairo_set_source_pixbuf(context, GetTileForMiniMap(&cellPos), pixelPos.x, pixelPos.y);
+            cairo_paint(context);
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 // Draws the contents of the menu when menuState is set to STATE_SETTINGS.
 static void DrawMenuStateSettings(cairo_t *context)
 {
@@ -301,10 +324,6 @@ gboolean on_menu_update(GtkWidget *widget, cairo_t *context, gpointer userData)
         // Create a Cairo context from the GdkWindow
         cairo_t *context = gdk_cairo_create(window);
 
-        DrawMenuBorders(context);
-        DrawMenuTabs(context);
-        DrawPlayerHUD(context);
-
         switch (GetMenuState())
         {
         case STATE_INSPECT:
@@ -316,12 +335,20 @@ gboolean on_menu_update(GtkWidget *widget, cairo_t *context, gpointer userData)
             break;
         case STATE_LOGBOOK:
             break;
+        case STATE_MINIMAP:
+            DrawMenuStateMiniMap(context);
+            break;
         case STATE_SETTINGS:
             DrawMenuStateSettings(context);
             break;
         default:
             break;
         }
+
+        // Do last to ensure they can't be drawn over.
+        DrawPlayerHUD(context);
+        DrawMenuBorders(context);
+        DrawMenuTabs(context);
 
         // Clean up the Cairo context
         cairo_destroy(context);
@@ -378,6 +405,32 @@ static void DoMenuStateCharacterInput(Point *inputPos)
                 break;
             default:
                 break;
+            }
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Process input for the menu when in menuState STATE_MINIMAP.
+static void DoMenuStateMiniMapInput(Point *inputPos)
+{
+    Point mapOrigin = {TILE_SIZE_BORDER / 2, MENU_TABS_BOTTOM + TILE_SIZE_BORDER};
+
+    for (gint y = 0; y < DUNGEON_HEIGHT; y++)
+    {
+        for (gint x = 0; x < DUNGEON_WIDTH; x++)
+        {
+            Point tileOrigin = {mapOrigin.x + x * TILE_SIZE_MINIMAP, mapOrigin.y + y * TILE_SIZE_MINIMAP};
+            Point cellPos = {x, y};
+
+            if (IsWithinRectangle(inputPos, &tileOrigin, TILE_SIZE_MINIMAP, TILE_SIZE_MINIMAP)
+                && (GetCellSightId(&cellPos) != CELL_UNEXPLORED || GetFogOfWarStatus() == FALSE))
+            {
+                SetSelectedCellStatus(STATUS_UNLOCKED);
+                SetSelectedCell(&cellPos);
+                CenterViewPortOn(&cellPos);
+                gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+                gtk_widget_queue_draw(GTK_WIDGET(menu));
             }
         }
     }
@@ -478,6 +531,9 @@ gboolean on_menu_click(GtkWidget *widget, GdkEventButton *event, gpointer userDa
         case STATE_INVENTORY:
             break;
         case STATE_LOGBOOK:
+            break;
+        case STATE_MINIMAP:
+            DoMenuStateMiniMapInput(&clicked);
             break;
         case STATE_SETTINGS:
             DoMenuStateSettingsInput(&clicked);

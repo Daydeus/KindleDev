@@ -10,6 +10,7 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
+#define TILE_SIZE_8  8
 #define TILE_SIZE_16 16
 #define TILE_SIZE_32 32
 #define TILE_SIZE_64 64
@@ -19,9 +20,11 @@
 #ifdef KINDLE_BUILD
 #define TILE_SIZE_MB     TILE_SIZE_64
 #define TILE_SIZE_BORDER TILE_SIZE_32
+#define TILE_SIZE_MINIMAP TILE_SIZE_16
 #else
 #define TILE_SIZE_MB     TILE_SIZE_32
 #define TILE_SIZE_BORDER TILE_SIZE_16
+#define TILE_SIZE_MINIMAP TILE_SIZE_8
 #endif
 
 // ------------------------------------------------------------------------------------------------
@@ -88,6 +91,23 @@ enum Color
     COLOR_COUNT_ALL
 };
 
+// Indices for GdkPixbufs for miniMapTiles array.
+enum MiniMapTile
+{
+    TILE_MINIMAP_EDGE_DARK,
+    TILE_MINIMAP_EDGE_LIGHT,
+    TILE_MINIMAP_FLOOR_DARK,
+    TILE_MINIMAP_FLOOR_LIGHT,
+    TILE_MINIMAP_STAIRS_DARK,
+    TILE_MINIMAP_STAIRS_LIGHT,
+    TILE_MINIMAP_WALL_DARK,
+    TILE_MINIMAP_WALL_LIGHT,
+    TILE_MINIMAP_PLAYER,
+    TILE_MINIMAP_SELECTOR,
+    TILE_MINIMAP_ENEMY,
+    TILE_MINIMAP_COUNT
+};
+
 // Indices for GdkPixbufs in the terrain(Light/Dark)Tiles array.
 enum TerrainTile
 {
@@ -128,11 +148,13 @@ enum MenuTile
     TILE_MENU_CHARACTER_OFF,
     TILE_MENU_INVENTORY_OFF,
     TILE_MENU_LOGBOOK_OFF,
+    TILE_MENU_MINIMAP_OFF,
     TILE_MENU_SETTINGS_OFF,
     TILE_MENU_INSPECT_ON,
     TILE_MENU_CHARACTER_ON,
     TILE_MENU_INVENTORY_ON,
     TILE_MENU_LOGBOOK_ON,
+    TILE_MENU_MINIMAP_ON,
     TILE_MENU_SETTINGS_ON,
     TILE_MENU_COUNT
 };
@@ -155,6 +177,7 @@ extern GdkPixbuf *actorTiles[TILE_ACTOR_COUNT];
 extern GdkPixbuf *borderTiles[TILE_BORDER_COUNT];
 extern GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL];
 extern GdkPixbuf *menuTiles[TILE_MENU_COUNT];
+extern GdkPixbuf *miniMapTiles[TILE_MINIMAP_COUNT];
 extern GdkPixbuf *terrainDarkTiles[TILE_TERRAIN_COUNT];
 extern GdkPixbuf *terrainLightTiles[TILE_TERRAIN_COUNT];
 
@@ -172,6 +195,9 @@ void LoadColorFillTiles(void);
 void FreeColorFillTiles(void);
 void FillColorRectangle(cairo_t *context, Point *origin, gint width, gint height, enum Color color);
 void SetWidgetBgColor(GtkWidget *widget, enum Color colorName);
+void LoadMiniMapTiles(void);
+void FreeMiniMapTiles(void);
+GdkPixbuf* GetTileForMiniMap(Point *position);
 void LoadTerrainTiles(void);
 void FreeTerrainTiles(void);
 GdkPixbuf* GetTileForTerrain(Point *position);

@@ -12,6 +12,7 @@
 #include "data/tilesetBorder.h"
 #include "data/tilesetColorFill.h"
 #include "data/tilesetMenu.h"
+#include "data/tilesetMiniMap.h"
 #include "data/tilesetTerrainDark.h"
 #include "data/tilesetTerrainLight.h"
 
@@ -33,6 +34,7 @@ GdkPixbuf *actorTiles[TILE_ACTOR_COUNT] = {NULL};
 GdkPixbuf *borderTiles[TILE_BORDER_COUNT] = {NULL};
 GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL] = {NULL};
 GdkPixbuf *menuTiles[TILE_MENU_COUNT] = {NULL};
+GdkPixbuf *miniMapTiles[TILE_MINIMAP_COUNT] = {NULL};
 GdkPixbuf *terrainDarkTiles[TILE_TERRAIN_COUNT] = {NULL};
 GdkPixbuf *terrainLightTiles[TILE_TERRAIN_COUNT] = {NULL};
 
@@ -225,6 +227,89 @@ void SetWidgetBgColor(GtkWidget *widget, enum Color colorName)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Read image data into the GdkPixbufs miniMapTiles array.
+void LoadMiniMapTiles(void)
+{
+    GdkPixbuf *source = NULL;
+    GError * error = NULL;
+
+    source = gdk_pixbuf_new_from_inline(-1, tilesetMiniMap, FALSE, &error);
+
+    for (guint i = 0; i < TILE_MINIMAP_COUNT; i++)
+    {
+        guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_8;
+        guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_8;
+
+        miniMapTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_8, TILE_SIZE_8);
+        miniMapTiles[i] = gdk_pixbuf_scale_simple(miniMapTiles[i], TILE_SIZE_MINIMAP, TILE_SIZE_MINIMAP, GDK_INTERP_NEAREST);
+    }
+
+    g_object_unref(source);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Free the GdkPixbufs for the miniMapTiles array.
+void FreeMiniMapTiles(void)
+{
+    // Free memory used by GdkPixbufs.
+    for (guint i = 0; i < TILE_MINIMAP_COUNT; i++)
+    {
+        g_object_unref(miniMapTiles[i]);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns a GdkPixbuf from the miniMapTiles array based on the given position.
+GdkPixbuf* GetTileForMiniMap(Point *position)
+{
+    Terrain terrain = GetCellTerrain(position);
+    Actor *actor = GetCellsActor(position);
+    guint tile = 0;
+
+    // Do not draw cells not explored.
+    if (GetCellSightId(position) == CELL_UNEXPLORED && GetFogOfWarStatus() == TRUE)
+        return colorFillTiles[COLOR_BLACK];
+
+    if (IsSamePoint(position, GetSelectedCell()) && GetCellsActor(position) != GetActor(PLAYER_ACTOR_INDEX))
+    {
+        tile = TILE_MINIMAP_SELECTOR;
+    }
+    else if (actor != NULL && (IsVisibleToPlayer(position) || GetFogOfWarStatus() == FALSE))
+    {
+        if (actor == GetActor(PLAYER_ACTOR_INDEX))
+            tile = TILE_MINIMAP_PLAYER;
+        else
+            tile = TILE_MINIMAP_ENEMY;
+    }
+    else
+    {
+        switch (terrain)
+        {
+        case TERRAIN_EDGE:
+            tile = TILE_MINIMAP_EDGE_DARK;
+            break;
+        case TERRAIN_FLOOR:
+            tile = TILE_MINIMAP_FLOOR_DARK;
+            break;
+        case TERRAIN_STAIRS:
+            tile = TILE_MINIMAP_STAIRS_DARK;
+            break;
+        case TERRAIN_WALL:
+            tile = TILE_MINIMAP_WALL_DARK;
+            break;
+        default:
+            tile = TILE_MINIMAP_EDGE_DARK;
+        }
+
+        // Switch to light version if cell is visible to player.
+        if (IsVisibleToPlayer(position))
+        tile++;
+    }
+
+    return miniMapTiles[tile];
+}
+
+// ------------------------------------------------------------------------------------------------
 // Read image data for the given tileset into the GdkPixbufs tiles array.
 void LoadTerrainTiles(void)
 {
@@ -413,6 +498,11 @@ GdkPixbuf* GetTileForMenuState(MenuState state)
             return menuTiles[TILE_MENU_LOGBOOK_ON];
         else
             return menuTiles[TILE_MENU_LOGBOOK_OFF];
+    case STATE_MINIMAP:
+        if (currentState == STATE_MINIMAP)
+            return menuTiles[TILE_MENU_MINIMAP_ON];
+        else
+            return menuTiles[TILE_MENU_MINIMAP_OFF];
     case STATE_SETTINGS:
         if (currentState == STATE_SETTINGS)
             return menuTiles[TILE_MENU_SETTINGS_ON];
