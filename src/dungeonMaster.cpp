@@ -89,6 +89,13 @@ gboolean ProcessTurn(gpointer data)
     if (GetMenuState() == STATE_MINIMAP)
         gtk_widget_queue_draw(GTK_WIDGET(menu));
 
+    // End game if player was killed.
+    if (IsActorDead(GetActor(PLAYER_ACTOR_INDEX)))
+    {
+        g_print("Player was killed.\n");
+        gtk_main_quit();
+    }
+
     // If player is auto-navigating and has not arrived yet, call ProcessTurn again.
     if (GetActionForPlayer() == ACTION_WALK_AUTO
         && !IsSamePoint(GetActorPosition(GetActor(PLAYER_ACTOR_INDEX)), GetSelectedCell()))

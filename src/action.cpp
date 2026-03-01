@@ -59,11 +59,11 @@ Action GetActionForAI(Actor *actor)
     Point *actorPos = &actor->position;
     guint currentDistanceFromPlayer = GetPathMapDist(actorPos);
 
-    // Flee from player if distance is below the minimum desired.
-    if (currentDistanceFromPlayer < FLEE_DISTANCE_MIN)
+    // Move towards and attack player if actor is within sightRange and has LOS.
+    if (currentDistanceFromPlayer <= GetActorSightRange(actor) && IsVisibleToPlayer(actorPos))
     {
-        Direction directionToMove = DIR_NONE;
-        guint maxDistanceFromPlayer = 0;
+        Direction direction = DIR_NONE;
+        guint minDistanceToPlayer = GetActorSightRange(actor);
 
         for (guint i = DIR_NORTH; i < DIR_ALL_COUNT; i++)
         {
@@ -75,15 +75,18 @@ Action GetActionForAI(Actor *actor)
 
             neighborDistance = GetPathMapDist(&neighborCell);
 
-            if (neighborDistance > maxDistanceFromPlayer && IsTerrainTraversable(&neighborCell)
+            if (neighborDistance <= minDistanceToPlayer && IsTerrainTraversable(&neighborCell)
                 && !IsCellBlockedDiagonally(&neighborCell, (Direction)i))
             {
-                maxDistanceFromPlayer = neighborDistance;
-                directionToMove = (Direction)i;
+                minDistanceToPlayer = neighborDistance;
+                direction = (Direction)i;
             }
         }
 
-        return GetWalkFromDirection(directionToMove);
+        if (minDistanceToPlayer < ATTACK_DISTANCE)
+            return GetAttackFromDirection(direction);
+        else
+            return GetWalkFromDirection(direction);
     }
     else
     {
@@ -100,7 +103,9 @@ Action GetActionForAI(Actor *actor)
 
             if (GetPathMapDist(&neighborCell) > FLEE_DISTANCE_MIN && IsTerrainTraversable(&neighborCell)
                 && !IsCellBlockedDiagonally(&neighborCell, (Direction)directionToMove))
+            {
                 return GetWalkFromDirection((Direction)directionToMove);
+            }
 
             attemptCount++;
         }
@@ -265,6 +270,7 @@ static gboolean ActionAdvanceFloor(void)
     GenerateDungeon();
 
     Actor *player = GetActor(0);
+    SetActorHealthCurrent(player, GetActorHealthCurrent(player) + 5);
     CenterViewPortOn(&player->position);
 
     SetSelectedCellStatus(STATUS_OFF);
@@ -298,6 +304,7 @@ static gboolean ActionAttack(Actor *attacker, Direction direction)
     Actor *defender = GetCellsActor(&target);
 
     SetActorHealthCurrent(defender, GetActorHealthCurrent(defender) - 1);
+    gtk_widget_queue_draw(GTK_WIDGET(menu));
 
     return TRUE;
 }

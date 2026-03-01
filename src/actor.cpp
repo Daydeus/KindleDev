@@ -44,7 +44,7 @@ void InitActors(void)
         {
             SetActorSpecies(actor, SPECIES_SLIME);
             SetActorHealthCurrent(actor, 1);
-            SetActorSightRange(actor, 3);
+            SetActorSightRange(actor, 5);
         }
 
         SetActorFacing(actor, rand() % 2);
