@@ -44,6 +44,8 @@ gboolean ProcessTurn(gpointer data)
         // Get action the actor will perform.
         if (i == PLAYER_ACTOR_INDEX)
             action = GetActionForPlayer();
+        else if (IsActorDead(actor) == TRUE)
+            continue;
         else
             action = GetActionForAI(actor);
 

@@ -275,7 +275,8 @@ GdkPixbuf* GetTileForMiniMap(Point *position)
     {
         tile = TILE_MINIMAP_SELECTOR;
     }
-    else if (actor != NULL && (IsVisibleToPlayer(position) || GetFogOfWarStatus() == FALSE))
+    else if (actor != NULL && IsActorDead(actor) == FALSE
+            && (IsVisibleToPlayer(position) || GetFogOfWarStatus() == FALSE))
     {
         if (actor == GetActor(PLAYER_ACTOR_INDEX))
             tile = TILE_MINIMAP_PLAYER;
