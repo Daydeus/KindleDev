@@ -30,7 +30,6 @@
 
 GtkDrawingArea *viewPort = NULL;
 Point viewPosition = {0}; // The dungeonCell position of the viewPort origin.
-gboolean zoomIsOn = TRUE;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -49,7 +48,6 @@ void InitViewPort(void)
 {
     LoadTerrainTiles();
     LoadActorTiles();
-    ScaleTileForZoom(GetViewPortZoom());
 
     // Initialize the viewPort.
     viewPort = GTK_DRAWING_AREA(gtk_drawing_area_new());
@@ -94,35 +92,19 @@ void MoveViewPosition(Direction direction, guint distance)
 // Sets the dungeonCell position of the viewPort origin such that the given position is centered.
 void CenterViewPortOn(Point *position)
 {
-    guint tileSize = GetTileSizeForZoom(GetViewPortZoom());
-    gint viewPortHalfWidth = VIEWPORT_WIDTH / tileSize / 2;
-    gint viewPortHalfHeight = VIEWPORT_HEIGHT / tileSize / 2;
+    gint viewPortHalfWidth = VIEWPORT_WIDTH / TILE_SIZE_VP / 2;
+    gint viewPortHalfHeight = VIEWPORT_HEIGHT / TILE_SIZE_VP / 2;
     Point newPosition = {position->x - viewPortHalfWidth, position->y - viewPortHalfHeight};
 
     SetViewPosition(&newPosition);
 }
 
 // ------------------------------------------------------------------------------------------------
-// Get whether zoom is active on the viewPort.
-gboolean GetViewPortZoom(void)
-{
-    return zoomIsOn;
-}
-
-// ------------------------------------------------------------------------------------------------
-// Set whether zoom is active on the viewPort.
-void SetViewPortZoom(gboolean boolean)
-{
-    zoomIsOn = boolean;
-}
-
-// ------------------------------------------------------------------------------------------------
 // Returns if the given position is present in the viewPort.
 gboolean IsPositionOnScreen(Point *position)
 {
-    gint tileSize = GetTileSizeForZoom(zoomIsOn);
-    gint viewPortWidth = VIEWPORT_WIDTH / tileSize;
-    gint viewPortHeight = VIEWPORT_HEIGHT / tileSize;
+    gint viewPortWidth = VIEWPORT_WIDTH / TILE_SIZE_VP;
+    gint viewPortHeight = VIEWPORT_HEIGHT / TILE_SIZE_VP;
 
     if (IsWithinRectangle(position, GetViewPosition(), viewPortWidth, viewPortHeight))
         return TRUE;
@@ -134,23 +116,14 @@ gboolean IsPositionOnScreen(Point *position)
 // Draw the tiles of the visible dungeonCells and actors.
 static void DrawDungeon(cairo_t *context)
 {
-    gboolean zoomIsOn = GetViewPortZoom();
-    gint tileSize = GetTileSizeForZoom(zoomIsOn);
     Point *viewPosition = GetViewPosition();
 
-    for (gint y = 0; y <= VIEWPORT_HEIGHT / tileSize; y++)
+    for (gint y = 0; y <= VIEWPORT_HEIGHT / TILE_SIZE_VP; y++)
     {
-        for (gint x = 0; x <= VIEWPORT_WIDTH / tileSize; x++)
+        for (gint x = 0; x <= VIEWPORT_WIDTH / TILE_SIZE_VP; x++)
         {
             // The pixel position within the viewPort to be changed.
-            Point pixel = {tileSize * x, tileSize * y};
-
-            // When the viewPort's length has an even number of tiles, the tiles are drawn
-            // offset by half a tile to keep the player centered on-screen.
-            if (IsValueEven(VIEWPORT_WIDTH / tileSize))
-                pixel.x -= tileSize / 2;
-            if (IsValueEven(VIEWPORT_HEIGHT / tileSize))
-                pixel.y -= tileSize / 2;
+            Point pixel = {x * TILE_SIZE_VP, y * TILE_SIZE_VP};
 
             // The dungeon cell to be drawn in the viewPort.
             Point cell = {viewPosition->x + x, viewPosition->y + y};
@@ -261,21 +234,11 @@ static gboolean on_viewPort_update(GtkWidget *widget, gpointer userData)
 static void DoViewPortInput(Point *inputPos)
 {
     GestureType gesture = GetGestureType();
-    gboolean zoomIsOn = GetViewPortZoom();
-    gint tileSize = GetTileSizeForZoom(zoomIsOn);
     Actor *player = GetActor(PLAYER_ACTOR_INDEX);
     Point viewPosition = *GetViewPosition();
-    Point tappedTile = {inputPos->x / tileSize, inputPos->y / tileSize};
+    Point tappedTile = {inputPos->x / TILE_SIZE_VP, inputPos->y / TILE_SIZE_VP};
     Point tappedCell = {0};
     Point *selectedCell = GetSelectedCell();
-
-    // When the viewPort's length in tiles is even, the tiles are drawn offset by half a
-    // tile to keep the player centered on-screen. This must be taken into account when
-    // determining which tile was tapped.
-    if (IsValueEven(VIEWPORT_WIDTH / tileSize))
-        tappedTile.x = (inputPos->x + tileSize / 2) / tileSize;
-    if (IsValueEven(VIEWPORT_HEIGHT / tileSize))
-        tappedTile.y = (inputPos->y + tileSize / 2) / tileSize;
 
     // Get the dungeonCell of the clicked tile.
     tappedCell.x = viewPosition.x + tappedTile.x;
@@ -283,62 +246,48 @@ static void DoViewPortInput(Point *inputPos)
 
     if (gesture == GESTURE_SINGLE_TAP)
     {
-        // If the player's cell is tapped, toggle the zoom level.
-        if (IsSamePoint(&tappedCell, GetActorPosition(player)))
-        {
-            zoomIsOn = !zoomIsOn;
-            SetViewPortZoom(zoomIsOn);
-            ScaleTileForZoom(zoomIsOn);
-            CenterViewPortOn(&player->position);
+        Point *playerPos = GetActorPosition(player);
 
-            if (GetMenuState() == STATE_SETTINGS)
-                gtk_widget_queue_draw(GTK_WIDGET(menu));
-        }
-        else
+        // If selectedCell is tapped again, auto-navigate player to the dungeoncell if possible.
+        if (IsSamePoint(&tappedCell, selectedCell) && !IsSamePoint(selectedCell, playerPos)
+            && IsTerrainTraversable(&tappedCell) && DoesPathToCellExist(selectedCell)
+            && (GetCellSightId(&tappedCell) != CELL_UNEXPLORED || GetFogOfWarStatus() == FALSE))
         {
-            Point *playerPos = GetActorPosition(player);
+            guint distance = GetDistanceBetween(GetActorPosition(player), selectedCell);
 
-            // If selectedCell is tapped again, auto-navigate player to the dungeoncell if possible.
-            if (IsSamePoint(&tappedCell, selectedCell) && IsTerrainTraversable(&tappedCell)
-                && DoesPathToCellExist(selectedCell)
-                && (GetCellSightId(&tappedCell) != CELL_UNEXPLORED || GetFogOfWarStatus() == FALSE))
+            if (distance == ATTACK_DISTANCE && IsCellOccupiedByActor(selectedCell))
             {
-                guint distance = GetDistanceBetween(GetActorPosition(player), selectedCell);
-
-                if (distance == ATTACK_DISTANCE && IsCellOccupiedByActor(selectedCell))
-                {
-                    Direction direction = GetTravelDirectionBetweenCells(playerPos, selectedCell);
-                    SetActionForPlayer(GetAttackFromDirection(direction));
-                    ProcessTurn(NULL);
-                }
-                else
-                {
-                    SetSelectedCellStatus(STATUS_LOCKED);
-                    SetActionForPlayer(ACTION_WALK_AUTO);
-                    g_timeout_add(TURN_TIMER_AUTO, (GSourceFunc)ProcessTurn, NULL);
-                }
+                Direction direction = GetTravelDirectionBetweenCells(playerPos, selectedCell);
+                SetActionForPlayer(GetAttackFromDirection(direction));
+                ProcessTurn(NULL);
             }
             else
             {
-                // Only change selected cell if it is not locked and the cell has been explored.
-                if (GetSelectedCellStatus() == STATUS_LOCKED)
-                {
-                    SetSelectedCellStatus(STATUS_UNLOCKED);
-                    SetActionForPlayer(ACTION_NONE);
-                }
-                else if (GetSelectedCellStatus() != STATUS_LOCKED
-                    && (GetCellSightId(&tappedCell) != CELL_UNEXPLORED || GetFogOfWarStatus() == FALSE))
-                {
-                    SetSelectedCellStatus(STATUS_UNLOCKED);
-                    SetSelectedCell(&tappedCell);
+                SetSelectedCellStatus(STATUS_LOCKED);
+                SetActionForPlayer(ACTION_WALK_AUTO);
+                g_timeout_add(TURN_TIMER_AUTO, (GSourceFunc)ProcessTurn, NULL);
+            }
+        }
+        else
+        {
+            // Only change selected cell if it is not locked and the cell has been explored.
+            if (GetSelectedCellStatus() == STATUS_LOCKED)
+            {
+                SetSelectedCellStatus(STATUS_UNLOCKED);
+                SetActionForPlayer(ACTION_NONE);
+            }
+            else if (GetSelectedCellStatus() != STATUS_LOCKED
+                && (GetCellSightId(&tappedCell) != CELL_UNEXPLORED || GetFogOfWarStatus() == FALSE))
+            {
+                SetSelectedCellStatus(STATUS_UNLOCKED);
+                SetSelectedCell(&tappedCell);
 
-                    // Make player face the selectedCell.
-                    gint facing = playerPos->x - selectedCell->x;
-                    if (facing > 0)
-                        UpdateActorFacing(player, DIR_WEST);
-                    else if (facing < 0)
-                        UpdateActorFacing(player, DIR_EAST);
-                }
+                // Make player face the selectedCell.
+                gint facing = playerPos->x - selectedCell->x;
+                if (facing > 0)
+                    UpdateActorFacing(player, DIR_WEST);
+                else if (facing < 0)
+                    UpdateActorFacing(player, DIR_EAST);
             }
         }
     }

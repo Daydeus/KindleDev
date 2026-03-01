@@ -9,9 +9,9 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#define MENU_TABS_TOP       TILE_SIZE_BORDER * 4
-#define MENU_TABS_BOTTOM    MENU_TABS_TOP + TILE_SIZE_MB + TILE_SIZE_BORDER
-#define MENU_CORNER_X       TILE_SIZE_MB * 3/4
+#define MENU_TABS_TOP       (TILE_SIZE_BORDER * 4)
+#define MENU_TABS_BOTTOM    (MENU_TABS_TOP + TILE_SIZE_MB + TILE_SIZE_BORDER)
+#define MENU_CORNER_X       (TILE_SIZE_MB * 3/4)
 #define MENU_CORNER_Y       MENU_TABS_BOTTOM
 
 // ------------------------------------------------------------------------------------------------
@@ -27,8 +27,6 @@ enum CharacterUI
 
 enum SettingsUI
 {
-    MB_SETTINGS_ZOOM_TEXT,
-    MB_SETTINGS_ZOOM_SWITCH,
     MB_SETTINGS_SKIP_TEXT,
     MB_SETTINGS_SKIP_BUTTON,
     MB_SETTINGS_FOGOFWAR_TEXT,

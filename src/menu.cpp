@@ -22,8 +22,8 @@
     #define TAB_GAP 6
 #endif
 
-#define MENU_TAB_WIDTH          TILE_SIZE_MB + TAB_GAP * 2
-#define MENU_TAB_HEIGHT         MENU_TABS_BOTTOM - (MENU_TABS_TOP) + TAB_GAP
+#define MENU_TAB_WIDTH          (TILE_SIZE_MB + TAB_GAP * 2)
+#define MENU_TAB_HEIGHT         (MENU_TABS_BOTTOM - MENU_TABS_TOP + TAB_GAP)
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -51,7 +51,6 @@ static void DoMenuTabsClicked(Point* inputPos);
 static void DoMenuStateCharacterInput(Point *inputPos);
 static void DoMenuStateMiniMapInput(Point *inputPos);
 static void DoMenuStateSettingsInput(Point *inputPos);
-static void DoMenuSettingsZoomClick(Point *inputPos);
 static void DoMenuSettingsSkipClick(Point *inputPos);
 static void DoMenuSettingsFogOfWarClick(Point *inputPos);
 
@@ -451,9 +450,6 @@ static void DoMenuStateSettingsInput(Point *inputPos)
         {
             switch (i)
             {
-            case MB_SETTINGS_ZOOM_SWITCH:
-                DoMenuSettingsZoomClick(inputPos);
-                break;
             case MB_SETTINGS_SKIP_BUTTON:
                 DoMenuSettingsSkipClick(inputPos);
                 break;
@@ -468,24 +464,6 @@ static void DoMenuStateSettingsInput(Point *inputPos)
             }
         }
     }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Update the viewPort zoom when the SETTINGS_ZOOM_SWITCH is clicked and queue viewPort and menu
-// redraws.
-static void DoMenuSettingsZoomClick(Point *inputPos)
-{
-    Actor *player = GetActor(0);
-    gboolean zoomIsOn = GetViewPortZoom();
-
-    zoomIsOn = !zoomIsOn;
-    SetViewPortZoom(zoomIsOn);
-    ScaleTileForZoom(zoomIsOn);
-
-    CenterViewPortOn(&player->position);
-
-    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
-    gtk_widget_queue_draw(GTK_WIDGET(menu));
 }
 
 // ------------------------------------------------------------------------------------------------

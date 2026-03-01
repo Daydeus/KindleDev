@@ -26,24 +26,19 @@
 #define TERRAIN_FLIP_BTTN_Y     TERRAIN_FLIP_TEXT_Y + TEXT_ICON_GAP_Y
 
 // menu settingsItem positions.
-#define ZOOM_TEXT_X             MENU_CORNER_X
-#define ZOOM_TEXT_Y             MENU_CORNER_Y + TILE_SIZE_MB
-#define ZOOM_SWITCH_X           ZOOM_TEXT_X + TEXT_ICON_GAP_X
-#define ZOOM_SWITCH_Y           ZOOM_TEXT_Y + TEXT_ICON_GAP_Y
+#define SKIP_TEXT_X             MENU_CORNER_X
+#define SKIP_TEXT_Y             MENU_CORNER_Y + TILE_SIZE_MB
+#define SKIP_BTTN_X             SKIP_TEXT_X + TEXT_ICON_GAP_X
+#define SKIP_BTTN_Y             SKIP_TEXT_Y + TEXT_ICON_GAP_Y
 
-#define SKIP_TEXT_X             ZOOM_TEXT_X
-#define SKIP_TEXT_Y             ZOOM_TEXT_Y + MENU_ITEM_GAP_Y
-#define SKIP_BTTN_X             ZOOM_SWITCH_X
-#define SKIP_BTTN_Y             ZOOM_SWITCH_Y + MENU_ITEM_GAP_Y
-
-#define FOGOFWAR_TEXT_X         ZOOM_TEXT_X
+#define FOGOFWAR_TEXT_X         SKIP_TEXT_X
 #define FOGOFWAR_TEXT_Y         SKIP_TEXT_Y + MENU_ITEM_GAP_Y
-#define FOGOFWAR_BTTN_X         ZOOM_SWITCH_X
+#define FOGOFWAR_BTTN_X         SKIP_BTTN_X
 #define FOGOFWAR_BTTN_Y         SKIP_BTTN_Y + MENU_ITEM_GAP_Y
 
-#define EXIT_TEXT_X             ZOOM_TEXT_X
+#define EXIT_TEXT_X             SKIP_TEXT_X
 #define EXIT_TEXT_Y             FOGOFWAR_TEXT_Y + MENU_ITEM_GAP_Y
-#define EXIT_BTTN_X             ZOOM_SWITCH_X
+#define EXIT_BTTN_X             SKIP_BTTN_X
 #define EXIT_BTTN_Y             FOGOFWAR_BTTN_Y + MENU_ITEM_GAP_Y
 
 // ------------------------------------------------------------------------------------------------
@@ -63,8 +58,6 @@ MenuLayout characterItems[MB_CHARACTER_COUNT] =
 
 MenuLayout settingsItems[MB_SETTINGS_COUNT] =
 {   //  origin.x         origin.y          width         height         isText
-    { {{ZOOM_TEXT_X,     ZOOM_TEXT_Y},     TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // ZOOM_TEXT
-    { {{ZOOM_SWITCH_X,   ZOOM_SWITCH_Y},   TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // ZOOM_SWITCH
     { {{SKIP_TEXT_X,     SKIP_TEXT_Y},     TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // SKIP_TEXT
     { {{SKIP_BTTN_X,     SKIP_BTTN_Y},     TILE_SIZE_MB, TILE_SIZE_MB}, FALSE}, // SKIP_BUTTON
     { {{FOGOFWAR_TEXT_X, FOGOFWAR_TEXT_Y}, TILE_SIZE_MB, TILE_SIZE_MB}, TRUE},  // FOGOFWAR_TEXT
@@ -111,8 +104,6 @@ const char* GetSettingsLayoutText(SettingsUI item)
 {
     switch (item)
     {
-    case MB_SETTINGS_ZOOM_TEXT:
-        return "Zoom";
     case MB_SETTINGS_SKIP_TEXT:
         return "Skip Floor";
     case MB_SETTINGS_FOGOFWAR_TEXT:

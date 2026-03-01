@@ -17,15 +17,10 @@
 
 #define TILESET_WIDTH 8
 
-#ifdef KINDLE_BUILD
-#define TILE_SIZE_MB     TILE_SIZE_64
-#define TILE_SIZE_BORDER TILE_SIZE_32
-#define TILE_SIZE_MINIMAP TILE_SIZE_16
-#else
-#define TILE_SIZE_MB     TILE_SIZE_32
-#define TILE_SIZE_BORDER TILE_SIZE_16
-#define TILE_SIZE_MINIMAP TILE_SIZE_8
-#endif
+#define TILE_SIZE_BORDER  (TILE_SIZE_16 * KINDLE_SCALE)
+#define TILE_SIZE_MB      (TILE_SIZE_32 * KINDLE_SCALE)
+#define TILE_SIZE_MINIMAP (TILE_SIZE_8  * KINDLE_SCALE)
+#define TILE_SIZE_VP      (TILE_SIZE_32 * KINDLE_SCALE)
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -206,7 +201,5 @@ void FreeMenuTiles(void);
 GdkPixbuf* GetTileForMenuState(MenuState state);
 GdkPixbuf* GetTileForMenuCharacter(CharacterUI item);
 GdkPixbuf* GetTileForMenuSettings(SettingsUI item);
-guint GetTileSizeForZoom(gboolean zoomIsOn);
-void ScaleTileForZoom(gboolean zoomIsOn);
 
 #endif // TILE_H

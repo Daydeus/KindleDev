@@ -9,13 +9,8 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#ifdef KINDLE_BUILD
-#define MENU_WIDTH  VIEWPORT_WIDTH
-#define MENU_HEIGHT 736
-#else
-#define MENU_WIDTH  VIEWPORT_WIDTH
-#define MENU_HEIGHT 368
-#endif
+#define MENU_WIDTH   (608 * KINDLE_SCALE)
+#define MENU_HEIGHT  (368 * KINDLE_SCALE)
 
 // ------------------------------------------------------------------------------------------------
 // Data Types

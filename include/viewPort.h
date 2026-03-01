@@ -9,13 +9,8 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#if KINDLE_BUILD
-#define VIEWPORT_WIDTH  1216
-#define VIEWPORT_HEIGHT 832
-#else
-#define VIEWPORT_WIDTH  608
-#define VIEWPORT_HEIGHT 416
-#endif
+#define VIEWPORT_WIDTH  (608 * KINDLE_SCALE)
+#define VIEWPORT_HEIGHT (416 * KINDLE_SCALE)
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -28,7 +23,6 @@
 
 extern GtkDrawingArea *viewPort;
 extern Point viewPosition;
-extern gboolean zoomIsOn;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -39,8 +33,6 @@ Point* GetViewPosition(void);
 void SetViewPosition(Point *position);
 void MoveViewPosition(Direction direction, guint distance);
 void CenterViewPortOn(Point *position);
-gboolean GetViewPortZoom(void);
-void SetViewPortZoom(gboolean zoomIsOn);
 gboolean IsPositionOnScreen(Point *position);
 
 #endif // VIEWPORT_H

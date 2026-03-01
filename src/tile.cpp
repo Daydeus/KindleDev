@@ -61,8 +61,7 @@ void LoadActorTiles(void)
         guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
 
         actorTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
-        actorTiles[i] = gdk_pixbuf_scale_simple(actorTiles[i], TILE_SIZE_BORDER, TILE_SIZE_BORDER,
-            GDK_INTERP_NEAREST);
+        actorTiles[i] = gdk_pixbuf_scale_simple(actorTiles[i], TILE_SIZE_VP, TILE_SIZE_VP, GDK_INTERP_NEAREST);
     }
 
     g_object_unref(source);
@@ -133,8 +132,7 @@ void LoadBorderTiles(void)
         guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
 
         borderTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
-        borderTiles[i] = gdk_pixbuf_scale_simple(borderTiles[i], TILE_SIZE_BORDER, TILE_SIZE_BORDER,
-            GDK_INTERP_NEAREST);
+        borderTiles[i] = gdk_pixbuf_scale_simple(borderTiles[i], TILE_SIZE_BORDER, TILE_SIZE_BORDER, GDK_INTERP_NEAREST);
     }
 
     g_object_unref(source);
@@ -329,6 +327,8 @@ void LoadTerrainTiles(void)
 
         terrainDarkTiles[i] = gdk_pixbuf_new_subpixbuf(sourceDark, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
         terrainLightTiles[i] = gdk_pixbuf_new_subpixbuf(sourceLight, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
+        terrainDarkTiles[i] = gdk_pixbuf_scale_simple(terrainDarkTiles[i], TILE_SIZE_VP, TILE_SIZE_VP, GDK_INTERP_NEAREST);
+        terrainLightTiles[i] = gdk_pixbuf_scale_simple(terrainLightTiles[i], TILE_SIZE_VP, TILE_SIZE_VP, GDK_INTERP_NEAREST);
     }
 
     g_object_unref(sourceDark);
@@ -454,8 +454,7 @@ void LoadMenuTiles(void)
         guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_16;
 
         menuTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_16, TILE_SIZE_16);
-        menuTiles[i] = gdk_pixbuf_scale_simple(menuTiles[i], TILE_SIZE_MB, TILE_SIZE_MB,
-            GDK_INTERP_NEAREST);
+        menuTiles[i] = gdk_pixbuf_scale_simple(menuTiles[i], TILE_SIZE_MB, TILE_SIZE_MB, GDK_INTERP_NEAREST);
     }
 
     g_object_unref(source);
@@ -534,11 +533,6 @@ GdkPixbuf* GetTileForMenuSettings(SettingsUI item)
 {
     switch (item)
     {
-    case MB_SETTINGS_ZOOM_SWITCH:
-        if (GetViewPortZoom() == TRUE)
-            return menuTiles[TILE_MENU_UI_SWITCH_ON];
-        else
-            return menuTiles[TILE_MENU_UI_SWITCH_OFF];
     case MB_SETTINGS_SKIP_BUTTON:
         return menuTiles[TILE_MENU_REFRESH];
     case MB_SETTINGS_FOGOFWAR_BUTTON:
@@ -550,42 +544,5 @@ GdkPixbuf* GetTileForMenuSettings(SettingsUI item)
         return menuTiles[TILE_MENU_EXIT];
     default:
         return terrainLightTiles[TILE_TERRAIN_EDGE];
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Get whether zoom is active on the viewPort.
-guint GetTileSizeForZoom(gboolean zoomIsOn)
-{
-    #ifdef KINDLE_BUILD
-    if (zoomIsOn)
-        return TILE_SIZE_64;
-    else
-        return TILE_SIZE_32;
-    #else
-    if (zoomIsOn)
-        return TILE_SIZE_32;
-    else
-        return TILE_SIZE_16;
-    #endif
-}
-
-// ------------------------------------------------------------------------------------------------
-// Scale the GdkPixbuf tiles based on the viewPort's zoomLevel.
-void ScaleTileForZoom(gboolean zoomIsOn)
-{
-    guint tileSize = GetTileSizeForZoom(zoomIsOn);
-
-    // Scale tiles for dungeon.
-    for (guint i = 0; i < TILE_TERRAIN_COUNT; i++)
-    {
-        terrainDarkTiles[i] = gdk_pixbuf_scale_simple(terrainDarkTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
-        terrainLightTiles[i] = gdk_pixbuf_scale_simple(terrainLightTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
-    }
-
-    // Scale tiles for actors.
-    for (guint i = 0; i < TILE_ACTOR_COUNT; i++)
-    {
-        actorTiles[i] = gdk_pixbuf_scale_simple(actorTiles[i], tileSize, tileSize, GDK_INTERP_NEAREST);
     }
 }

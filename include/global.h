@@ -11,6 +11,13 @@
 #define SCREEN_WIDTH_PIXELS  1264
 #define SCREEN_HEIGHT_PIXELS 1680
 
+#ifdef KINDLE_BUILD
+#define KINDLE_SCALE  2
+#else
+// 2 if KINDLE_BUILD, otherwise 1
+#define KINDLE_SCALE  1
+#endif
+
 // ------------------------------------------------------------------------------------------------
 // Data Types
 // ------------------------------------------------------------------------------------------------
