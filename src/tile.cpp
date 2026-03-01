@@ -270,7 +270,8 @@ GdkPixbuf* GetTileForMiniMap(Point *position)
     if (GetCellSightId(position) == CELL_UNEXPLORED && GetFogOfWarStatus() == TRUE)
         return colorFillTiles[COLOR_BLACK];
 
-    if (IsSamePoint(position, GetSelectedCell()) && GetCellsActor(position) != GetActor(PLAYER_ACTOR_INDEX))
+    if (IsSamePoint(position, GetSelectedCell()) && GetSelectedCellStatus() != STATUS_OFF
+        && GetCellsActor(position) != GetActor(PLAYER_ACTOR_INDEX))
     {
         tile = TILE_MINIMAP_SELECTOR;
     }

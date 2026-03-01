@@ -267,6 +267,9 @@ static gboolean ActionAdvanceFloor(void)
     Actor *player = GetActor(0);
     CenterViewPortOn(&player->position);
 
+    SetSelectedCellStatus(STATUS_OFF);
+    SetActionForPlayer(ACTION_NONE);
+
     gtk_widget_queue_draw(GTK_WIDGET(viewPort));
     gtk_widget_queue_draw(GTK_WIDGET(menu));
 
