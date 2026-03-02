@@ -144,6 +144,13 @@ static void DrawDungeon(cairo_t *context)
                     {
                         gdk_cairo_set_source_pixbuf(context, GetTileForActor(actorToDraw), pixel.x, pixel.y);
                         cairo_paint(context);
+
+                        if (HasActorBeenDamaged(actorToDraw))
+                        {
+                            gdk_cairo_set_source_pixbuf(context, actorTiles[TILE_ACTOR_DAMAGE_INDICATOR], pixel.x, pixel.y);
+                            cairo_paint(context);
+                            SetActorDamaged(actorToDraw, FALSE);
+                        }
                     }
                 }
 

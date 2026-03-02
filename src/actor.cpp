@@ -202,6 +202,20 @@ void ReincarnateAllActors(void)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Returns TRUE if the actor has been damaged this turn.
+gint HasActorBeenDamaged(Actor *actor)
+{
+    return actor->damagedThisTurn;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets if the actor has been damaged this turn.
+void SetActorDamaged(Actor *actor, gboolean boolean)
+{
+    actor->damagedThisTurn = boolean;
+}
+
+// ------------------------------------------------------------------------------------------------
 // Gets the sight range for the given actor based on their species.
 guint GetActorSightRange(Actor *actor)
 {

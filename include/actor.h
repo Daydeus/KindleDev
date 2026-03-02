@@ -37,6 +37,7 @@ typedef struct
     Point prevPosition;
     guint facing:1;
     gint healthCurrent;
+    gint damagedThisTurn:1;
     guint sightRange:4;
 } Actor;
 
@@ -65,6 +66,8 @@ void SetActorHealthCurrent(Actor *actor, gint newHealth);
 gboolean IsActorDead(Actor *actor);
 gboolean ReincarnateActor(Actor *actor, ActorSpecies species);
 void ReincarnateAllActors(void);
+gint HasActorBeenDamaged(Actor *actor);
+void SetActorDamaged(Actor *actor, gboolean boolean);
 guint GetActorSightRange(Actor *actor);
 void SetActorSightRange(Actor *actor, guint sightRange);
 

@@ -88,6 +88,7 @@ gboolean ProcessTurn(gpointer data)
     // Update the miniMap after all actors have taken their turn.
     if (GetMenuState() == STATE_MINIMAP)
         gtk_widget_queue_draw(GTK_WIDGET(menu));
+    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
 
     // End game if player was killed.
     if (IsActorDead(GetActor(PLAYER_ACTOR_INDEX)))
