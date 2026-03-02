@@ -43,7 +43,7 @@ void InitActors(void)
         else
         {
             SetActorSpecies(actor, SPECIES_SLIME);
-            SetActorHealthCurrent(actor, 1);
+            SetActorHealthCurrent(actor, 2);
             SetActorSightRange(actor, 5);
         }
 
@@ -179,7 +179,7 @@ gboolean ReincarnateActor(Actor *actor, ActorSpecies species)
     if (IsActorDead(actor))
     {
         SetActorSpecies(actor, species);
-        SetActorHealthCurrent(actor, 1);
+        SetActorHealthCurrent(actor, 2);
         SetActorSightRange(actor, 3);
 
         return TRUE;
