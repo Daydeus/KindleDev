@@ -19,11 +19,15 @@
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
+extern guint turnCount;
+extern guint actorTurnIndex;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
+guint GetTurnCount(void);
+void ClearTurnCount(void);
 gboolean ProcessTurn(gpointer data);
 
 #endif // DUNGEON_MASTER_H

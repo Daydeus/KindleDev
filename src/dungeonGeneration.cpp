@@ -3,6 +3,7 @@
 #include "actor.h"
 #include "dungeonCell.h"
 #include "dungeonGeneration.h"
+#include "dungeonMaster.h"
 #include "fieldOfView.h"
 #include "pathfinding.h"
 
@@ -204,6 +205,7 @@ void GenerateDungeon(void)
     UpdateFOV(GetActorPosition(player), GetActorSightRange(player));
 
     dungeonFloor++;
+    ClearTurnCount();
 }
 
 // ------------------------------------------------------------------------------------------------

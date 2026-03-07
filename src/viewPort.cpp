@@ -266,7 +266,7 @@ static void DoViewPortInput(Point *inputPos)
             {
                 Direction direction = GetTravelDirectionBetweenCells(playerPos, selectedCell);
                 SetActionForPlayer(GetAttackFromDirection(direction));
-                ProcessTurn(NULL);
+                g_timeout_add(TURN_TIMER_AUTO, (GSourceFunc)ProcessTurn, NULL);
             }
             else
             {

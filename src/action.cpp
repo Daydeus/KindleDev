@@ -305,7 +305,6 @@ static gboolean ActionAttack(Actor *attacker, Direction direction)
 
     SetActorHealthCurrent(defender, GetActorHealthCurrent(defender) - 1);
     SetActorDamaged(defender, TRUE);
-    gtk_widget_queue_draw(GTK_WIDGET(menu));
 
     return TRUE;
 }

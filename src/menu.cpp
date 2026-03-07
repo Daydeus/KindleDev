@@ -182,6 +182,12 @@ static void DrawPlayerHUD(cairo_t *context)
     cairo_move_to(context, TILE_SIZE_BORDER, TILE_SIZE_BORDER * 3/2);
     pango_cairo_show_layout(context, layout);
 
+    // Display the current turn number.
+    text = g_strdup_printf("Turns: %d", GetTurnCount());
+    pango_layout_set_text(layout, text, -1);
+    cairo_move_to(context, TILE_SIZE_BORDER, TILE_SIZE_BORDER * 5/2);
+    pango_cairo_show_layout(context, layout);
+
     g_object_unref(layout);
 }
 
@@ -392,7 +398,7 @@ static void DoMenuStateCharacterInput(Point *inputPos)
                 if (GetSelectedCellStatus() == STATUS_UNLOCKED)
                 {
                     SetActionForPlayer(ACTION_TERRAIN_FLIP);
-                    ProcessTurn(NULL);
+                g_timeout_add(TURN_TIMER_AUTO, (GSourceFunc)ProcessTurn, NULL);
                 }
                 else if (GetSelectedCellStatus() == STATUS_LOCKED)
                 {
