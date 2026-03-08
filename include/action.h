@@ -11,6 +11,7 @@
 // ------------------------------------------------------------------------------------------------
 
 #define ATTACK_DISTANCE 1
+#define MAX_SKILL_SLOTS 40
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
@@ -41,11 +42,20 @@ enum Action
     ACTION_COUNT
 };
 
+enum Skill
+{
+    SKILL_NONE,
+    SKILL_WALK_TO,
+    SKILL_ATTACK_BASIC,
+    SKILL_COUNT
+};
+
 // ------------------------------------------------------------------------------------------------
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
 extern Action playerAction;
+extern guint skills[MAX_SKILL_SLOTS];
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -53,6 +63,7 @@ extern Action playerAction;
 
 Action GetActionForPlayer(void);
 void SetActionForPlayer(Action action);
+Action LookupActionForSkill(Skill skill, Direction direction);
 Action GetActionForAI(Actor *actor);
 gboolean DoAction(Actor *actor, Action action);
 Action GetWalkFromDirection(Direction direction);

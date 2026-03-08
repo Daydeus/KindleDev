@@ -36,6 +36,7 @@
 
 GtkDrawingArea *menu = NULL;
 MenuState menuState = STATE_SETTINGS;
+guint selectedSkillSlot = 0;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -44,11 +45,11 @@ MenuState menuState = STATE_SETTINGS;
 static void DrawMenuBorders(cairo_t *context);
 static void DrawMenuTabs(cairo_t *context);
 static void DrawPlayerHUD(cairo_t *context);
-static void DrawMenuStateActions(cairo_t *context);
+static void DrawMenuStateSkills(cairo_t *context);
 static void DrawMenuStateMiniMap(cairo_t *context);
 static void DrawMenuStateSettings(cairo_t *context);
 static void DoMenuTabsClicked(Point* inputPos);
-static void DoMenuStateActionsInput(Point *inputPos);
+static void DoMenuStateSkillsInput(Point *inputPos);
 static void DoMenuStateMiniMapInput(Point *inputPos);
 static void DoMenuStateSettingsInput(Point *inputPos);
 static void DoMenuSettingsSkipClick(Point *inputPos);
@@ -60,6 +61,7 @@ void InitMenu(void)
 {
     LoadMenuTiles();
     LoadMiniMapTiles();
+    LoadSkillTiles();
 
     // Initialize menu.
     menu = GTK_DRAWING_AREA(gtk_drawing_area_new());
@@ -70,6 +72,8 @@ void InitMenu(void)
     g_signal_connect(menu, "expose_event", G_CALLBACK(on_menu_update), NULL);
     g_signal_connect(menu, "button_press_event", G_CALLBACK(on_menu_click), NULL);
     gtk_widget_set_events(GTK_WIDGET(menu), GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK);
+    skills[0] = SKILL_WALK_TO;
+    skills[1] = SKILL_ATTACK_BASIC;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -84,6 +88,20 @@ MenuState GetMenuState(void)
 void SetMenuState(MenuState state)
 {
     menuState = state;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Gets the current selectedSkill in menuState STATE_SKILLS.
+guint GetSelectedSkillSlot(void)
+{
+    return selectedSkillSlot;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Sets the current selectedSkill in menuState STATE_SKILLS.
+void SetSelectedSkillSlot(guint skillSlot)
+{
+    selectedSkillSlot = skillSlot;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -229,36 +247,63 @@ static void DrawMenuTabs(cairo_t *context)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Draws the contents of the menu when menuState is set to STATE_ACTIONS.
-static void DrawMenuStateActions(cairo_t *context)
+// Draws the contents of the menu when menuState is set to STATE_SKILLS.
+static void DrawMenuStateSkills(cairo_t *context)
 {
-    PangoLayout *layout = gtk_widget_create_pango_layout(GTK_WIDGET(menu), "");
-
-    // Set layout's attributes.
-    PangoAttrList *attr_list = pango_attr_list_new();
-    PangoAttribute *color = pango_attr_foreground_new(65535, 65535, 65535); // WHITE
-    pango_attr_list_insert(attr_list, color);
-    pango_layout_set_attributes(layout, attr_list);
-
-    // Loop through each piece of the layout and draw/print as necessary.
-    for (guint i = 0; i < MB_ACTIONS_COUNT; i++)
+    // Draw action icon boxes.
+    for (gint row = 0; row < MAX_SKILL_SLOTS / 10; row++)
     {
-        MenuLayout *menuItem = GetActionsLayoutItem((ActionsUI)i);
+        for (gint col = 0; col < 10; col++)
+        {
+            guint currentSlot = col + row * 10;
+            Point pixel = {MENU_CORNER_X, MENU_CORNER_Y};
+            pixel.x += col * (TILE_SIZE_SKILL * 3/2);
+            pixel.y += (row % 10) * (TILE_SIZE_SKILL * 3/2);
 
-        if (menuItem->isText)
-        {
-            pango_layout_set_text(layout, GetActionsLayoutText((ActionsUI)i), -1);
-            cairo_move_to(context, menuItem->layout.origin.x, menuItem->layout.origin.y);
-            pango_cairo_show_layout(context, layout);
-        }
-        else
-        {
-            gdk_cairo_set_source_pixbuf(context, GetTileForMenuActions((ActionsUI)i),
-                menuItem->layout.origin.x, menuItem->layout.origin.y);
+            gdk_cairo_set_source_pixbuf(context, GetTileForSkill((Skill)skills[currentSlot]), pixel.x, pixel.y);
             cairo_paint(context);
+
+            if (currentSlot == GetSelectedSkillSlot())
+            {
+                gdk_cairo_set_source_pixbuf(context, skillTiles[TILE_SKILL_SLOT_SELECTED], pixel.x, pixel.y);
+                cairo_paint(context);
+            }
         }
     }
 
+    // Draw line separating action description from boxes.
+    cairo_set_source_rgb(context, 1.0, 1.0, 1.0);
+    cairo_set_line_width(context, 1.0);
+    cairo_move_to(context, MENU_CORNER_X, MENU_CORNER_Y + TILE_SIZE_SKILL * 6);
+    cairo_line_to(context, MENU_CORNER_X + TILE_SIZE_SKILL * 29/2, MENU_CORNER_Y + TILE_SIZE_SKILL * 6);
+    cairo_stroke(context);
+
+    // Prepare to draw text for action name and description.
+    PangoLayout *layout = gtk_widget_create_pango_layout(GTK_WIDGET(menu), "");
+    PangoAttrList *attr_list = pango_attr_list_new();
+    PangoAttribute *color = pango_attr_foreground_new(65535, 65535, 65535); // WHITE
+    PangoAttribute *size = pango_attr_size_new(10 * PANGO_SCALE); // 10-point font
+    char *text = NULL;
+
+    pango_attr_list_insert(attr_list, color);
+    pango_attr_list_insert(attr_list, size);
+    pango_layout_set_attributes(layout, attr_list);
+
+    // Write action name.
+    text = g_strdup_printf("Skill Name:");
+    pango_layout_set_text(layout, text, -1);
+    cairo_move_to(context, MENU_CORNER_X, MENU_CORNER_Y + TILE_SIZE_SKILL * 13/2);
+    pango_cairo_show_layout(context, layout);
+
+    // Write action description.
+    size = pango_attr_size_new(8 * PANGO_SCALE); // 8-point font
+    pango_attr_list_change(attr_list, size);
+    text = g_strdup_printf("Description:");
+    pango_layout_set_text(layout, text, -1);
+    cairo_move_to(context, MENU_CORNER_X, MENU_CORNER_Y + TILE_SIZE_SKILL * 15/2);
+    pango_cairo_show_layout(context, layout);
+
+    pango_attr_list_unref(attr_list);
     g_object_unref(layout);
 }
 
@@ -333,8 +378,8 @@ gboolean on_menu_update(GtkWidget *widget, cairo_t *context, gpointer userData)
         {
         case STATE_INSPECT:
             break;
-        case STATE_ACTIONS:
-            DrawMenuStateActions(context);
+        case STATE_SKILLS:
+            DrawMenuStateSkills(context);
             break;
         case STATE_INVENTORY:
             break;
@@ -380,36 +425,45 @@ static void DoMenuTabsClicked(Point* inputPos)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Process input for the menu when in menuState STATE_ACTIONS.
-static void DoMenuStateActionsInput(Point *inputPos)
+// Process input for the menu when in menuState STATE_SKILLS.
+static void DoMenuStateSkillsInput(Point *inputPos)
 {
-    // Loop through every item in the layout for menuState character.
-    for (guint i = 0; i < MB_ACTIONS_COUNT; i++)
+    for (gint row = 0; row < MAX_SKILL_SLOTS / 10; row++)
     {
-        MenuLayout *menuItem = GetActionsLayoutItem((ActionsUI)i);
-
-        // If the inputPos is within the rectangle of the current item being checked.
-        if (IsWithinRectangle(inputPos, &menuItem->layout.origin, menuItem->layout.width,
-            menuItem->layout.height))
+        for (gint col = 0; col < 10; col++)
         {
-            switch (i)
+            guint currentSlot = col + row * 10;
+            Point pixel = {MENU_CORNER_X, MENU_CORNER_Y};
+            pixel.x += col * (TILE_SIZE_SKILL * 3/2);
+            pixel.y += (row % 10) * (TILE_SIZE_SKILL * 3/2);
+
+            // If a skill tile was clicked.
+            if (IsWithinRectangle(inputPos, &pixel, TILE_SIZE_SKILL, TILE_SIZE_SKILL))
             {
-            case MB_ACTIONS_TERRAIN_FLIP_BTTN:
-                if (GetSelectedCellStatus() == STATUS_UNLOCKED)
+                // If this is a double-tap
+                if (currentSlot == GetSelectedSkillSlot())
                 {
-                    SetActionForPlayer(ACTION_TERRAIN_FLIP);
-                g_timeout_add(TURN_TIMER_AUTO, (GSourceFunc)ProcessTurn, NULL);
-                }
-                else if (GetSelectedCellStatus() == STATUS_LOCKED)
-                {
-                    SetSelectedCellStatus(STATUS_UNLOCKED);
-                    gtk_widget_queue_draw(GTK_WIDGET(viewPort));
-                    SetActionForPlayer(ACTION_NONE);
+                    // Only queue action for player if not already performing a cascading action.
+                    if (GetActionForPlayer() != ACTION_WALK_AUTO)
+                    {
+                        Point *playerPos = GetActorPosition(GetActor(PLAYER_ACTOR_INDEX));
+                        Direction direction = GetTravelDirectionBetweenCells(playerPos, GetSelectedCell());
+
+                        SetActionForPlayer(LookupActionForSkill((Skill)skills[currentSlot], direction));
+                        g_timeout_add(TURN_TIMER_AUTO, (GSourceFunc)ProcessTurn, NULL);
+                    }
+                    else
+                    {
+                        SetSelectedCellStatus(STATUS_UNLOCKED);
+                        SetActionForPlayer(ACTION_NONE);
+                    }
                 }
 
-                break;
-            default:
-                break;
+                SetSelectedSkillSlot(currentSlot);
+
+                gtk_widget_queue_draw(GTK_WIDGET(viewPort));
+                gtk_widget_queue_draw(GTK_WIDGET(menu));
+                return;
             }
         }
     }
@@ -509,8 +563,8 @@ gboolean on_menu_click(GtkWidget *widget, GdkEventButton *event, gpointer userDa
         {
         case STATE_INSPECT:
             break;
-        case STATE_ACTIONS:
-            DoMenuStateActionsInput(&clicked);
+        case STATE_SKILLS:
+            DoMenuStateSkillsInput(&clicked);
             break;
         case STATE_INVENTORY:
             break;

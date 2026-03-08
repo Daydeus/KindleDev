@@ -141,6 +141,7 @@ gboolean ProcessTurn(gpointer data)
     }
     else // All actors' turns processed.
     {
+        SetActionForPlayer(ACTION_NONE);
         turnCount++;
         return FALSE;
     }

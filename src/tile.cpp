@@ -1,5 +1,6 @@
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
+#include "action.h"
 #include "actor.h"
 #include "dungeonCell.h"
 #include "fieldOfView.h"
@@ -13,6 +14,7 @@
 #include "data/tilesetColorFill.h"
 #include "data/tilesetMenu.h"
 #include "data/tilesetMiniMap.h"
+#include "data/tilesetSkill.h"
 #include "data/tilesetTerrainDark.h"
 #include "data/tilesetTerrainLight.h"
 
@@ -35,6 +37,7 @@ GdkPixbuf *borderTiles[TILE_BORDER_COUNT] = {NULL};
 GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL] = {NULL};
 GdkPixbuf *menuTiles[TILE_MENU_COUNT] = {NULL};
 GdkPixbuf *miniMapTiles[TILE_MINIMAP_COUNT] = {NULL};
+GdkPixbuf *skillTiles[TILE_SKILL_COUNT] = {NULL};
 GdkPixbuf *terrainDarkTiles[TILE_TERRAIN_COUNT] = {NULL};
 GdkPixbuf *terrainLightTiles[TILE_TERRAIN_COUNT] = {NULL};
 
@@ -440,6 +443,59 @@ GdkPixbuf* GetTileForTerrain(Point *position)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Read image data into the GdkPixbufs skillTiles array.
+void LoadSkillTiles(void)
+{
+    GdkPixbuf *source = NULL;
+    GError * error = NULL;
+
+    source = gdk_pixbuf_new_from_inline(-1, tilesetSkill, FALSE, &error);
+
+    for (guint i = 0; i < TILE_SKILL_COUNT; i++)
+    {
+        guint pixelX = (i % TILESET_WIDTH) * TILE_SIZE_24;
+        guint pixelY = (i / TILESET_WIDTH) * TILE_SIZE_24;
+
+        skillTiles[i] = gdk_pixbuf_new_subpixbuf(source, pixelX, pixelY, TILE_SIZE_24, TILE_SIZE_24);
+        skillTiles[i] = gdk_pixbuf_scale_simple(skillTiles[i], TILE_SIZE_SKILL, TILE_SIZE_SKILL, GDK_INTERP_NEAREST);
+    }
+
+    g_object_unref(source);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Read image data into the GdkPixbufs skillTiles array.
+void FreeSkillTiles(void)
+{
+    // Free memory used by GdkPixbufs.
+    for (guint i = 0; i < TILE_SKILL_COUNT; i++)
+    {
+        g_object_unref(skillTiles[i]);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns the GdkPixbuf from the skillTiles array for the given skill.
+GdkPixbuf* GetTileForSkill(Skill skill)
+{
+    SkillTile tile = TILE_SKILL_SLOT_EMPTY;
+
+    switch (skill)
+    {
+    case SKILL_WALK_TO:
+        tile = TILE_SKILL_WALK_TO;
+        break;
+    case SKILL_ATTACK_BASIC:
+        tile = TILE_SKILL_ATTACK_BASIC;
+        break;
+    default:
+        tile = TILE_SKILL_SLOT_EMPTY;
+    }
+
+    return skillTiles[tile];
+}
+
+// ------------------------------------------------------------------------------------------------
 // Read image data into the GdkPixbufs menuTiles array.
 void LoadMenuTiles(void)
 {
@@ -484,11 +540,11 @@ GdkPixbuf* GetTileForMenuState(MenuState state)
             return menuTiles[TILE_MENU_INSPECT_ON];
         else
             return menuTiles[TILE_MENU_INSPECT_OFF];
-    case STATE_ACTIONS:
-        if (currentState == STATE_ACTIONS)
-            return menuTiles[TILE_MENU_ACTIONS_ON];
+    case STATE_SKILLS:
+        if (currentState == STATE_SKILLS)
+            return menuTiles[TILE_MENU_SKILLS_ON];
         else
-            return menuTiles[TILE_MENU_ACTIONS_OFF];
+            return menuTiles[TILE_MENU_SKILLS_OFF];
     case STATE_INVENTORY:
         if (currentState == STATE_INVENTORY)
             return menuTiles[TILE_MENU_INVENTORY_ON];
@@ -554,6 +610,7 @@ void FreeAllTiles(void)
     FreeActorTiles();
     FreeBorderTiles();
     FreeColorFillTiles();
+    FreeSkillTiles();
     FreeTerrainTiles();
     FreeMenuTiles();
     FreeMiniMapTiles();

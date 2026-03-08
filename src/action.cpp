@@ -27,6 +27,7 @@
 // ------------------------------------------------------------------------------------------------
 
 Action playerAction =  ACTION_NONE;
+guint skills[MAX_SKILL_SLOTS] = {SKILL_NONE};
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -50,6 +51,21 @@ Action GetActionForPlayer(void)
 void SetActionForPlayer(Action action)
 {
     playerAction = action;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Returns the associated action for the given skill.
+Action LookupActionForSkill(Skill skill, Direction direction)
+{
+    switch (skill)
+    {
+    case SKILL_WALK_TO:
+        return ACTION_WALK_AUTO;
+    case SKILL_ATTACK_BASIC:
+        return GetAttackFromDirection(direction);
+    default:
+        return ACTION_NONE;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -247,6 +263,8 @@ static gboolean ActionWalkAuto(void)
     // cell selector icon.
     if (distance == 1)
         SetSelectedCellStatus(STATUS_OFF);
+    else
+        SetSelectedCellStatus(STATUS_LOCKED);
 
     // Get the next step in the path to the selected cell.
     for (gint i = distance; i > 0; i--)

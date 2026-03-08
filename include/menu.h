@@ -19,7 +19,7 @@
 enum MenuState
 {
     STATE_INSPECT,
-    STATE_ACTIONS,
+    STATE_SKILLS,
     STATE_INVENTORY,
     STATE_LOGBOOK,
     STATE_MINIMAP,
@@ -33,6 +33,7 @@ enum MenuState
 
 extern GtkDrawingArea *menu;
 extern MenuState menuState;
+extern guint selectedSkillSlot;
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
@@ -41,6 +42,8 @@ extern MenuState menuState;
 void InitMenu(void);
 MenuState GetMenuState(void);
 void SetMenuState(MenuState state);
+guint GetSelectedSkillSlot(void);
+void SetSelectedSkillSlot(guint skillSlot);
 gboolean on_menu_update(GtkWidget *widget, cairo_t *context, gpointer userData);
 gboolean on_menu_click(GtkWidget *widget, GdkEventButton *event, gpointer userData);
 

@@ -21,13 +21,13 @@
 
 // menu characterItem positions.
 #define TERRAIN_FLIP_TEXT_X     MENU_CORNER_X
-#define TERRAIN_FLIP_TEXT_Y     MENU_CORNER_Y + TILE_SIZE_MB
+#define TERRAIN_FLIP_TEXT_Y     MENU_CORNER_Y
 #define TERRAIN_FLIP_BTTN_X     TERRAIN_FLIP_TEXT_X + TEXT_ICON_GAP_X
 #define TERRAIN_FLIP_BTTN_Y     TERRAIN_FLIP_TEXT_Y + TEXT_ICON_GAP_Y
 
 // menu settingsItem positions.
 #define SKIP_TEXT_X             MENU_CORNER_X
-#define SKIP_TEXT_Y             MENU_CORNER_Y + TILE_SIZE_MB
+#define SKIP_TEXT_Y             MENU_CORNER_Y
 #define SKIP_BTTN_X             SKIP_TEXT_X + TEXT_ICON_GAP_X
 #define SKIP_BTTN_Y             SKIP_TEXT_Y + TEXT_ICON_GAP_Y
 

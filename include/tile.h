@@ -4,6 +4,7 @@
 #include <gtk-2.0/gtk/gtk.h>
 #include <glib-2.0/glib.h>
 #include "menuLayout.h"
+#include "action.h"
 #include "actor.h"
 
 // ------------------------------------------------------------------------------------------------
@@ -19,6 +20,7 @@
 
 #define TILESET_WIDTH 8
 
+#define TILE_SIZE_SKILL   (TILE_SIZE_24 * KINDLE_SCALE)
 #define TILE_SIZE_BORDER  (TILE_SIZE_16 * KINDLE_SCALE)
 #define TILE_SIZE_MB      (TILE_SIZE_32 * KINDLE_SCALE)
 #define TILE_SIZE_MINIMAP (TILE_SIZE_8  * KINDLE_SCALE)
@@ -106,6 +108,16 @@ enum MiniMapTile
     TILE_MINIMAP_COUNT
 };
 
+// Indices for GdkPixbufs in the skillTiles array.
+enum SkillTile
+{
+    TILE_SKILL_SLOT_EMPTY,
+    TILE_SKILL_SLOT_SELECTED,
+    TILE_SKILL_WALK_TO,
+    TILE_SKILL_ATTACK_BASIC,
+    TILE_SKILL_COUNT
+};
+
 // Indices for GdkPixbufs in the terrain(Light/Dark)Tiles array.
 enum TerrainTile
 {
@@ -143,13 +155,13 @@ enum MenuTile
     TILE_MENU_BAR_END_RIGHT,
     TILE_MENU_HEART,
     TILE_MENU_INSPECT_OFF,
-    TILE_MENU_ACTIONS_OFF,
+    TILE_MENU_SKILLS_OFF,
     TILE_MENU_INVENTORY_OFF,
     TILE_MENU_LOGBOOK_OFF,
     TILE_MENU_MINIMAP_OFF,
     TILE_MENU_SETTINGS_OFF,
     TILE_MENU_INSPECT_ON,
-    TILE_MENU_ACTIONS_ON,
+    TILE_MENU_SKILLS_ON,
     TILE_MENU_INVENTORY_ON,
     TILE_MENU_LOGBOOK_ON,
     TILE_MENU_MINIMAP_ON,
@@ -176,6 +188,7 @@ extern GdkPixbuf *borderTiles[TILE_BORDER_COUNT];
 extern GdkPixbuf *colorFillTiles[COLOR_COUNT_ALL];
 extern GdkPixbuf *menuTiles[TILE_MENU_COUNT];
 extern GdkPixbuf *miniMapTiles[TILE_MINIMAP_COUNT];
+extern GdkPixbuf *skillTiles[TILE_SKILL_COUNT];
 extern GdkPixbuf *terrainDarkTiles[TILE_TERRAIN_COUNT];
 extern GdkPixbuf *terrainLightTiles[TILE_TERRAIN_COUNT];
 
@@ -199,6 +212,9 @@ GdkPixbuf* GetTileForMiniMap(Point *position);
 void LoadTerrainTiles(void);
 void FreeTerrainTiles(void);
 GdkPixbuf* GetTileForTerrain(Point *position);
+void LoadSkillTiles(void);
+void FreeSkillTiles(void);
+GdkPixbuf* GetTileForSkill(Skill skill);
 void LoadMenuTiles(void);
 void FreeMenuTiles(void);
 GdkPixbuf* GetTileForMenuState(MenuState state);
