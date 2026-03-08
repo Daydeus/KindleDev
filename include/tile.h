@@ -12,7 +12,9 @@
 
 #define TILE_SIZE_8  8
 #define TILE_SIZE_16 16
+#define TILE_SIZE_24 24
 #define TILE_SIZE_32 32
+#define TILE_SIZE_48 48
 #define TILE_SIZE_64 64
 
 #define TILESET_WIDTH 8
@@ -20,7 +22,7 @@
 #define TILE_SIZE_BORDER  (TILE_SIZE_16 * KINDLE_SCALE)
 #define TILE_SIZE_MB      (TILE_SIZE_32 * KINDLE_SCALE)
 #define TILE_SIZE_MINIMAP (TILE_SIZE_8  * KINDLE_SCALE)
-#define TILE_SIZE_VP      (TILE_SIZE_32 * KINDLE_SCALE)
+#define TILE_SIZE_VP      (TILE_SIZE_24 * KINDLE_SCALE)
 
 // ------------------------------------------------------------------------------------------------
 // Data Types

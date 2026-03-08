@@ -9,8 +9,8 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#define VIEWPORT_WIDTH  (608 * KINDLE_SCALE)
-#define VIEWPORT_HEIGHT (416 * KINDLE_SCALE)
+#define VIEWPORT_WIDTH  (624 * KINDLE_SCALE)
+#define VIEWPORT_HEIGHT (384 * KINDLE_SCALE)
 
 // ------------------------------------------------------------------------------------------------
 // Data Types

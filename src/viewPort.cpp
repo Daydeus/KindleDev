@@ -125,6 +125,12 @@ static void DrawDungeon(cairo_t *context)
             // The pixel position within the viewPort to be changed.
             Point pixel = {x * TILE_SIZE_VP, y * TILE_SIZE_VP};
 
+            // Offset pixel position by half a tile if viewPort dimension is even to keep player centered.
+            if (IsValueEven(VIEWPORT_WIDTH / TILE_SIZE_VP))
+                pixel.x -= TILE_SIZE_VP / 2;
+            if (IsValueEven(VIEWPORT_HEIGHT / TILE_SIZE_VP))
+                pixel.y -= TILE_SIZE_VP / 2;
+
             // The dungeon cell to be drawn in the viewPort.
             Point cell = {viewPosition->x + x, viewPosition->y + y};
 
@@ -246,6 +252,14 @@ static void DoViewPortInput(Point *inputPos)
     Point tappedTile = {inputPos->x / TILE_SIZE_VP, inputPos->y / TILE_SIZE_VP};
     Point tappedCell = {0};
     Point *selectedCell = GetSelectedCell();
+
+    // When the viewPort's dimension measured in tiles is even, the tiles are drawn offset by half
+    // a tile to keep the player centered on-screen. This must be taken into account when
+    // determining which tile was tapped.
+    if (IsValueEven(VIEWPORT_WIDTH / TILE_SIZE_VP))
+        tappedTile.x = (inputPos->x + TILE_SIZE_VP / 2) / TILE_SIZE_VP;
+    if (IsValueEven(VIEWPORT_HEIGHT / TILE_SIZE_VP))
+        tappedTile.y = (inputPos->y + TILE_SIZE_VP / 2) / TILE_SIZE_VP;
 
     // Get the dungeonCell of the clicked tile.
     tappedCell.x = viewPosition.x + tappedTile.x;

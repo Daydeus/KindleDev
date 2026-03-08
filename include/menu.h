@@ -9,8 +9,8 @@
 // Project Defines
 // ------------------------------------------------------------------------------------------------
 
-#define MENU_WIDTH   (608 * KINDLE_SCALE)
-#define MENU_HEIGHT  (368 * KINDLE_SCALE)
+#define MENU_WIDTH   (624 * KINDLE_SCALE)
+#define MENU_HEIGHT  (400 * KINDLE_SCALE)
 
 // ------------------------------------------------------------------------------------------------
 // Data Types
