@@ -18,11 +18,11 @@
 // Data Types
 // ------------------------------------------------------------------------------------------------
 
-enum CharacterUI
+enum ActionsUI
 {
-    MB_CHARACTER_TERRAIN_FLIP_BTTN,
-    MB_CHARACTER_TERRAIN_FLIP_TEXT,
-    MB_CHARACTER_COUNT
+    MB_ACTIONS_TERRAIN_FLIP_BTTN,
+    MB_ACTIONS_TERRAIN_FLIP_TEXT,
+    MB_ACTIONS_COUNT
 };
 
 enum SettingsUI
@@ -46,15 +46,15 @@ struct MenuLayout
 // Global Variables
 // ------------------------------------------------------------------------------------------------
 
-extern MenuLayout characterItems[MB_CHARACTER_COUNT];
+extern MenuLayout characterItems[MB_ACTIONS_COUNT];
 extern MenuLayout settingsItems[MB_SETTINGS_COUNT];
 
 // ------------------------------------------------------------------------------------------------
 // Function Declarations
 // ------------------------------------------------------------------------------------------------
 
-MenuLayout* GetCharacterLayoutItem(CharacterUI item);
-const char* GetCharacterLayoutText(CharacterUI item);
+MenuLayout* GetActionsLayoutItem(ActionsUI item);
+const char* GetActionsLayoutText(ActionsUI item);
 MenuLayout* GetSettingsLayoutItem(SettingsUI item);
 const char* GetSettingsLayoutText(SettingsUI item);
 

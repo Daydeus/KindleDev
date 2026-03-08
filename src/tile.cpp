@@ -484,11 +484,11 @@ GdkPixbuf* GetTileForMenuState(MenuState state)
             return menuTiles[TILE_MENU_INSPECT_ON];
         else
             return menuTiles[TILE_MENU_INSPECT_OFF];
-    case STATE_CHARACTER:
-        if (currentState == STATE_CHARACTER)
-            return menuTiles[TILE_MENU_CHARACTER_ON];
+    case STATE_ACTIONS:
+        if (currentState == STATE_ACTIONS)
+            return menuTiles[TILE_MENU_ACTIONS_ON];
         else
-            return menuTiles[TILE_MENU_CHARACTER_OFF];
+            return menuTiles[TILE_MENU_ACTIONS_OFF];
     case STATE_INVENTORY:
         if (currentState == STATE_INVENTORY)
             return menuTiles[TILE_MENU_INVENTORY_ON];
@@ -516,11 +516,11 @@ GdkPixbuf* GetTileForMenuState(MenuState state)
 
 // ------------------------------------------------------------------------------------------------
 // Returns the GdkPixbuf from the menuTiles array based on the given UI item.
-GdkPixbuf* GetTileForMenuCharacter(CharacterUI item)
+GdkPixbuf* GetTileForMenuActions(ActionsUI item)
 {
     switch (item)
     {
-    case MB_CHARACTER_TERRAIN_FLIP_BTTN:
+    case MB_ACTIONS_TERRAIN_FLIP_BTTN:
         return menuTiles[TILE_MENU_REFRESH];
     default:
         return terrainLightTiles[TILE_TERRAIN_EDGE];

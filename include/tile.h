@@ -143,13 +143,13 @@ enum MenuTile
     TILE_MENU_BAR_END_RIGHT,
     TILE_MENU_HEART,
     TILE_MENU_INSPECT_OFF,
-    TILE_MENU_CHARACTER_OFF,
+    TILE_MENU_ACTIONS_OFF,
     TILE_MENU_INVENTORY_OFF,
     TILE_MENU_LOGBOOK_OFF,
     TILE_MENU_MINIMAP_OFF,
     TILE_MENU_SETTINGS_OFF,
     TILE_MENU_INSPECT_ON,
-    TILE_MENU_CHARACTER_ON,
+    TILE_MENU_ACTIONS_ON,
     TILE_MENU_INVENTORY_ON,
     TILE_MENU_LOGBOOK_ON,
     TILE_MENU_MINIMAP_ON,
@@ -202,7 +202,7 @@ GdkPixbuf* GetTileForTerrain(Point *position);
 void LoadMenuTiles(void);
 void FreeMenuTiles(void);
 GdkPixbuf* GetTileForMenuState(MenuState state);
-GdkPixbuf* GetTileForMenuCharacter(CharacterUI item);
+GdkPixbuf* GetTileForMenuActions(ActionsUI item);
 GdkPixbuf* GetTileForMenuSettings(SettingsUI item);
 
 #endif // TILE_H

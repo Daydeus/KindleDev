@@ -44,11 +44,11 @@ MenuState menuState = STATE_SETTINGS;
 static void DrawMenuBorders(cairo_t *context);
 static void DrawMenuTabs(cairo_t *context);
 static void DrawPlayerHUD(cairo_t *context);
-static void DrawMenuStateCharacter(cairo_t *context);
+static void DrawMenuStateActions(cairo_t *context);
 static void DrawMenuStateMiniMap(cairo_t *context);
 static void DrawMenuStateSettings(cairo_t *context);
 static void DoMenuTabsClicked(Point* inputPos);
-static void DoMenuStateCharacterInput(Point *inputPos);
+static void DoMenuStateActionsInput(Point *inputPos);
 static void DoMenuStateMiniMapInput(Point *inputPos);
 static void DoMenuStateSettingsInput(Point *inputPos);
 static void DoMenuSettingsSkipClick(Point *inputPos);
@@ -229,8 +229,8 @@ static void DrawMenuTabs(cairo_t *context)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Draws the contents of the menu when menuState is set to STATE_CHARACTER.
-static void DrawMenuStateCharacter(cairo_t *context)
+// Draws the contents of the menu when menuState is set to STATE_ACTIONS.
+static void DrawMenuStateActions(cairo_t *context)
 {
     PangoLayout *layout = gtk_widget_create_pango_layout(GTK_WIDGET(menu), "");
 
@@ -241,19 +241,19 @@ static void DrawMenuStateCharacter(cairo_t *context)
     pango_layout_set_attributes(layout, attr_list);
 
     // Loop through each piece of the layout and draw/print as necessary.
-    for (guint i = 0; i < MB_CHARACTER_COUNT; i++)
+    for (guint i = 0; i < MB_ACTIONS_COUNT; i++)
     {
-        MenuLayout *menuItem = GetCharacterLayoutItem((CharacterUI)i);
+        MenuLayout *menuItem = GetActionsLayoutItem((ActionsUI)i);
 
         if (menuItem->isText)
         {
-            pango_layout_set_text(layout, GetCharacterLayoutText((CharacterUI)i), -1);
+            pango_layout_set_text(layout, GetActionsLayoutText((ActionsUI)i), -1);
             cairo_move_to(context, menuItem->layout.origin.x, menuItem->layout.origin.y);
             pango_cairo_show_layout(context, layout);
         }
         else
         {
-            gdk_cairo_set_source_pixbuf(context, GetTileForMenuCharacter((CharacterUI)i),
+            gdk_cairo_set_source_pixbuf(context, GetTileForMenuActions((ActionsUI)i),
                 menuItem->layout.origin.x, menuItem->layout.origin.y);
             cairo_paint(context);
         }
@@ -333,8 +333,8 @@ gboolean on_menu_update(GtkWidget *widget, cairo_t *context, gpointer userData)
         {
         case STATE_INSPECT:
             break;
-        case STATE_CHARACTER:
-            DrawMenuStateCharacter(context);
+        case STATE_ACTIONS:
+            DrawMenuStateActions(context);
             break;
         case STATE_INVENTORY:
             break;
@@ -380,13 +380,13 @@ static void DoMenuTabsClicked(Point* inputPos)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Process input for the menu when in menuState STATE_CHARACTER.
-static void DoMenuStateCharacterInput(Point *inputPos)
+// Process input for the menu when in menuState STATE_ACTIONS.
+static void DoMenuStateActionsInput(Point *inputPos)
 {
     // Loop through every item in the layout for menuState character.
-    for (guint i = 0; i < MB_CHARACTER_COUNT; i++)
+    for (guint i = 0; i < MB_ACTIONS_COUNT; i++)
     {
-        MenuLayout *menuItem = GetCharacterLayoutItem((CharacterUI)i);
+        MenuLayout *menuItem = GetActionsLayoutItem((ActionsUI)i);
 
         // If the inputPos is within the rectangle of the current item being checked.
         if (IsWithinRectangle(inputPos, &menuItem->layout.origin, menuItem->layout.width,
@@ -394,7 +394,7 @@ static void DoMenuStateCharacterInput(Point *inputPos)
         {
             switch (i)
             {
-            case MB_CHARACTER_TERRAIN_FLIP_BTTN:
+            case MB_ACTIONS_TERRAIN_FLIP_BTTN:
                 if (GetSelectedCellStatus() == STATUS_UNLOCKED)
                 {
                     SetActionForPlayer(ACTION_TERRAIN_FLIP);
@@ -509,8 +509,8 @@ gboolean on_menu_click(GtkWidget *widget, GdkEventButton *event, gpointer userDa
         {
         case STATE_INSPECT:
             break;
-        case STATE_CHARACTER:
-            DoMenuStateCharacterInput(&clicked);
+        case STATE_ACTIONS:
+            DoMenuStateActionsInput(&clicked);
             break;
         case STATE_INVENTORY:
             break;
