@@ -74,12 +74,7 @@ int main(int argc, char *argv[])
     gtk_main();
 
     // Exiting program.
-    FreeActorTiles();
-    FreeBorderTiles();
-    FreeColorFillTiles();
-    FreeTerrainTiles();
-    FreeMenuTiles();
-    FreeMiniMapTiles();
+    FreeAllTiles();
 
     return 0;
 }

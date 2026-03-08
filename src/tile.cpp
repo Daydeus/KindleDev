@@ -546,3 +546,15 @@ GdkPixbuf* GetTileForMenuSettings(SettingsUI item)
         return terrainLightTiles[TILE_TERRAIN_EDGE];
     }
 }
+
+// ------------------------------------------------------------------------------------------------
+// Free the GdkPixbufs for all tile arrays.
+void FreeAllTiles(void)
+{
+    FreeActorTiles();
+    FreeBorderTiles();
+    FreeColorFillTiles();
+    FreeTerrainTiles();
+    FreeMenuTiles();
+    FreeMiniMapTiles();
+}

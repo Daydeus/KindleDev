@@ -204,5 +204,6 @@ void FreeMenuTiles(void);
 GdkPixbuf* GetTileForMenuState(MenuState state);
 GdkPixbuf* GetTileForMenuActions(ActionsUI item);
 GdkPixbuf* GetTileForMenuSettings(SettingsUI item);
+void FreeAllTiles(void);
 
 #endif // TILE_H
